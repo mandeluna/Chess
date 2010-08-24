@@ -67,8 +67,8 @@
     
     if (![sorter sorts:di before:dj]) {
         // swap in collection and in our copy of the elements
-        [collection insertObject:dj atIndex:i];
-        [collection insertObject:di atIndex:j];
+        [collection replaceObjectAtIndex:i withObject:dj];
+        [collection replaceObjectAtIndex:j withObject:di];
         tt = di; di = dj; dj = tt;
     }
 
@@ -77,13 +77,13 @@
         dij = [collection objectAtIndex:ij];  // sort di, dij, dj. Make dij be their median
         if ([sorter sorts:di before:dij]) {     // i.e. should di precede dij?
             if (![sorter sorts:dij before:dj]) {    // i.e. should dij preced dj?
-                [collection insertObject:dj atIndex:ij];
-                [collection insertObject:dij atIndex:j];
+                [collection replaceObjectAtIndex:ij withObject:dj];
+                [collection replaceObjectAtIndex:j withObject:dij];
                 dij = dj;
             }
         } else {    // i.e. di should come after dij
-            [collection insertObject:di atIndex:ij];
-            [collection insertObject:dij atIndex:i];
+            [collection replaceObjectAtIndex:ij withObject:di];
+            [collection replaceObjectAtIndex:i withObject:dij];
             dij = di;
         }
     }
@@ -108,8 +108,8 @@
             while((k <= l) && [sorter sorts:dk before:dij]);
             
             if (k <= l) {
-                [collection insertObject:dk atIndex:l];
-                [collection insertObject:dl atIndex:k];
+                [collection replaceObjectAtIndex:l withObject:dk];
+                [collection replaceObjectAtIndex:k withObject:dl];
             }
         }
         while (k <= l);
