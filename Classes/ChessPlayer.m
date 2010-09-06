@@ -11,6 +11,7 @@
 #import "ChessBoard.h"
 #import "ChessMove.h"
 #import "ChessMoveGenerator.h"
+#import "ChessMoveList.h"
 
 @implementation ChessPlayer
 @synthesize opponent, board, numPawns, enpassantSquare, castlingRookSquare, castlingStatus, positionalValue, materialValue;
@@ -351,7 +352,10 @@
     ChessBoard *copy = [board copy];
     [copy nextMove:move];
     
-    return (nil != [[copy activePlayer] findPossibleMoves]);
+    NSArray *possibleMoves = [[copy activePlayer] findPossibleMoves];
+    [copy release];
+    
+    return (nil != possibleMoves);
 }
 
 -(BOOL)isValidMoveFrom:(int)sourceSquare to:(int)destSquare {
@@ -438,12 +442,12 @@
 //
 -(NSArray *)findPossibleMoves {
     
-    NSArray *moveList = [board.generator findPossibleMovesFor:self];
+    ChessMoveList *moveList = [board.generator findPossibleMovesFor:self];
 
     if (nil == moveList)
         return nil;
     
-    NSArray *moves = [[NSArray alloc] initWithArray:moveList copyItems:YES];
+    NSArray *moves = [moveList copyContents];
     [board.generator recycleMoveList:moveList];
     
     return [moves autorelease];
@@ -457,14 +461,14 @@
 //
 -(NSArray *)findPossibleMovesAt:(int)square {
     
-    NSArray *moveList = [board.generator findPossibleMovesFor:self at:square];
+    ChessMoveList *moveList = [board.generator findPossibleMovesFor:self at:square];
     
     if (nil == moveList)
         return nil;
     
-    NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
+    NSMutableArray *moves = [NSMutableArray array];
     
-    for (ChessMove *move in moveList) {
+    for (ChessMove *move in [moveList contentsNoCopy]) {
         [moves addObject:[move copy]];
     }
     
@@ -488,7 +492,7 @@
     
     NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
     
-    for (ChessMove *move in moveList) {
+    for (ChessMove *move in [moveList contentsNoCopy]) {
         [moves addObject:[move copy]];
     }
     
@@ -529,7 +533,9 @@
     
     for (ChessMove *move in moveList) {
         if ([self isValidMove:move]) {
-            [moves addObject:[move copy]];
+            ChessMove *copy = [move copy];
+            [moves addObject:copy];
+            [copy release];
         }
     }
     

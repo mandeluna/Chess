@@ -7,13 +7,71 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ChessConstants.h"
+
+#define VARIATIONS_SIZE  11
 
 @class ChessBoard;
+@class ChessPlayer;
+@class ChessMove;
+@class ChessHistoryTable;
+@class ChessTranspositionTable;
+@class ChessMoveGenerator;
 
 @interface ChessPlayerAI : NSObject {
-
+    
+    ChessBoard *board;
+    NSArray *boardList;
+    int boardListIndex;
+    ChessPlayer *player;
+    ChessHistoryTable *historyTable;
+    ChessTranspositionTable *transTable;
+    ChessMoveGenerator *generator;
+    int variations[VARIATIONS_SIZE][VARIATIONS_SIZE];
+    int activeVariation[VARIATIONS_SIZE];
+    int bestVariation[VARIATIONS_SIZE];
+    int nodesVisited;
+    int ttHits;
+    int stamp;
+    int alphaBetaCuts;
+    long startTime;
+    int ply;
+    ChessMove *myMove;
+    NSThread *myThread;
+    BOOL stopThinking;
 }
 
+@property(nonatomic, assign) ChessPlayer *player;
+@property(nonatomic, assign) ChessBoard *board;
+@property(nonatomic, assign) ChessMoveGenerator *generator;
+
+// initialize
+
+-(void)setActivePlayer:(ChessPlayer *)player;
+-(void)reset;
 -(void)reset:(ChessBoard *)board;
+
+// searching
+
+-(void)copyVariation:(ChessMove *)move;
+-(ChessMove *)mtdfSearch:(ChessBoard *)theBoard score:(int)estimate depth:(int)depth;
+-(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
+-(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
+-(int)quiesce:(ChessBoard *)theBoard alpha:(int)initialAlpha beta:(int)initialBeta;
+-(int)search:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
+-(ChessMove *)searchMove:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
+
+// thinking
+
+-(BOOL)isThinking;
+-(void)startThinking;
+-(ChessMove *)think;
+-(void)thinkThread;
+-(ChessMove *)thinkStep;
+-(long)timeToThink;
+
+// accessing
+
+-(NSString *)statusString;
 
 @end

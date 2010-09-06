@@ -19,7 +19,7 @@
 
 // initialize
 -(void)atAllPut:(int)wordValue {
-    memset_pattern4(entries, (void *)wordValue, sizeof(int) * HISTORY_TABLE_SIZE);
+    memset_pattern4(entries, &wordValue, sizeof(int) * HISTORY_TABLE_SIZE);
 }
 
 -(void)clear {

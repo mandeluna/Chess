@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ChessConstants.h"
 
 @class ChessPlayer;
 @class ChessMove;
@@ -59,8 +60,8 @@
 -(BOOL)canCastleBlackQueenSide;
 -(BOOL)canCastleWhiteKingSide;
 -(BOOL)canCastleWhiteQueenSide;
--(BOOL)checkAttack:(int *)squares fromPieces:(int *)pieces;
--(BOOL)checkUnprotectedAttack:(int *)squares fromPieces:(int *)pieces;
+-(BOOL)checkAttack:(moveValueList *)squares fromPieces:(int *)pieces;
+-(BOOL)checkUnprotectedAttack:(moveValueList *)squares fromPiece:(int)piece;
 
 // moves-general
 
@@ -69,7 +70,7 @@
 -(void)moveKingAt:(int)square;
 -(void)moveKnightAt:(int)square;
 -(void)movePawnAt:(int)square;
--(void)movePiece:(int)piece along:(NSArray *)rayList at:(int)square;
+-(void)movePiece:(int)piece along:(moveValueList *)rayList at:(int)square;
 -(void)moveQueenAt:(int)square;
 -(void)moveRookAt:(int)square;
 -(void)moveWhiteKingAt:(int)square;

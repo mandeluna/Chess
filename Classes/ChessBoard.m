@@ -10,6 +10,8 @@
 #import "ChessMoveGenerator.h"
 #import "ChessPlayerAI.h"
 #import "ChessPlayer.h"
+#import "ChessMove.h"
+#import "ChessUserAgent.h"
 
 #pragma mark Initialize
 
@@ -84,13 +86,23 @@ static int HashLocks[12][64];
 
 #pragma mark Copying
 
--(void)copyBoard:(ChessBoard *)aBoard {
+-(ChessBoard *)copyBoard:(ChessBoard *)aBoard {
     [whitePlayer copyPlayer:aBoard.whitePlayer];
     [blackPlayer copyPlayer:aBoard.blackPlayer];
     activePlayer = [aBoard.activePlayer isWhitePlayer] ? whitePlayer : blackPlayer;
     hashKey = [aBoard hashKey];
     hashLock = [aBoard hashLock];
     userAgent = nil;
+    
+    return self;
+}
+
+-(id)copyWithZone:(NSZone *)zone {
+
+    // shallow copy
+    id copy = NSCopyObject(self, 0, zone);
+    
+    return copy;
 }
 
 #pragma mark Hashing
@@ -113,18 +125,48 @@ static int HashLocks[12][64];
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare {
     
+    if ([searchAgent isThinking]) {
+        return;
+    }
+    
+    NSArray *moves = [activePlayer findPossibleMovesAt:sourceSquare];
+    
+    for (ChessMove *move in moves) {
+        if (destSquare == [move destinationSquare]) {
+            [self nextMove:move];
+            break;
+        }
+    }
+    
+    [searchAgent setActivePlayer: activePlayer];
 }
 
 -(void)nextMove:(ChessMove *)aMove {
     
+    [activePlayer applyMove:aMove];
+    
+    if (userAgent) {
+        [userAgent completedMove:aMove white:activePlayer.isWhitePlayer];
+    }
+    
+    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
+    [activePlayer prepareNextMove];
 }
 
 -(void)nullMove {
     
+    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
+    [activePlayer prepareNextMove];
 }
 
--(void)undoMove {
+-(void)undoMove:(ChessMove *)aMove {
     
+    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
+    [activePlayer undoMove:aMove];
+    
+    if (userAgent) {
+        [userAgent undoMove:aMove white:activePlayer.isWhitePlayer];
+    }
 }
 
 #pragma mark Printing

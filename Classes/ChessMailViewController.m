@@ -12,30 +12,135 @@
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
 #import "ChessPieceLayer.h"
+#import "SquareLayer.h"
 #import "ChessConstants.h"
+#import "ChessPlayerAI.h"
+#import "ChessMove.h"
+#import "ChessMoveList.h"
 
 @interface ChessMailViewController(Private)
 - (float)boardWidth;
 - (float)cellWidth;
 - (float)playerWidth;
-- (CGPoint)boardIndexForLayerLocation:(CGPoint)screenLoc;
+- (int)squareIndexForLayerLocation:(CGPoint)screenLoc;
 - (CGPoint)centerPointOfCellForBoardIndex:(CGPoint)boardPoint;
 @end
 
 @implementation ChessMailViewController
-@synthesize playerLayers, history, redoList;
+@synthesize history, redoList, board;
 
-#pragma mark Actions
+#pragma mark initialize
 
--(void)newGame {
+#define NUM_ROWS 10
+#define NUM_COLS 10
+
+static char cellChars[NUM_COLS][NUM_ROWS] = {
+    {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '},
+    {'1', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
+    {'2', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
+    {'3', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
+    {'4', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
+    {'5', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
+    {'6', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
+    {'7', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
+    {'8', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
+    {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '}
+};
+
+-(void)addSquares {
     
-    if (!board) {
-        board = [[ChessBoard alloc] init];
+    CGColorRef white = [UIColor whiteColor].CGColor;
+    CGColorRef black = [UIColor lightGrayColor].CGColor;
+    
+    squares = [NSMutableArray arrayWithCapacity:64];
+    [squares retain];
+    
+    int index = 0;
+    
+    for (int i=0; i<NUM_ROWS; i++) {
+        for (int j=0; j<NUM_COLS; j++) {
+            
+            char sq = cellChars[j][i];
+            
+            SquareLayer *square = [self newSquare];
+            CGFloat w = [self cellWidth];
+            square.bounds = CGRectMake(0, 0, w, w);
+            
+            if ((sq == 'W') || (sq == 'B')) {
+                
+                square.backgroundColor = ('W' == sq) ? white : black;
+                square.borderColor = [UIColor redColor].CGColor;
+                
+                square.squarePosition = index;
+                [squares addObject:square];
+                square.name = [NSString stringWithFormat:@"%c%c",'a' + (index & 7), '1' + (index >> 3)];
+                float x = index % 8;
+                float y = index / 8;
+                CGPoint loc = [self centerPointOfCellForBoardIndex:(CGPointMake(x, y))];
+                square.position = loc;
+                // NSLog(@"adding square %d named %@ at position (%3.1f, %3.1f)", index, square.name, loc.x, loc.y);
+                index++;
+
+                
+                // TODO: add delegate to square layer for dragging and dropping
+            }
+            else {  // decoration
+                
+                square.backgroundColor = [UIColor clearColor].CGColor;
+                
+                if (sq != ' ') {
+                    
+                    CATextLayer *label = [CATextLayer layer];
+                    label.string = [NSString stringWithFormat:@"%c", sq];
+                    label.bounds = square.bounds;
+                    [square addSublayer:label];
+                }
+            }
+            
+            square.zPosition = -1;
+            [boardLayer addSublayer:square];
+        }
     }
-    board.userAgent = self;
-    [board initializeNewBoard];
-    self.history = [NSMutableArray array];
-    self.redoList = [NSMutableArray array];
+}
+
+static NSString *imageNames[12] = {
+    @"whitePawnImage.png",
+    @"whiteKnightImage.png",
+    @"whiteBishopImage.png",
+    @"whiteRookImage.png",
+    @"whiteQueenImage.png",
+    @"whiteKingImage.png",
+    
+    @"blackPawnImage.png",
+    @"blackKnightImage.png",
+    @"blackBishopImage.png",
+    @"blackRookImage.png",
+    @"blackQueenImage.png",
+    @"blackKingImage.png"    
+};
+
+-(ChessPieceLayer *)newPiece:(int)piece white:(BOOL)isWhite {
+    
+    int index = isWhite ? piece - 1 : piece + 5;
+    
+    ChessPieceLayer *m = [[ChessPieceLayer alloc] init];
+    UIImage *image = [UIImage imageNamed:(imageNames[index])];
+    m.contents = (id)image.CGImage;
+    m.isWhite = isWhite;
+    m.piece = piece;
+    CGFloat w = [self cellWidth];
+    m.bounds = CGRectMake(0,0, w, w);
+    m.shadowColor = [UIColor blackColor].CGColor;
+    
+    [boardLayer addSublayer:m];
+    
+    return m;
+}
+
+-(SquareLayer *)newSquare {
+    
+    SquareLayer *newSquare = [SquareLayer layer];
+    return newSquare;
 }
 
 #pragma mark ChessUserAgent protocol
@@ -46,43 +151,305 @@
     [CATransaction begin];
     [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
     
+    /*
     for (ChessPieceLayer *playerLayer in [playerLayers allValues]) {
         if (playerLayer.superlayer) {
             [playerLayer removeFromSuperlayer];
         }
     }
+    */
+    
+    for (SquareLayer *square in squares) {
+        square.pieceLayer = nil;
+        square.borderWidth = 0;
+    }
     
     [CATransaction commit];
 }
+
+-(void)addedPiece:(int)piece at:(int)square white:(BOOL)isWhite {
+    
+    ChessPieceLayer *m = [self newPiece:piece white:isWhite];
+    m.chessBoard = self;
+    SquareLayer *s = [squares objectAtIndex:square];
+    m.position = s.position;
+    s.pieceLayer = m;
+}
+
+-(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
+    
+    if (!board)
+        return;
+    
+    [history addObject:move];
+    [self validateGamePosition];
+}
+
+-(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
+    
+    SquareLayer *sourceSquareLayer = [squares objectAtIndex:sourceSquare];
+    ChessPieceLayer *sourceLayer = sourceSquareLayer.pieceLayer;
+    SquareLayer *destSquareLayer = [squares objectAtIndex:destSquare];
+    
+    sourceLayer.position = destSquareLayer.position;
+    destSquareLayer.pieceLayer = sourceLayer;
+}
+
+-(void)removedPiece:(int)piece at:(int)square {
+    
+    SquareLayer *squareLayer = [squares objectAtIndex:square];
+    squareLayer.pieceLayer = nil;
+}
+
+-(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer {
+    
+    [self removedPiece:oldPiece at:square];
+    [self addedPiece:newPiece at:square white:isWhitePlayer];
+}
+
+//
+// result == 0   : white lost
+// result == 0.5 : draw
+// result == 1   : white won
+//
+-(void)finishedGame:(BOOL)result {
+    
+    self.board = nil;
+}
+
+-(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer {
+    
+    if (!board)
+        return;
+    
+    [redoList addObject:move];
+    [self validateGamePosition];
+}
+
+//
+// this method does nothing but validate what you see (on the screen) is what you get (from the board)
+//
+-(void)validateGamePosition {
+    
+    for (int i=0; i<63; i++) {
+        
+        int piece = 0;
+        NSNumber *isWhite = nil;
+        
+        SquareLayer *square = [squares objectAtIndex:i];
+        
+        if (square.pieceLayer) {
+            
+            piece = square.squarePosition;
+            isWhite = [NSNumber numberWithBool:square.pieceLayer.isWhite];
+        }
+        
+        int p = [board.whitePlayer pieceAt:i];
+        
+        if ([board.whitePlayer castlingRookSquare] == i) {
+            p = kRook;
+        }
+        
+        if (isWhite && (YES == [isWhite boolValue])) {
+            if (p != piece) {
+                NSLog(@"white broken: user agent piece (%d) does not match game model piece (%d)", piece, p);
+                return;
+            }
+        }
+        else if (!p) {
+            NSLog(@"white broken: game model does not have piece at (%d)", i);
+            return;
+        }
+        
+        p = [board.blackPlayer pieceAt:i];
+        
+        if ([board.blackPlayer castlingRookSquare] == i) {
+            p = kRook;
+        }
+        
+        if (isWhite && (NO == [isWhite boolValue])) {
+            if (p != piece) {
+                NSLog(@"black broken: user agent piece (%d) does not match game model piece (%d)", piece, p);
+                return;
+            }
+            else if (!p) {
+                NSLog(@"black broken: game model does not have piece at (%d)", i);
+                return;
+            }
+        }
+    }
+}
+
+#pragma mark playing
+
+-(IBAction)autoPlay {
+    
+    autoPlay = !autoPlay;
+    if (autoPlay) {
+        [self thinkAndMove];
+    }
+}
+
+//
+// hint
+//
+-(IBAction)findBestMove {
+    
+    if ([board.searchAgent isThinking]) {
+        return;
+    }
+    
+    ChessMove *move = [board.searchAgent think];
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Suggested move"
+                                                    message:[move description]
+                                                   delegate:nil
+                                          cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [alert show];
+    [alert release];
+}
+
+-(IBAction)newGame {
+    
+    if (!board) {
+        ChessBoard *newBoard = [[ChessBoard alloc] init];
+        self.board = newBoard;
+        [newBoard release];
+    }
+    board.userAgent = self;
+    [board initializeNewBoard];
+    self.history = [NSMutableArray array];
+    self.redoList = [NSMutableArray array];
+}
+
+
+-(void)movePieceFrom:(int)sourceSquare to:(int)destSquare {
+    
+    if (!board)
+        return;
+    
+    if ([board.searchAgent isThinking])
+        return;
+    
+    [board movePieceFrom:sourceSquare to:destSquare];
+    [board.searchAgent startThinking];
+}
+
+//
+// redo the last undone move
+//
+-(IBAction)redoMove {
+    
+    if (0 == [redoList count])
+        return;
+    
+    ChessMove *move = [redoList lastObject];
+    [redoList removeLastObject];
+    
+    [board nextMove:move];
+}
+
+//
+// play
+//
+-(IBAction)thinkAndMove {
+    
+    if ([board.searchAgent isThinking])
+        return;
+    
+    [board.searchAgent startThinking];
+    
+}  
+
+//
+// undo the last move
+//
+-(IBAction)undoMove {
+    
+    if (!board)
+        return;
+    
+    if (0 == [history count])
+        return;
+    
+    ChessMove *move = [history lastObject];
+    [history removeLastObject];
+    
+    [board undoMove:move];
+}
+
 
 #pragma mark Private
 
 - (void)selectPlayer:(ChessPieceLayer *)playerLayer {
     if (selectedPlayer)
     {
-        selectedPlayer.shadowColor = [UIColor blackColor].CGColor;
-        [selectedPlayer needsDisplay];
+        selectedPlayer.shadowOpacity = 0.0;
         selectedPlayer.zPosition -= 1;
+        [selectedPlayer needsDisplay];
     }
     selectedPlayer = playerLayer;
     
     if (selectedPlayer)
     {
-        selectedPlayer.shadowColor = [UIColor whiteColor].CGColor;
-        [selectedPlayer needsDisplay];
+        selectedPlayer.shadowOpacity = 1.0;
         selectedPlayer.zPosition += 1;
+        [selectedPlayer needsDisplay];
     }
 }
 
 - (ChessPieceLayer *)playerLayerAtTouchPoint:(CGPoint)touchPoint {
     
-    for (ChessPieceLayer *candidate in [playerLayers allValues]) {
+    for (SquareLayer *squareLayer in squares) {
+        
+        ChessPieceLayer *candidate = squareLayer.pieceLayer;
+        
         if ((candidate != selectedPlayer) && [candidate hitTest:touchPoint]) {
             return candidate;
         }
     }
     return nil;
 }
+
+#pragma mark user feedback
+
+-(void)showMovesAt:(int)square {
+    
+    if (!board)
+        return;
+    
+    if ([board.searchAgent isThinking])
+        return;
+    
+    for (int i=0; i<63; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        squareLayer.borderWidth = 0;
+    }
+    
+    NSArray *list = [board.activePlayer findValidMovesAt:square];
+    
+    if (0 == [list count])
+        return;
+    
+    SquareLayer *thisLayer = [squares objectAtIndex:square];
+    thisLayer.borderWidth = 1.0;
+    
+    for (ChessMove *move in list) {
+        SquareLayer *destLayer = [squares objectAtIndex:move.destinationSquare];
+        destLayer.borderWidth = 1.0;
+    }
+}
+
+-(void)showMovesFrom:(SquareLayer *)squareLayer {
+    
+    [self showMovesAt:squareLayer.squarePosition];
+}
+
+-(void)enteredSquare:(SquareLayer *)squareLayer {
+    // TODO: wantsDroppedMorph
+}
+
+#pragma mark UITouch events
 
 //
 // only support single touch for now
@@ -96,13 +463,13 @@
     // 1. de-select selected piece, if any
     [self selectPlayer:nil];
     
-    // TODO: check if event over a player's own piece
-    
     CGPoint touchPoint = [theTouch locationInView:theTouch.view];
     touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
-    boardIndexForSelectedPlayer = [self boardIndexForLayerLocation:touchPoint];
-    ChessPieceLayer *candidate = [self playerLayerAtTouchPoint:touchPoint];
+    selectionIndex = [self squareIndexForLayerLocation:touchPoint];
+    SquareLayer *squareLayer = [squares objectAtIndex:selectionIndex];
+    ChessPieceLayer *candidate = squareLayer.pieceLayer;
     [self selectPlayer:candidate];
+    [self showMovesFrom:squareLayer];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -120,14 +487,12 @@
         [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
         selectedPlayer.position = touchPoint;
         [CATransaction commit];
+        
+        int squareIndex = [self squareIndexForLayerLocation:touchPoint];
+        SquareLayer *squareBelow = [squares objectAtIndex:squareIndex];
+        
+        [self enteredSquare:squareBelow];
     }
-    // 1. move selected piece to current touch position
-    // 2. is current touch position a valid move destination?
-    // 2a. yes -> is move destination already highlighted?
-    // 2ai. yes -> ignore
-    // 2aii. no -> highlight move destination
-    // 2b. no -> clear any selected move destination
-    
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -140,7 +505,7 @@
         CGPoint touchPoint = [theTouch locationInView:theTouch.view];
         touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
         
-        CGPoint boardIndex = [self boardIndexForLayerLocation:touchPoint];
+        int destIndex = [self squareIndexForLayerLocation:touchPoint];
         
         BOOL moveIsValid = YES;
         
@@ -150,12 +515,12 @@
         // if the move is not valid, animate the piece back to its original position
         if (!moveIsValid)
         {
-            boardIndex = boardIndexForSelectedPlayer;
-            NSLog(@"invalid move: returning player to (%3.0f, %3.0f)", boardIndex.x, boardIndex.y);
+            destIndex = selectionIndex;
+            NSLog(@"invalid move: returning player to %d", destIndex);
         }
         // animate the player to the center point of the destination cell
-        CGPoint centerPoint = [self centerPointOfCellForBoardIndex:boardIndex];
-        selectedPlayer.position = centerPoint;
+        SquareLayer *destinationCell = [squares objectAtIndex:destIndex];
+        selectedPlayer.position = destinationCell.position;
         
         // clear the selection
         [self selectPlayer:nil];
@@ -170,7 +535,7 @@
 
 // set the bounds to fit the screen (some percentage of the minimum boundary)
 - (float)boardWidth {
-    return 0.85 * fmin(self.view.bounds.size.width, self.view.bounds.size.height);
+    return 0.85 * fmin(self.view.frame.size.width, self.view.frame.size.height);
 }
 
 - (float)cellWidth {
@@ -196,7 +561,7 @@
     boardLayer.bounds = bounds;
     
     // position the board in the center of the screen
-    [boardLayer setPosition:(CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height/2))];
+    [boardLayer setPosition:(CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2))];
     [self.view.layer addSublayer:boardLayer];    
 }
 
@@ -228,36 +593,36 @@
 
 //
 // Convert the board layer coordinates to a 0-origin index in board coordinates
-// board coordinates are i,j in [0-7, 0-7]
+// board coordinates are [0..63]
 //
-- (CGPoint)boardIndexForLayerLocation:(CGPoint)screenLoc {
+- (int)squareIndexForLayerLocation:(CGPoint)screenLoc {
     
     float i = 0;
     float j = 0;
     
-    if (screenLoc.x > boardLayer.bounds.size.width) {
+    if (screenLoc.x > boardLayer.frame.size.width) {
         i = BOARD_GRID_COUNT - 1;        
     }
     else if (screenLoc.x <= 0) {
         i = 0;
     }
     else {
-        i = trunc((screenLoc.x / boardLayer.bounds.size.width) * BOARD_GRID_COUNT);
+        i = trunc((screenLoc.x / boardLayer.frame.size.width) * BOARD_GRID_COUNT);
     }
     
-    if (screenLoc.y > boardLayer.bounds.size.height) {
+    if (screenLoc.y > boardLayer.frame.size.height) {
         j = BOARD_GRID_COUNT - 1;        
     }
     else if (screenLoc.y <= 0) {
         j = 0;
     }
     else {
-        j = trunc((screenLoc.y / boardLayer.bounds.size.height) * BOARD_GRID_COUNT);
+        j = trunc((screenLoc.y / boardLayer.frame.size.height) * BOARD_GRID_COUNT);
     }
     
-    CGPoint result = CGPointMake(i, j);
+    int result = j * BOARD_GRID_COUNT + i;
     
-    NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f)", screenLoc.x, screenLoc.y, i, j);
+    NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
     
     return result;
 }
@@ -299,7 +664,7 @@
 // Add the layers representing the players
 //
 - (void)addPlayerLayers {
-    
+    /*
     NSArray *plistArray = [self loadSavedPlayers];
     if (!plistArray) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Startup failed" message:@"Could not find saved game data"
@@ -332,12 +697,15 @@
     }
     
     self.playerLayers = newPlayers;
+     */
 }
-
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    animateMove = NO;
+    autoPlay = NO;
     
     // needed because the class actually needs to be sent a message to invoke initialization
     [[ChessConstants class] initialize];
@@ -346,13 +714,17 @@
     numPlayerRows = 3;
     
     [self addBoardLayer];
-    [self addPlayerLayers];
+//    [self addPlayerLayers];
+    
+    [self addSquares];
     
     // debugging
     if (shouldShowTextLayers)
     {
         [self addTextLayers];
     }
+    
+    [self newGame];
 }
 
 
@@ -372,7 +744,7 @@
 - (void)viewDidUnload {
 	// we don't retain board layer, so we don't need to release it
     boardLayer = nil;
-    self.playerLayers = nil;
+//    self.playerLayers = nil;
 }
 
 

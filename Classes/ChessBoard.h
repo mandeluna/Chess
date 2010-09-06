@@ -42,7 +42,8 @@
 -(void)initializeNewBoard;
 
 // copying
--(void)copyBoard:(ChessBoard *)aBoard;
+-(ChessBoard *)copyBoard:(ChessBoard *)aBoard;
+-(id)copyWithZone:(NSZone *)zone;
 
 // hashing
 -(int)hashKey;
@@ -53,7 +54,7 @@
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 -(void)nextMove:(ChessMove *)aMove;
 -(void)nullMove;
--(void)undoMove;
+-(void)undoMove:(ChessMove *)aMove;
 
 // printing
 -(NSString *)description;

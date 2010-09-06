@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+@class ChessMove;
 
 @protocol ChessUserAgent
 
@@ -17,5 +18,7 @@
 -(void)removedPiece:(int)piece at:(int)square;
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer;
 -(void)finishedGame:(BOOL)result;
+-(void)completedMove:(ChessMove *)move white:(BOOL)aBool;
+-(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
 
 @end

@@ -27,6 +27,17 @@
     return kBasicMoveMask;
 }
 
+static ChessMove *NullMove = nil;
+
+// return a placeholder move (#none)
++(ChessMove *)nullMove {
+    if (!NullMove) {
+        NullMove = [[ChessMove alloc] init];
+        NullMove.moveType = kNullMove;
+    }
+    return NullMove;
+}
+
 #pragma mark (Class) Initialization
 
 #pragma mark Initialize
@@ -130,7 +141,23 @@
     capturedPiece = 0;
 }
 
+#pragma mark copying
+
+-(id)copyWithZone:(NSZone *)zone {
+    
+    // shallow copy
+    id copy = NSCopyObject(self, 0, zone);
+    
+    return copy;
+}
+
+
 #pragma mark Comparing
+
+-(BOOL)isNullMove {
+    
+    return (kNullMove == self.moveType);
+}
 
 -(BOOL)isEqual:(ChessMove *)aMove {
     

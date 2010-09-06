@@ -11,6 +11,7 @@
 #import <Foundation/Foundation.h>
 
 @class ChessHistoryTable;
+@class ChessMove;
 
 @interface ChessMoveList : NSObject {
 
@@ -23,10 +24,17 @@
 // accessing
 
 -(NSArray *)copyContents;
+-(NSMutableArray *)contentsNoCopy;
 -(int)startIndex;
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex;
 
+// stream protocol
+
+-(int)count;
+-(ChessMove *)next;
+
 // sorting
+
 -(void)sort:(int)i to:(int)j using:(ChessHistoryTable *)sorter;
 -(void)sortUsing:(ChessHistoryTable *)sorter;
 

@@ -8,9 +8,17 @@
 
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
+#import "ChessUserAgent.h"
 
 @interface ChessPieceLayer : CALayer {
 
+    BOOL isWhite;
+    int piece;
+    id<ChessUserAgent> chessBoard;
 }
+
+@property(nonatomic, assign) BOOL isWhite;
+@property(nonatomic, assign) int piece;
+@property(nonatomic, assign) id<ChessUserAgent> chessBoard;
 
 @end

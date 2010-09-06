@@ -19,10 +19,22 @@
     
     NSRange range;
     
+    if (startIndex > readLimit) {
+        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
+                                                         reason:@"ChessMoveList is invalid"
+                                                       userInfo:nil];
+        [exception raise];
+    }
+    
     range.location = startIndex;
     range.length = readLimit - startIndex;
     
-    return [[NSArray alloc] subarrayWithRange:range];
+    return [collection subarrayWithRange:range];
+}
+
+-(NSMutableArray *)contentsNoCopy {
+    
+    return collection;
 }
 
 -(int)startIndex {
@@ -37,6 +49,19 @@
     collection = anArray;
     readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
     position = (firstIndex <= 1) ? 0 : firstIndex - 1;
+}
+
+#pragma mark stream protocol
+
+-(int)count {
+    return [collection count];
+}
+
+-(ChessMove *)next {
+    if (position >= readLimit)
+        return nil;
+    
+    return [collection objectAtIndex:position++];
 }
 
 #pragma mark sorting

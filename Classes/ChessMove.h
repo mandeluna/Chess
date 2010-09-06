@@ -28,7 +28,7 @@ enum {
 
 #define kNullMove    0
 
-@interface ChessMove : NSObject {
+@interface ChessMove : NSObject <NSCopying> {
     
     int movingPiece;
     int capturedPiece;
@@ -52,6 +52,7 @@ enum {
 // class methods
 
 +(ChessMove *)decodeFrom:(int)encodedMove;
++(ChessMove *)nullMove;
 
 // initialize
 -(void)captureEnPassant:(int)aPiece from:(int)startSquare to:(int)endSquare;
@@ -65,10 +66,15 @@ enum {
 -(void)promote:(ChessMove *)move to:(int)intValue;
 -(void)staleMate:(int)aPiece;
 
+// copying
+
+-(id)copyWithZone:(NSZone *)zone;
+
 // comparing
 
 -(BOOL)isEqual:(id)object;
 -(NSInteger)hash;
+-(BOOL)isNullMove;
 
 // printing
 
