@@ -86,8 +86,8 @@ static const int ValueThreshold = 200;
 }
 
 -(void)dealloc {
-    [super dealloc];
     [boardList release];
+    [super dealloc];
 }
  
 
@@ -209,7 +209,7 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     
     while (nil != move) {
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -318,7 +318,7 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     while (move) {
         
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -452,7 +452,7 @@ static const int ValueThreshold = 200;
     // and search
     ChessMove *move = [moveList next];
     while (move) {
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -545,7 +545,7 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     while (move) {
         
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -617,7 +617,7 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     while (move) {
         
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively

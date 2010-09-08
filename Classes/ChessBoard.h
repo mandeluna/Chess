@@ -31,10 +31,10 @@
 
 @property(nonatomic, retain) ChessPlayer *whitePlayer;
 @property(nonatomic, retain) ChessPlayer *blackPlayer;
-@property(nonatomic, readonly) ChessPlayer *activePlayer;
+@property(nonatomic, assign) ChessPlayer *activePlayer;
 @property(nonatomic, assign) id<ChessUserAgent> userAgent;
-@property(nonatomic, readonly) ChessMoveGenerator *generator;
-@property(nonatomic, readonly) ChessPlayerAI *searchAgent;
+@property(nonatomic, assign) ChessMoveGenerator *generator;
+@property(nonatomic, assign) ChessPlayerAI *searchAgent;
 @property(nonatomic, copy) NSString *statusString;
 
 // initialize
@@ -42,7 +42,7 @@
 -(void)initializeNewBoard;
 
 // copying
--(ChessBoard *)copyBoard:(ChessBoard *)aBoard;
+-(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard;
 -(id)copyWithZone:(NSZone *)zone;
 
 // hashing

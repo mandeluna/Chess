@@ -45,7 +45,7 @@
 
 -(void)addSquares;
 -(ChessPieceLayer *)newPiece:(int)piece white:(BOOL)isWhite;
--(SquareLayer *)newSquare;
+-(SquareLayer *)squareLayer;    // return a new instance with a retain count of +0
 
 // chess user agent
 

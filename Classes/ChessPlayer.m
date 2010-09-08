@@ -468,8 +468,10 @@
     
     NSMutableArray *moves = [NSMutableArray array];
     
-    for (ChessMove *move in [moveList contentsNoCopy]) {
-        [moves addObject:[move copy]];
+    for (ChessMove *move in [moveList originalContents]) {
+        ChessMove *moveCopy = [move copy];
+        [moves addObject:moveCopy];
+        [moveCopy release];
     }
     
     [board.generator recycleMoveList:moveList];
@@ -492,8 +494,10 @@
     
     NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
     
-    for (ChessMove *move in [moveList contentsNoCopy]) {
-        [moves addObject:[move copy]];
+    for (ChessMove *move in [moveList originalContents]) {
+        ChessMove *moveCopy = [move copy];
+        [moves addObject:moveCopy];
+        [moveCopy release];
     }
     
     [board.generator recycleMoveList:moveList];
@@ -515,7 +519,9 @@
     
     for (ChessMove *move in moveList) {
         if ([self isValidMove:move]) {
-            [moves addObject:[move copy]];
+            ChessMove *moveCopy = [move copy];
+            [moves addObject:moveCopy];
+            [moveCopy release];
         }
     }
     

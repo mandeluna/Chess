@@ -29,10 +29,12 @@
     range.location = startIndex;
     range.length = readLimit - startIndex;
     
-    return [collection subarrayWithRange:range];
+    NSArray *contentsCopy = [collection subarrayWithRange:range];
+    
+    return [contentsCopy retain];
 }
 
--(NSMutableArray *)contentsNoCopy {
+-(NSMutableArray *)originalContents {
     
     return collection;
 }
@@ -44,6 +46,13 @@
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex {
 
     int len;
+    
+    if ((startIndex < 0) || (lastIndex < 0)) {
+        NSException *exception = [NSException exceptionWithName:@"Illegal index"
+                                                         reason:@"stream index cannot be negative"
+                                                       userInfo:nil];
+        [exception raise];
+    }
     
     startIndex = firstIndex;
     collection = anArray;

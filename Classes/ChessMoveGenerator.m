@@ -104,7 +104,7 @@
     
     ChessMoveList *list = [self findAllPossibleMovesFor:player];
     
-    for (ChessMove *move in [list contentsNoCopy]) {
+    for (ChessMove *move in [list originalContents]) {
         
         int square = [move destinationSquare];
         int piece = [move movingPiece];
@@ -188,9 +188,9 @@
         return nil;
     }
     
-    streamListIndex++;
     ChessMoveList *list = [streamList objectAtIndex:streamListIndex];
-    [list on:moveList from:firstMoveIndex+1 to:lastMoveIndex];
+    streamListIndex++;
+    [list on:moveList from:firstMoveIndex to:lastMoveIndex];
     firstMoveIndex = lastMoveIndex;
     
     return list;
@@ -202,14 +202,14 @@
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
     
+    streamListIndex--;
     if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-        NSLog(@"recycleMoveList is confused");
+        NSLog(@"recycleMoveList is confused: index was %d but is actually %d", streamListIndex, [streamList indexOfObject:aChessMoveList]);
         NSException *exception = [NSException exceptionWithName:@"Index corruption"
                                                          reason:@"Move indexes are out of sync" userInfo:nil];
         [exception raise];
     }
-    streamListIndex--;
-    firstMoveIndex = lastMoveIndex = [aChessMoveList startIndex] - 1;
+    firstMoveIndex = lastMoveIndex = [aChessMoveList startIndex];
 }
 
 #pragma mark moves-pawns

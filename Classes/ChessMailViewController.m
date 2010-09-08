@@ -17,6 +17,7 @@
 #import "ChessPlayerAI.h"
 #import "ChessMove.h"
 #import "ChessMoveList.h"
+#import "ChessMoveGenerator.h"
 
 @interface ChessMailViewController(Private)
 - (float)boardWidth;
@@ -62,7 +63,7 @@ static char cellChars[NUM_COLS][NUM_ROWS] = {
             
             char sq = cellChars[j][i];
             
-            SquareLayer *square = [self newSquare];
+            SquareLayer *square = [self squareLayer];
             CGFloat w = [self cellWidth];
             square.bounds = CGRectMake(0, 0, w, w);
             
@@ -137,10 +138,10 @@ static NSString *imageNames[12] = {
     return m;
 }
 
--(SquareLayer *)newSquare {
+-(SquareLayer *)squareLayer {
     
-    SquareLayer *newSquare = [SquareLayer layer];
-    return newSquare;
+    SquareLayer *squareLayer = [SquareLayer layer];
+    return squareLayer;
 }
 
 #pragma mark ChessUserAgent protocol
@@ -313,6 +314,9 @@ static NSString *imageNames[12] = {
     
     if (!board) {
         ChessBoard *newBoard = [[ChessBoard alloc] init];
+        newBoard.generator = [[ChessMoveGenerator alloc] init];
+        newBoard.searchAgent = [[ChessPlayerAI alloc] init];
+        [newBoard resetGame];
         self.board = newBoard;
         [newBoard release];
     }
@@ -622,7 +626,7 @@ static NSString *imageNames[12] = {
     
     int result = j * BOARD_GRID_COUNT + i;
     
-    NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
+    // NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
     
     return result;
 }

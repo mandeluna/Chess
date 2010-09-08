@@ -46,15 +46,6 @@ static int HashLocks[12][64];
 
 #pragma mark Initialize
 
--(id)init {
-    if (self = [super init]) {
-        generator = [[ChessMoveGenerator alloc] init];
-        searchAgent = [[ChessPlayerAI alloc] init];
-    }
-    [self resetGame];
-    return self;
-}
-
 -(void)resetGame {
     hashKey = hashLock = 0;
     self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
@@ -77,16 +68,14 @@ static int HashLocks[12][64];
 }
 
 -(void)dealloc {
-    [super dealloc];
     self.whitePlayer = nil;
     self.blackPlayer = nil;
-    [generator release];
-    [searchAgent release];
+    [super dealloc];
 }
 
 #pragma mark Copying
 
--(ChessBoard *)copyBoard:(ChessBoard *)aBoard {
+-(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard {
     [whitePlayer copyPlayer:aBoard.whitePlayer];
     [blackPlayer copyPlayer:aBoard.blackPlayer];
     activePlayer = [aBoard.activePlayer isWhitePlayer] ? whitePlayer : blackPlayer;
@@ -100,7 +89,26 @@ static int HashLocks[12][64];
 -(id)copyWithZone:(NSZone *)zone {
 
     // shallow copy
-    id copy = NSCopyObject(self, 0, zone);
+    // NSLog(@"copying chess board");
+    ChessBoard *copy = NSCopyObject(self, 0, nil);
+    copy.generator = generator;
+    copy.searchAgent = searchAgent;
+    
+    copy->whitePlayer = [whitePlayer copy];
+    copy->blackPlayer = [blackPlayer copy];
+
+    if (activePlayer == whitePlayer) {
+        copy.activePlayer = whitePlayer;
+    }
+    else {
+        copy.activePlayer = blackPlayer;
+    }
+
+    copy.whitePlayer.opponent = copy.blackPlayer;
+    copy.blackPlayer.opponent = copy.whitePlayer;
+    copy.whitePlayer.board = self;
+    copy.blackPlayer.board = self;
+    copy.userAgent = nil;
     
     return copy;
 }
