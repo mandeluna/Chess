@@ -15,6 +15,9 @@
 
 #pragma mark accessing
 
+//
+// Stream>>contents returns a copy of the contents; renamed here to correspond to cocoa memory usage hints
+//
 -(NSArray *)copyContents {
     
     NSRange range;
@@ -26,11 +29,11 @@
         [exception raise];
     }
     
+    // collection copyFrom:startIndex to:readLimit
     range.location = startIndex;
-    range.length = readLimit - startIndex;
+    range.length = readLimit - startIndex + 1;
     
     NSArray *contentsCopy = [collection subarrayWithRange:range];
-    
     return [contentsCopy retain];
 }
 
@@ -45,9 +48,12 @@
 
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex {
 
+    // TODO: this is spinning
+//    NSLog(@" - creating moveList firstIndex = %d, lastIndex = %d", firstIndex, lastIndex);
+
     int len;
     
-    if ((startIndex < 0) || (lastIndex < 0)) {
+    if (startIndex < 0) {
         NSException *exception = [NSException exceptionWithName:@"Illegal index"
                                                          reason:@"stream index cannot be negative"
                                                        userInfo:nil];
@@ -55,19 +61,29 @@
     }
     
     startIndex = firstIndex;
-    collection = anArray;
+    collection = [anArray retain];
     readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
     position = (firstIndex <= 1) ? 0 : firstIndex - 1;
 }
 
+-(void)dealloc {
+    [collection release];
+    [super dealloc];
+}
+
 #pragma mark stream protocol
 
+-(BOOL)atEnd {
+    return (position >= readLimit);
+}
+
 -(int)count {
-    return [collection count];
+    NSLog(@" --moveList size = %d", readLimit+1);
+    return readLimit+1;
 }
 
 -(ChessMove *)next {
-    if (position >= readLimit)
+    if (position > readLimit)
         return nil;
     
     return [collection objectAtIndex:position++];
@@ -101,8 +117,12 @@
     
     if (![sorter sorts:di before:dj]) {
         // swap in collection and in our copy of the elements
+        [di retain];
+        [dj retain];
         [collection replaceObjectAtIndex:i withObject:dj];
         [collection replaceObjectAtIndex:j withObject:di];
+        [di release];
+        [dj release];
         tt = di; di = dj; dj = tt;
     }
 
@@ -111,13 +131,21 @@
         dij = [collection objectAtIndex:ij];  // sort di, dij, dj. Make dij be their median
         if ([sorter sorts:di before:dij]) {     // i.e. should di precede dij?
             if (![sorter sorts:dij before:dj]) {    // i.e. should dij preced dj?
+                [dij retain]; // keep removed objects from being deallocated
+                [dj retain];
                 [collection replaceObjectAtIndex:ij withObject:dj];
                 [collection replaceObjectAtIndex:j withObject:dij];
+                [dij release];
+                [dj release];
                 dij = dj;
             }
         } else {    // i.e. di should come after dij
+            [dij retain];
+            [di retain];
             [collection replaceObjectAtIndex:ij withObject:di];
             [collection replaceObjectAtIndex:i withObject:dij];
+            [dij release];
+            [di release];
             dij = di;
         }
     }
@@ -142,8 +170,12 @@
             while((k <= l) && [sorter sorts:dk before:dij]);
             
             if (k <= l) {
+                [dl retain];
+                [dk retain];
                 [collection replaceObjectAtIndex:l withObject:dk];
                 [collection replaceObjectAtIndex:k withObject:dl];
+                [dl release];
+                [dk release];
             }
         }
         while (k <= l);

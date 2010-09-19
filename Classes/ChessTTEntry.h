@@ -24,4 +24,6 @@
 @property(nonatomic, assign) int hashLock;
 @property(nonatomic, assign) int timeStamp;
 
+-(void)clear;
+
 @end

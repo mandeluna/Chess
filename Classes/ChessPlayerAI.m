@@ -34,15 +34,25 @@ static const int ValueThreshold = 200;
 
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator;
+@synthesize player, board, generator, myMove, useNegaScout;
 
 #pragma mark initialize
+
++ (void)initialize{
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary *appDefaults = [NSDictionary
+                                 dictionaryWithObject:@"YES" forKey:@"UseNegaScout"];
+    
+    [defaults registerDefaults:appDefaults];
+}
 
 -(id)init {
     
     if (self = [super init]) {
         historyTable = [[ChessHistoryTable alloc] init];
         nodesVisited = ttHits = alphaBetaCuts = stamp = 0;
+        useNegaScout = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseNegaScout"];
         [self reset];
     }
     
@@ -82,7 +92,7 @@ static const int ValueThreshold = 200;
         boardList = [NSArray arrayWithArray:boards];
         [boardList retain];
     }
-    
+    self.board = aBoard;
 }
 
 -(void)dealloc {
@@ -179,7 +189,7 @@ static const int ValueThreshold = 200;
     assert(initialAlpha < initialBeta);
     
     if (ply < 10) {
-        variations[ply][1] = 0;
+        variations[ply][0] = 0;
     }
     ply = 0;
     int alpha = initialAlpha;
@@ -188,12 +198,13 @@ static const int ValueThreshold = 200;
     ChessMove *goodMove = nil;
     
     // generate new moves
-    ChessMoveList *moveList = [generator findAllPossibleMovesFor:theBoard.activePlayer];
+    ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     
     if (nil == moveList)
         return nil;
     
-    if (0 == [moveList count]) {
+    NSLog(@"*** negaScout processing moveList size = %d", [moveList count]);
+    if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
     }
@@ -209,7 +220,9 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     
     while (nil != move) {
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
+        ChessBoard *newBoard = [boardList objectAtIndex:ply];
+        [newBoard duplicateBoard:theBoard];
+        NSLog(@"negaScout evaluating move %@", move);
         [newBoard nextMove:move];
         
         // search recursively
@@ -272,7 +285,7 @@ static const int ValueThreshold = 200;
     assert(initialAlpha < initialBeta);
     
     if (ply < 10) {
-        variations[ply][1] = 0;
+        variations[ply][0] = 0;
     }
     
     if (0 == depth) {
@@ -291,7 +304,7 @@ static const int ValueThreshold = 200;
             beta = MAX(entry.value, initialBeta);
         }
         else {
-            alpha = MAX(-entry.value, initialAlpha);
+            alpha = -MAX(-entry.value, initialAlpha);
         }
         if (beta > initialBeta)
             return beta;
@@ -305,7 +318,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return -AlphaBetaIllegal;
     
-    if ([moveList count] == 0) {
+    if ([moveList atEnd]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -441,7 +454,7 @@ static const int ValueThreshold = 200;
             return -AlphaBetaIllegal;
     }
     
-    if ([moveList count] == 0) {
+    if ([moveList atEnd]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -452,7 +465,8 @@ static const int ValueThreshold = 200;
     // and search
     ChessMove *move = [moveList next];
     while (move) {
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
+        ChessBoard *newBoard = [boardList objectAtIndex:ply];
+        [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -461,7 +475,7 @@ static const int ValueThreshold = 200;
         
         if (stopThinking) {
             [generator recycleMoveList:moveList];
-            return bestScore;
+            return score;
         }
         ply--;
         
@@ -500,7 +514,7 @@ static const int ValueThreshold = 200;
     assert(initialAlpha < initialBeta);
     
     if (ply < 10) {
-        variations[ply][1] = 0;
+        variations[ply][0] = 0;
     }
     
     if (0 == depth) {
@@ -519,7 +533,7 @@ static const int ValueThreshold = 200;
             beta = MAX(entry.value, initialBeta);
         }
         else {
-            alpha = MAX(-entry.value, initialAlpha);
+            alpha = -MAX(-entry.value, initialAlpha);
         }
         if (beta > initialBeta)
             return beta;
@@ -533,7 +547,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return -AlphaBetaIllegal;
     
-    if ([moveList count] == 0) {
+    if ([moveList atEnd]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -591,7 +605,7 @@ static const int ValueThreshold = 200;
     assert(initialAlpha < initialBeta);
     
     if (ply < 10) {
-        variations[ply][1] = 0;
+        variations[ply][0] = 0;
     }
     
     ply = 0;
@@ -605,7 +619,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return nil;
     
-    if ([moveList count] == 0) {
+    if ([moveList atEnd]) {
         [generator recycleMoveList:moveList];
         return nil;
     }
@@ -660,9 +674,19 @@ static const int ValueThreshold = 200;
 
 #pragma mark thinking
 
+-(void)checkClock {
+    
+    double now = [[NSDate date] timeIntervalSince1970];
+    
+    if (now - startTime > [self timeToThink]) {
+        
+        stopThinking = YES;
+    }
+}
+
 -(BOOL)isThinking {
     
-    return (nil != myThread);
+    return isThinking;
 }
 
 -(void)startThinking {
@@ -671,33 +695,24 @@ static const int ValueThreshold = 200;
         return;
     }
     
+    if (!transTable) {
+        [self initializeTranspositionTable];
+    }
+    
     [self setActivePlayer:board.activePlayer];
     
-    [self thinkStep];
-}
-
--(ChessMove *)think {
+    myMove = [ChessMove nullMove];
+    // [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
     
-    if ([self isThinking]) {
-        return nil;
-    }
-    
-    [self startThinking];
-    
-    ChessMove *move = [self thinkStep];
-    
-    while (!move) {
-        move = [self thinkStep];
-    }
-    
-    return move;
+    [self thinkThread];
 }
 
 -(void)thinkThread {
     
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-    myThread = [NSThread currentThread];
+    isThinking = YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"StartedThinking" object:nil];
     
     stopThinking = NO;
     int score = [board.activePlayer evaluate];
@@ -714,10 +729,23 @@ static const int ValueThreshold = 200;
     
     while (nodesVisited < 50000) {
         
-        ChessMove *theMove = [self negaScout:board depth:depth alpha:AlphaBetaMinVal beta:AlphaBetaMaxVal];
+        ChessMove *theMove = nil;
+        
+        if (useNegaScout) {
+            NSLog(@"about to enter negaScout. nodesVisited = %d", nodesVisited);
+            theMove = [self negaScout:board depth:depth alpha:AlphaBetaMinVal beta:AlphaBetaMaxVal];
+        }
+        else {
+            NSLog(@"about to enter mtdfSearch. nodesVisited = %d", nodesVisited);
+            theMove = [self mtdfSearch:board score:score depth:depth];
+        }
+        
+        
+        [self checkClock];
         
         if (!theMove || stopThinking) {
-            myThread = nil;
+            isThinking = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
             return;
         }
         
@@ -730,66 +758,26 @@ static const int ValueThreshold = 200;
         score = theMove.value;
         depth++;
     }
-    myThread = nil;
+    isThinking = NO;
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
     
     [pool release];
 }
 
--(ChessMove *)thinkStep {
-    
-    if (!transTable) {
-        [self initializeTranspositionTable];
-    }
-    
-    if (!myThread) {
-        myMove = [ChessMove nullMove];
-        [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
-        
-        // wait for thread to spawn before allowing processing to continue
-        while (!myThread) {
-            usleep(5000);
-        }
-        return nil;
-    }
-    
-    if (!myThread) {
-        if ([myMove isNullMove])
-            return nil;
-        return myMove;
-    }
-    
-    // do we have a valid move?
-    if ([myMove isNullMove])
-        return nil;
-    
-    // did we time out?
-    if ([[NSDate date] timeIntervalSince1970] - startTime > [self timeToThink]) {
-        // yes - abort and return current move
-        stopThinking = YES;
-        while (myThread) {
-            usleep(5000);
-        }
-        if ([myMove isNullMove])
-            return nil;
-        
-        return myMove;
-    }
-    
-    // keep thinking
-    return nil;
-}
-
 //
-// return the number of milliseconds to process each move
+// return the number of seconds to process each move
 //
 -(long)timeToThink {
     
-    return 5000;
+    return 5.0;
 }
 
 #pragma mark accessing
 
 -(NSString *)statusString {
+    
+    if (1)
+        return @"disabled";
     
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {

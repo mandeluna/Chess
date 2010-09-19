@@ -27,13 +27,18 @@
     int numPlayers;
     int numPlayerRows;
     
-    BOOL shouldShowTextLayers;
-    
     ChessBoard *board;
     NSMutableArray *history;
     NSMutableArray *redoList;
     BOOL animateMove;
     BOOL autoPlay;
+    BOOL moveExpected;  // YES if the AI should execute the move, otherwise just display a hint
+    
+    IBOutlet UILabel *label;
+    IBOutlet UIButton *hintButton;
+    IBOutlet UIButton *playButton;
+    IBOutlet UIButton *autoPlayButton;
+    IBOutlet UIActivityIndicatorView *activityIndicator;
 }
 
 //@property(nonatomic, retain) NSDictionary *playerLayers;
@@ -62,6 +67,7 @@
 // playing
 
 -(IBAction)autoPlay;
+-(IBAction)play;
 -(IBAction)findBestMove;    // hint
 -(IBAction)newGame;
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;

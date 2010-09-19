@@ -12,9 +12,228 @@
 #import "ChessMove.h"
 #import "ChessMoveList.h"
 
+
+// moves
+
+#define BETWEEN07(i) ((i >= 0) && (i <= 7))
+
+static moveValueList KingMoves[64];
+static moveValueList RookMoves[64];
+static moveValueList BishopMoves[64];
+static moveValueList KnightMoves[64];
+
+
+@interface ChessMoveGenerator(Private)
+
++(void)logMoves:(moveValueList[64])listValue;
++(void)initializeMoves;
++(void)initializeKnightMoves;
++(void)initializeRookMoves;
++(void)initializeBishopMoves;
++(void)initializeKingMoves;
+
+@end
+
+
 @implementation ChessMoveGenerator
 
 @synthesize kingAttack;
+
+#pragma mark private
+
++(void)initialize {
+    [self initializeMoves];
+}
+
++(void)logMoves:(moveValueList[64])listValue {
+    
+    for (int i=0; i < 64; i++) {
+        printf("[%2d] ", i);
+        for (int j=0; j < listValue[i].count; j++) {
+            printf("%2d ", listValue[i].moves[j]);
+        }
+        printf("\n");
+    }
+    
+}
+
++(void)initializeMoves {
+    
+    static BOOL initialized = NO;
+    
+    if (initialized)
+        return;
+    
+    [self initializeKnightMoves];
+    [self initializeRookMoves];
+    [self initializeBishopMoves];
+    [self initializeKingMoves];
+    
+    initialized = YES;
+}
+
++(void)initializeKnightMoves {
+    
+    int relativeMoves[8][2] = {{-2, -1},{-1, -2},{1, -2},{2, -1},{-2, 1},{-1, 2},{1, 2},{2, 1}};
+    
+    for (int j=0; j<8; j++) {
+        for (int i=0; i<8; i++) {
+            int index = (j * 8) + i;
+            
+            NSMutableData *moveList = [NSMutableData data];
+            
+            for (int spec = 0; spec < 8; spec++) {
+                int px = i + relativeMoves[spec][0];
+                int py = j + relativeMoves[spec][1];
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList appendBytes:&byteValue length:sizeof(int)];
+                }
+            }
+            //printf("\n");
+            int len = [moveList length] / sizeof(int);
+            KnightMoves[index].count = len;
+            KnightMoves[index].moves = malloc(len * sizeof(int));
+            memcpy(KnightMoves[index].moves, [moveList bytes], len * sizeof(int));
+        }
+    }
+    
+    NSLog(@"Knight Moves:\n");
+    [self logMoves:KnightMoves];
+}
+
++(void)initializeRookMoves {
+    
+    for (int j=0; j<8; j++) {
+        for (int i=0; i<8; i++) {
+            int index = (j * 8) + i;
+            
+            NSMutableData *moveList1 = [NSMutableData data];
+            NSMutableData *moveList2 = [NSMutableData data];
+            NSMutableData *moveList3 = [NSMutableData data];
+            NSMutableData *moveList4 = [NSMutableData data];
+            
+            for (int k = 1; k < 8; k++) {
+                int px = i + k;
+                int py = j;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList1 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i;
+                py = j + k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList2 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i - k;
+                py = j;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList3 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i;
+                py = j - k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList4 appendBytes:&byteValue length:sizeof(int)];
+                }
+            }
+            [moveList1 appendData:moveList2];
+            [moveList1 appendData:moveList3];
+            [moveList1 appendData:moveList4];
+            int len = [moveList1 length] / sizeof(int);
+            RookMoves[index].count = len;
+            RookMoves[index].moves = malloc(len * sizeof(int));
+            memcpy(RookMoves[index].moves, [moveList1 bytes], len * sizeof(int));
+        }
+    }
+    
+    NSLog(@"Rook Moves:\n");
+    [self logMoves:RookMoves];
+}
+
++(void)initializeBishopMoves {
+    
+    for (int j=0; j<8; j++) {
+        for (int i=0; i<8; i++) {
+            int index = (j * 8) + i;
+            
+            NSMutableData *moveList1 = [NSMutableData data];
+            NSMutableData *moveList2 = [NSMutableData data];
+            NSMutableData *moveList3 = [NSMutableData data];
+            NSMutableData *moveList4 = [NSMutableData data];
+            
+            for (int k = 1; k < 8; k++) {
+                int px = i + k;
+                int py = j - k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList1 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i - k;
+                py = j - k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList2 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i + k;
+                py = j + k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList3 appendBytes:&byteValue length:sizeof(int)];
+                }
+                px = i - k;
+                py = j + k;
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList4 appendBytes:&byteValue length:sizeof(int)];
+                }
+            }
+            [moveList1 appendData:moveList2];
+            [moveList1 appendData:moveList3];
+            [moveList1 appendData:moveList4];
+            int len = [moveList1 length] / sizeof(int);
+            BishopMoves[index].count = len;
+            BishopMoves[index].moves = malloc(len * sizeof(int));
+            memcpy(BishopMoves[index].moves, [moveList1 bytes], len * sizeof(int));
+        }
+    }
+    
+    NSLog(@"Bishop Moves:\n");
+    [self logMoves:BishopMoves];
+}
+
++(void)initializeKingMoves {
+    
+    int relativeMoves[8][2] = {{-1, -1},{0, -1},{1, -1},{-1, 0},{1, 0},{-1, 1},{0, 1},{1, 1}};
+    
+    for (int j=0; j<8; j++) {
+        for (int i=0; i<8; i++) {
+            int index = (j * 8) + i;
+            
+            NSMutableData *moveList = [NSMutableData data];
+            
+            for (int spec = 0; spec < 8; spec++) {
+                int px = i + relativeMoves[spec][0];
+                int py = j + relativeMoves[spec][1];
+                if (BETWEEN07(px) && BETWEEN07(py)) {
+                    int byteValue = py * 8 + px;
+                    [moveList appendBytes:&byteValue length:sizeof(int)];
+                }
+            }
+            //printf("\n");
+            int len = [moveList length] / sizeof(int);
+            KingMoves[index].count = len;
+            KingMoves[index].moves = malloc(len * sizeof(int));
+            memcpy(KingMoves[index].moves, [moveList bytes], len * sizeof(int));
+        }
+    }
+    
+    NSLog(@"King Moves:\n");
+    [self logMoves:KingMoves];
+}
+
 
 #pragma mark public
 
@@ -30,6 +249,9 @@
 // If the game is stale mate (e.g., the receiver has no move left) this method returns an empty array.
 //
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player {
+
+    // TODO: this is spinning 
+//    NSLog(@"findAllPossibleMovesFor: lastMoveIndex = %d, forceCaptures = %d", lastMoveIndex, forceCaptures);
     
     ChessPlayer *opponent = [player opponent];
     
@@ -48,14 +270,13 @@
     
     self.kingAttack = nil;
     
-    int square = 0;
     BOOL isWhite = [myPlayer isWhitePlayer];
     
-    while (square < 64) {
-        for (int i=square; myPieces[i]; i++);
+    for (int square = 0; square < 64; square++) {
+        if (!myPieces[square])
+            continue;
         
-        if (0 == square)
-            break;
+//        printf("+");
         
         int piece = myPieces[square];
         
@@ -99,6 +320,8 @@
 //
 -(char *)findAttackSquaresFor:(ChessPlayer *)player {
     
+    NSLog(@"findAttackSquaresFor:");
+    
     forceCaptures = NO;
     bzero(attackSquares, 64 * sizeof(char));
     
@@ -120,11 +343,15 @@
 
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player {
     
+//    NSLog(@"findPossibleMovesFor:");
+
     forceCaptures = NO;
     return [self findAllPossibleMovesFor:player];
 }
 
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player at:(int)square {
+    
+//    NSLog(@"findPossibleMovesFor:at:");
     
     forceCaptures = NO;
     myPlayer = player;
@@ -188,9 +415,8 @@
         return nil;
     }
     
-    ChessMoveList *list = [streamList objectAtIndex:streamListIndex];
-    streamListIndex++;
-    [list on:moveList from:firstMoveIndex to:lastMoveIndex];
+    ChessMoveList *list = [streamList objectAtIndex:++streamListIndex];
+    [list on:moveList from:firstMoveIndex+1 to:lastMoveIndex];
     firstMoveIndex = lastMoveIndex;
     
     return list;
@@ -202,14 +428,16 @@
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
     
-    streamListIndex--;
     if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
         NSLog(@"recycleMoveList is confused: index was %d but is actually %d", streamListIndex, [streamList indexOfObject:aChessMoveList]);
         NSException *exception = [NSException exceptionWithName:@"Index corruption"
                                                          reason:@"Move indexes are out of sync" userInfo:nil];
         [exception raise];
     }
-    firstMoveIndex = lastMoveIndex = [aChessMoveList startIndex];
+    streamListIndex--;
+    firstMoveIndex = lastMoveIndex = [aChessMoveList startIndex] - 1;
+    
+//    NSLog(@"recycled move list. streamListIndex is now %d", streamListIndex);
 }
 
 #pragma mark moves-pawns
@@ -220,7 +448,7 @@
     int piece = itsPieces[destSquare];
     
     if (piece) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move move:kPawn from:square to:destSquare capture:piece];
         
         if (kKing == piece) {
@@ -234,7 +462,7 @@
     
     // attempt an en-passant capture
     if (destSquare == enpassantSquare) {
-        [[moveList objectAtIndex:lastMoveIndex++] captureEnPassant:kPawn from:square to:destSquare];
+        [[moveList objectAtIndex:++lastMoveIndex] captureEnPassant:kPawn from:square to:destSquare];
     }
 }
 
@@ -247,7 +475,7 @@
     if (itsPieces[destSquare])
         return;
     
-    ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+    ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
     [move move:kPawn from:square to:destSquare];
     
     if (destSquare < 8) {   // a promotion (can't be double-push so get out)
@@ -263,7 +491,7 @@
     if (itsPieces[destSquare])
         return;
     
-    [[moveList objectAtIndex:lastMoveIndex++] doublePush:kPawn from:square to:destSquare];
+    [[moveList objectAtIndex:++lastMoveIndex] doublePush:kPawn from:square to:destSquare];
 }
 
 //
@@ -290,7 +518,7 @@
     int piece = itsPieces[destSquare];
     
     if (piece) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move move:kPawn from:square to:destSquare capture:piece];
         
         if (kKing == piece) {
@@ -304,7 +532,7 @@
     
     // attempt an en-passant capture
     if (destSquare == enpassantSquare) {
-        [[moveList objectAtIndex:lastMoveIndex++] captureEnPassant:kPawn from:square to:destSquare];
+        [[moveList objectAtIndex:++lastMoveIndex] captureEnPassant:kPawn from:square to:destSquare];
     }
 }
 
@@ -317,7 +545,7 @@
     if (itsPieces[destSquare])
         return;
     
-    ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+    ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
     [move move:kPawn from:square to:destSquare];
     
     if (destSquare > 55) {   // a promotion (can't be double-push so get out)
@@ -325,7 +553,7 @@
     }
     
     // try to double-push if possible
-    if (square < 16)
+    if (square > 16)
         return;
     destSquare = square + 16;
     if (myPieces[destSquare])
@@ -333,7 +561,7 @@
     if (itsPieces[destSquare])
         return;
     
-    [[moveList objectAtIndex:lastMoveIndex++] doublePush:kPawn from:square to:destSquare];
+    [[moveList objectAtIndex:++lastMoveIndex] doublePush:kPawn from:square to:destSquare];
 }
 
 //
@@ -360,9 +588,9 @@
 //
 -(void)promotePawn:(ChessMove *)move {
     
-    [[moveList objectAtIndex:lastMoveIndex++] promote:move to:kKnight];
-    [[moveList objectAtIndex:lastMoveIndex++] promote:move to:kBishop];
-    [[moveList objectAtIndex:lastMoveIndex++] promote:move to:kRook];
+    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kKnight];
+    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kBishop];
+    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kRook];
     [move promote:move to:kQueen];
 }
 
@@ -772,7 +1000,7 @@
             [cm autorelease];
         }
         
-        firstMoveIndex = lastMoveIndex = streamListIndex = 0;
+        firstMoveIndex = lastMoveIndex = streamListIndex = -1;
     }
     return self;
 }
@@ -805,7 +1033,7 @@
             int capture = itsPieces[destSquare];
             
             if (!forceCaptures || capture) {
-                ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
                 [move move:kKing from:square to:destSquare capture:capture];
                 
                 if (kKing == capture) {
@@ -821,12 +1049,12 @@
     // now consider castling
     
     if ([self canCastleBlackKingSide]) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move moveCastlingKingSide:kKing from:square to:square+2];
     }
     
     if ([self canCastleBlackQueenSide]) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move moveCastlingQueenSide:kKing from:square to:square-2];
     }
 }
@@ -853,7 +1081,8 @@
             
             if (!forceCaptures || capture) {
                 
-                ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+//                NSLog(@"creating knight move from %d to %d -- lastMoveIndex is %d", square, destSquare, lastMoveIndex);
+                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
                 [move move:kKnight from:square to:destSquare capture:capture];
                 
                 if (kKing == capture) {
@@ -880,14 +1109,14 @@
         
         int destSquare = rayList->moves[i];
         
-        if (!myPieces[destSquare])
+        if (myPieces[destSquare])
             return;
         
         int capture = itsPieces[destSquare];
         
         if (!forceCaptures || capture) {
             
-            ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+            ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
             [move move:piece from:square to:destSquare capture:capture];
             
             if (kKing == capture) {
@@ -928,7 +1157,7 @@
             int capture = itsPieces[destSquare];
             
             if (!forceCaptures || capture) {
-                ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
                 [move move:kKing from:square to:destSquare capture:capture];
                 
                 if (kKing == capture) {
@@ -944,12 +1173,12 @@
     // now consider castling
     
     if ([self canCastleWhiteKingSide]) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move moveCastlingKingSide:kKing from:square to:square+2];
     }
     
     if ([self canCastleWhiteQueenSide]) {
-        ChessMove *move = [moveList objectAtIndex:lastMoveIndex++];
+        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
         [move moveCastlingQueenSide:kKing from:square to:square-2];
     }
 }

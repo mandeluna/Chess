@@ -24,8 +24,8 @@
     materialValue = 0;
     positionalValue = 0;
     numPawns = 0;
-    enpassantSquare = 0;
-    castlingRookSquare = 0;
+    enpassantSquare = -1;
+    castlingRookSquare = -1;
     castlingStatus = 0;
 }
 
@@ -34,13 +34,13 @@
 //
 -(void)prepareNextMove {
     
-    enpassantSquare = 0;
+    enpassantSquare = -1;
     
-    if (castlingRookSquare) {
+    if (castlingRookSquare >= 0) {
         pieces[castlingRookSquare] = kRook;
     }
     
-    castlingRookSquare = 0;
+    castlingRookSquare = -1;
 }
 
 #pragma mark Adding/Removing
@@ -191,20 +191,34 @@
 //
 -(void)applyMove:(ChessMove *)move {
     
-    NSString *actions[] = {
-        @"applyNormalMove:",
-        @"applyDoublePushMove:",
-        @"applyEnPassantMove:",
-        @"applyCastleKingSideMove:",
-        @"applyCastleQueenSideMove:",
-        @"applyResign:",
-        @"applyStaleMate:"
-    };
+    int type = [move moveType] & kBasicMoveMask;
     
-    int type = [move moveType];
-    NSString *actionString = actions[type & kBasicMoveMask];
-    SEL action = NSSelectorFromString(actionString);
-    [self performSelector:action withObject:move];
+    switch(type) {
+        case kMoveNormal:
+            [self applyNormalMove:move];
+            break;
+        case kMoveDoublePush:
+            [self applyDoublePushMove:move];
+            break;
+        case kMoveCaptureEnPassant:
+            [self applyEnPassantMove:move];
+            break;
+        case kMoveCastlingKingSide:
+            [self applyCastleKingSideMove:move];
+            break;
+        case kMoveCastlingQueenSide:
+            [self applyCastleQueenSideMove:move];
+            break;
+        case kMoveResign:
+            [self applyResign:move];
+            break;
+        case kMoveStaleMate:
+            [self applyStaleMate:move];
+            break;
+        default:
+            NSLog(@"applying unknown move %d", type);
+            break;
+    }
     
     // promote if necessary
     [self applyPromotion:move];
@@ -468,7 +482,7 @@
     
     NSMutableArray *moves = [NSMutableArray array];
     
-    for (ChessMove *move in [moveList originalContents]) {
+    for (ChessMove *move in [moveList copyContents]) {
         ChessMove *moveCopy = [move copy];
         [moves addObject:moveCopy];
         [moveCopy release];
@@ -492,7 +506,7 @@
     if (nil == moveList)
         return nil;
     
-    NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
+    NSMutableArray *moves = [NSMutableArray arrayWithArray:[moveList originalContents]];
     
     for (ChessMove *move in [moveList originalContents]) {
         ChessMove *moveCopy = [move copy];

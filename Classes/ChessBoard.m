@@ -86,29 +86,32 @@ static int HashLocks[12][64];
     return self;
 }
 
+-(void)postCopy {
+    
+    whitePlayer = [whitePlayer copy];
+    blackPlayer = [blackPlayer copy];
+    
+    if (activePlayer == whitePlayer) {
+        activePlayer = whitePlayer;
+    }
+    else {
+        activePlayer = blackPlayer;
+    }
+    
+    whitePlayer.opponent = blackPlayer;
+    blackPlayer.opponent = whitePlayer;
+    whitePlayer.board = self;
+    blackPlayer.board = self;
+    self.userAgent = nil;
+}
+
 -(id)copyWithZone:(NSZone *)zone {
 
     // shallow copy
     // NSLog(@"copying chess board");
     ChessBoard *copy = NSCopyObject(self, 0, nil);
-    copy.generator = generator;
-    copy.searchAgent = searchAgent;
     
-    copy->whitePlayer = [whitePlayer copy];
-    copy->blackPlayer = [blackPlayer copy];
-
-    if (activePlayer == whitePlayer) {
-        copy.activePlayer = whitePlayer;
-    }
-    else {
-        copy.activePlayer = blackPlayer;
-    }
-
-    copy.whitePlayer.opponent = copy.blackPlayer;
-    copy.blackPlayer.opponent = copy.whitePlayer;
-    copy.whitePlayer.board = self;
-    copy.blackPlayer.board = self;
-    copy.userAgent = nil;
+    [copy postCopy];
     
     return copy;
 }
@@ -146,7 +149,7 @@ static int HashLocks[12][64];
         }
     }
     
-    [searchAgent setActivePlayer: activePlayer];
+    [searchAgent setActivePlayer:activePlayer];
 }
 
 -(void)nextMove:(ChessMove *)aMove {

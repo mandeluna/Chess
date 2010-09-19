@@ -23,4 +23,9 @@
     return copy;
 }
 
+-(void)clear {
+    
+    value = valueType = timeStamp = depth = -1;
+}
+
 @end

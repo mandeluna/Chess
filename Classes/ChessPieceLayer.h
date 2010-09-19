@@ -15,10 +15,12 @@
     BOOL isWhite;
     int piece;
     id<ChessUserAgent> chessBoard;
+    int sourceSquare;
 }
 
 @property(nonatomic, assign) BOOL isWhite;
 @property(nonatomic, assign) int piece;
 @property(nonatomic, assign) id<ChessUserAgent> chessBoard;
+@property(nonatomic, assign) int sourceSquare;  // for dragging
 
 @end

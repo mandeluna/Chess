@@ -13,6 +13,11 @@
 @class ChessMove;
 @class ChessMoveList;
 
+typedef struct {
+    int count;
+    int *moves;
+} moveValueList;
+
 @interface ChessMoveGenerator : NSObject {
 
     ChessPlayer *myPlayer;

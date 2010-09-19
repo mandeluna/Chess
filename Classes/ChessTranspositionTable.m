@@ -14,8 +14,27 @@
 
 #pragma mark initialize
 
+//
+// Set the following to true for printing information about the fill rate and number of collisions.
+// The transposition table should have *plenty* of free space (it should rarely exceed 30% fill rate)
+// and *very* few collisions (those require us to evaluate positions repeatedly that we've evaluated before -- bad idea!)
+//
 -(void)clear {
     
+    if (0) {
+        if ([array count] > 0) {
+            NSLog(@"entries used:   %d (%2d%%)", [used count], ([used count] * 100 / [array count]));
+            
+            if (collisions > 0)
+                NSLog(@"collisions:     %d (%2d%%)", collisions, (collisions * 100 / [array count]));
+        }
+    }
+    for (ChessTTEntry *entry in used) {
+        [entry clear];
+    }
+    [used removeAllObjects];
+
+    collisions = 0;
 }
 
 -(id)initWithBits:(int)nBits {

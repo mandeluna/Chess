@@ -37,13 +37,16 @@
     long startTime;
     int ply;
     ChessMove *myMove;
-    NSThread *myThread;
+    BOOL isThinking;
     BOOL stopThinking;
+    BOOL useNegaScout;
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
 @property(nonatomic, assign) ChessBoard *board;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
+@property(nonatomic, copy) ChessMove *myMove;
+@property(nonatomic, assign) BOOL useNegaScout;
 
 // initialize
 
@@ -65,10 +68,9 @@
 
 -(BOOL)isThinking;
 -(void)startThinking;
--(ChessMove *)think;
 -(void)thinkThread;
--(ChessMove *)thinkStep;
 -(long)timeToThink;
+-(void)checkClock;
 
 // accessing
 

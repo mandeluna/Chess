@@ -91,10 +91,14 @@ static char cellChars[NUM_COLS][NUM_ROWS] = {
                 
                 if (sq != ' ') {
                     
-                    CATextLayer *label = [CATextLayer layer];
-                    label.string = [NSString stringWithFormat:@"%c", sq];
-                    label.bounds = square.bounds;
-                    [square addSublayer:label];
+                    CATextLayer *labelLayer = [CATextLayer layer];
+                    labelLayer.string = [NSString stringWithFormat:@"%c", sq];
+                    labelLayer.bounds = square.bounds;
+                    CGPoint pos = [self centerPointOfCellForBoardIndex:CGPointMake(i,j)];
+                    labelLayer.position = pos;
+                    labelLayer.alignmentMode = kCAAlignmentLeft;
+                    labelLayer.fontSize = 18.0f;
+                    [square addSublayer:labelLayer];
                 }
             }
             
@@ -152,16 +156,12 @@ static NSString *imageNames[12] = {
     [CATransaction begin];
     [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
     
-    /*
-    for (ChessPieceLayer *playerLayer in [playerLayers allValues]) {
-        if (playerLayer.superlayer) {
-            [playerLayer removeFromSuperlayer];
-        }
-    }
-    */
-    
     for (SquareLayer *square in squares) {
-        square.pieceLayer = nil;
+        if (square.pieceLayer) {
+            [square.pieceLayer removeFromSuperlayer];
+            [square setNeedsDisplay];
+            square.pieceLayer = nil;
+        }
         square.borderWidth = 0;
     }
     
@@ -193,12 +193,15 @@ static NSString *imageNames[12] = {
     SquareLayer *destSquareLayer = [squares objectAtIndex:destSquare];
     
     sourceLayer.position = destSquareLayer.position;
+    sourceSquareLayer.pieceLayer = nil;
     destSquareLayer.pieceLayer = sourceLayer;
 }
 
 -(void)removedPiece:(int)piece at:(int)square {
     
     SquareLayer *squareLayer = [squares objectAtIndex:square];
+    [squareLayer.pieceLayer removeFromSuperlayer];
+    [squareLayer setNeedsDisplay];
     squareLayer.pieceLayer = nil;
 }
 
@@ -227,6 +230,48 @@ static NSString *imageNames[12] = {
     [self validateGamePosition];
 }
 
+-(void)printBoard:(BOOL)isWhitePlayer {
+    printf("\n === display ===");
+    for (int i=0; i<64; i++) {
+        if (0 == (i % 8)) {
+            printf("\n");
+        }
+        SquareLayer *layer = [squares objectAtIndex:i];
+        printf("%2d", layer.pieceLayer.piece); /*
+        if (layer.pieceLayer.isWhite == isWhitePlayer)
+        {
+            printf("%2d", layer.pieceLayer.piece);
+        }
+        else {
+            printf("  ");
+        } */
+
+    }
+    printf("\n ===============\n");
+}
+
+-(void)printWhitePieces {
+    printf("\n ==== white ====");
+    for (int i=0; i<64; i++) {
+        if (0 == (i % 8)) {
+            printf("\n");
+        }
+        printf("%2d", board.whitePlayer.pieces[i]);
+    }
+    printf("\n ===============\n");
+}
+
+-(void)printBlackPieces {
+    printf("\n ==== black ====");
+    for (int i=0; i<64; i++) {
+        if (0 == (i % 8)) {
+            printf("\n");
+        }
+        printf("%2d", board.blackPlayer.pieces[i]);
+    }
+    printf("\n ===============\n");
+}
+
 //
 // this method does nothing but validate what you see (on the screen) is what you get (from the board)
 //
@@ -235,14 +280,15 @@ static NSString *imageNames[12] = {
     for (int i=0; i<63; i++) {
         
         int piece = 0;
-        NSNumber *isWhite = nil;
+        BOOL screenIsWhite = NO;
+        BOOL screenHasPiece = NO;
         
         SquareLayer *square = [squares objectAtIndex:i];
         
         if (square.pieceLayer) {
-            
-            piece = square.squarePosition;
-            isWhite = [NSNumber numberWithBool:square.pieceLayer.isWhite];
+            screenHasPiece = YES;
+            piece = square.pieceLayer.piece;
+            screenIsWhite = [[NSNumber numberWithBool:square.pieceLayer.isWhite] boolValue];
         }
         
         int p = [board.whitePlayer pieceAt:i];
@@ -251,14 +297,20 @@ static NSString *imageNames[12] = {
             p = kRook;
         }
         
-        if (isWhite && (YES == [isWhite boolValue])) {
+        // 1. screen has a white piece at i
+        if (screenHasPiece && screenIsWhite) {
             if (p != piece) {
-                NSLog(@"white broken: user agent piece (%d) does not match game model piece (%d)", piece, p);
+                [self printBoard:screenIsWhite];
+                [self printWhitePieces];
+                NSLog(@"position %d broken: user agent piece (%d) does not match game model piece (%d)", i, piece, p);
                 return;
             }
         }
-        else if (!p) {
-            NSLog(@"white broken: game model does not have piece at (%d)", i);
+        // 2. screen has a black piece or no piece at i but board has a white piece at i
+        else if (p) {
+            [self printBoard:screenIsWhite];
+            [self printWhitePieces];
+            NSLog(@"white broken: game model has a white piece at (%d)", i);
             return;
         }
         
@@ -268,15 +320,21 @@ static NSString *imageNames[12] = {
             p = kRook;
         }
         
-        if (isWhite && (NO == [isWhite boolValue])) {
+        // 3. screen has a black piece at i
+        if (screenHasPiece && !screenIsWhite) {
             if (p != piece) {
-                NSLog(@"black broken: user agent piece (%d) does not match game model piece (%d)", piece, p);
+                [self printBoard:screenIsWhite];
+                [self printBlackPieces];
+                NSLog(@"position %d broken: user agent piece (%d) does not match game model piece (%d)", i, piece, p);
                 return;
             }
-            else if (!p) {
-                NSLog(@"black broken: game model does not have piece at (%d)", i);
-                return;
-            }
+        }
+        // 4. screen has a white piece or no piece at i but board has a black piece at i
+        else if (p) {
+            [self printBoard:screenIsWhite];
+            [self printBlackPieces];
+            NSLog(@"black broken: game model has a black piece at (%d)", i);
+            return;
         }
     }
 }
@@ -291,23 +349,21 @@ static NSString *imageNames[12] = {
     }
 }
 
+-(IBAction)play {
+    
+    [self thinkAndMove];
+}
+
 //
 // hint
 //
 -(IBAction)findBestMove {
     
-    if ([board.searchAgent isThinking]) {
+    if ([board.searchAgent isThinking])
         return;
-    }
     
-    ChessMove *move = [board.searchAgent think];
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Suggested move"
-                                                    message:[move description]
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    [alert show];
-    [alert release];
+    moveExpected = NO;
+    [board.searchAgent startThinking];
 }
 
 -(IBAction)newGame {
@@ -324,6 +380,8 @@ static NSString *imageNames[12] = {
     [board initializeNewBoard];
     self.history = [NSMutableArray array];
     self.redoList = [NSMutableArray array];
+
+    [self validateGamePosition];
 }
 
 
@@ -336,6 +394,7 @@ static NSString *imageNames[12] = {
         return;
     
     [board movePieceFrom:sourceSquare to:destSquare];
+    moveExpected = YES;
     [board.searchAgent startThinking];
 }
 
@@ -361,8 +420,8 @@ static NSString *imageNames[12] = {
     if ([board.searchAgent isThinking])
         return;
     
+    moveExpected = YES;
     [board.searchAgent startThinking];
-    
 }  
 
 //
@@ -460,11 +519,19 @@ static NSString *imageNames[12] = {
 //
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
+    if ([board.searchAgent isThinking])
+        return;
+        
     UITouch *theTouch = [touches anyObject];
     if (nil == theTouch)
         return;
 
-    // 1. de-select selected piece, if any
+    // clear previous move indicators
+    for (int i=0; i<63; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        squareLayer.borderWidth = 0;
+    }
+    
     [self selectPlayer:nil];
     
     CGPoint touchPoint = [theTouch locationInView:theTouch.view];
@@ -473,7 +540,13 @@ static NSString *imageNames[12] = {
     SquareLayer *squareLayer = [squares objectAtIndex:selectionIndex];
     ChessPieceLayer *candidate = squareLayer.pieceLayer;
     [self selectPlayer:candidate];
-    [self showMovesFrom:squareLayer];
+    
+    // need to be able to return piece to original position for invalid moves
+    candidate.sourceSquare = squareLayer.squarePosition;
+    
+//    [self showMovesFrom:squareLayer];
+    
+    label.text = [NSString stringWithFormat:@"%d", selectionIndex];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -511,19 +584,18 @@ static NSString *imageNames[12] = {
         
         int destIndex = [self squareIndexForLayerLocation:touchPoint];
         
-        BOOL moveIsValid = YES;
+        SquareLayer *destinationCell = [squares objectAtIndex:destIndex];
+
+        BOOL moveIsValid = [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare to:destinationCell.squarePosition];
         
-        // TODO: game logic
-        moveIsValid = (nil == [self playerLayerAtTouchPoint:touchPoint]);
-       
         // if the move is not valid, animate the piece back to its original position
         if (!moveIsValid)
         {
             destIndex = selectionIndex;
+            destinationCell = [squares objectAtIndex:destIndex];
             NSLog(@"invalid move: returning player to %d", destIndex);
         }
         // animate the player to the center point of the destination cell
-        SquareLayer *destinationCell = [squares objectAtIndex:destIndex];
         selectedPlayer.position = destinationCell.position;
         
         // clear the selection
@@ -626,7 +698,7 @@ static NSString *imageNames[12] = {
     
     int result = j * BOARD_GRID_COUNT + i;
     
-    // NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
+    //NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
     
     return result;
 }
@@ -664,52 +736,84 @@ static NSString *imageNames[12] = {
     }
 }
 
+#pragma mark callbacks
+
 //
-// Add the layers representing the players
+// notification callback for think thread
 //
-- (void)addPlayerLayers {
-    /*
-    NSArray *plistArray = [self loadSavedPlayers];
-    if (!plistArray) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Startup failed" message:@"Could not find saved game data"
-                                                       delegate:nil cancelButtonTitle:@"Whatever" otherButtonTitles:nil];
+-(void)startedThinking {
+    
+    [hintButton setEnabled:NO];
+    [playButton setEnabled:NO];
+    [activityIndicator startAnimating];
+    [self.view setNeedsDisplay];
+}
+
+//
+// notification callback for think thread
+//
+-(void)stoppedThinking {
+    
+    NSLog(@"view controller received stop notification");
+    NSLog(@"autoplay is %d", autoPlay);
+    
+    [hintButton setEnabled:YES];
+    [playButton setEnabled:YES];
+    [activityIndicator stopAnimating];
+    [self.view setNeedsDisplay];
+    
+    ChessMove *move = board.searchAgent.myMove;
+    
+    if (!moveExpected) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Suggested move"
+                                                        message:[move description]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alert show];
         [alert release];
+        
+        moveExpected = YES;
     }
-    
-    numPlayers = [plistArray count];
-    float playerWidth = [self playerWidth];
-    
-    NSMutableDictionary *newPlayers = [NSMutableDictionary dictionaryWithCapacity:numPlayers];
-
-    for (NSDictionary *playerDict in plistArray) {
-        NSString *filename = (NSString *)[playerDict valueForKey:@"filename"];
-        NSNumber *xloc = (NSNumber *)[playerDict valueForKey:@"x"];
-        NSNumber *yloc = (NSNumber *)[playerDict valueForKey:@"y"];
-        CALayer *playerLayer = [CALayer layer];
-        CGImageRef image = [UIImage imageNamed:filename].CGImage;
-        playerLayer.contents = (id)image;
-        playerLayer.bounds = CGRectMake(0, 0, playerWidth, playerWidth);
-        playerLayer.position = [self centerPointOfCellForBoardIndex:(CGPointMake([xloc floatValue], [yloc floatValue]))];
-        playerLayer.shadowOpacity = 1.0;
-        // shadowpath for players assumes circular pieces
-        playerLayer.shadowPath = [UIBezierPath bezierPathWithOvalInRect:playerLayer.bounds].CGPath;
-
-        NSString *playerName = (NSString *)[playerDict valueForKey:@"name"];
-        [newPlayers setObject:playerLayer forKey:playerName];
-        [boardLayer addSublayer:playerLayer];
+    else {
+        [board movePieceFrom:move.sourceSquare to:move.destinationSquare];
     }
-    
-    self.playerLayers = newPlayers;
-     */
+
+    if (autoPlay) {
+        [board.searchAgent startThinking];
+    }    
 }
+
+//
+// Callback for display link to show search agent progress and to progress autoPlay mode
+//
+-(void)updateStatus:(CADisplayLink *)sender {
+    
+    if ([board.searchAgent isThinking]) {
+        label.text = [board.searchAgent statusString];
+        [board.searchAgent checkClock];
+    }
+//    else {
+//        label.text = [NSString stringWithFormat: @"%@", [NSDate date]];
+//    }
+}
+
+#pragma mark view loading
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startedThinking)
+                                                 name:@"StartedThinking" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stoppedThinking)
+                                                 name:@"StoppedThinking" object:nil];
+
     animateMove = NO;
     autoPlay = NO;
+    [activityIndicator setHidesWhenStopped:YES];
     
     // needed because the class actually needs to be sent a message to invoke initialization
     [[ChessConstants class] initialize];
@@ -718,16 +822,7 @@ static NSString *imageNames[12] = {
     numPlayerRows = 3;
     
     [self addBoardLayer];
-//    [self addPlayerLayers];
-    
     [self addSquares];
-    
-    // debugging
-    if (shouldShowTextLayers)
-    {
-        [self addTextLayers];
-    }
-    
     [self newGame];
 }
 

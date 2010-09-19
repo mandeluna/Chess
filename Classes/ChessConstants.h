@@ -36,23 +36,13 @@ static int CastlingEnableQueenSide;
 
 static int PieceValues[6];  // one for each piece constant
 
-// moves
-
-#define BETWEEN07(i) ((i >= 0) && (i <= 7))
-
-typedef struct {
-    int count;
-    int *moves;
-} moveValueList;
-
-static moveValueList KingMoves[64];
-static moveValueList RookMoves[64];
-static moveValueList BishopMoves[64];
-static moveValueList KnightMoves[64];
-
 // center scores
 
-static int PieceCenterScores[6][64] = {
+static int PieceCenterScores[7][64] = {
+    
+    // PieceCenterScores[kEmptySquare] -- placeholder
+    
+    { 0 },
 
     // PieceCenterScores[kPawn]
 
@@ -129,12 +119,5 @@ static int A8 = 56, B8 = 57, C8 = 58, D8 = 59, E8 = 60, F8 = 61, G8 = 62, H8 = 6
 
 +(void)initializeCastlingConstants;
 +(void)initializePieceValues;
-+(void)initializeMoves;
-+(void)initializeKnightMoves;
-+(void)initializeRookMoves;
-+(void)initializeBishopMoves;
-+(void)initializeKingMoves;
-+(void)initializeBishopMovers;
-+(void)initializeRookMovers;
 
 @end

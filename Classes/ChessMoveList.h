@@ -30,8 +30,9 @@
 
 // stream protocol
 
--(int)count;
+-(BOOL)atEnd;
 -(ChessMove *)next;
+-(int)count;
 
 // sorting
 
