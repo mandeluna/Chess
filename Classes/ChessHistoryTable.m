@@ -21,10 +21,7 @@
 
 // initialize
 -(void)atAllPut:(int)wordValue {
-//    memset_pattern4(entries, &wordValue, sizeof(int) * HISTORY_TABLE_SIZE);
-    for (int i=0; i<HISTORY_TABLE_SIZE; i++) {
-        entries[i] = wordValue;
-    }
+    memset_pattern4(entries, &wordValue, sizeof(int) * HISTORY_TABLE_SIZE);
 }
 
 -(void)clear {

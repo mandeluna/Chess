@@ -276,8 +276,6 @@ static moveValueList KnightMoves[64];
         if (!myPieces[square])
             continue;
         
-//        printf("+");
-        
         int piece = myPieces[square];
         
         switch (piece) {
@@ -310,7 +308,12 @@ static moveValueList KnightMoves[64];
             break;
     }
     
-    return [self moveList];
+    ChessMoveList *list = [self moveList];
+    
+//    NSLog(@"findAllPossibleMovesFor: %@ found %d moves. isEmpty = %d, atEnd = %d",
+//          isWhite ? @"white" : @"black", [list count], [list isEmpty], [list atEnd]);
+    
+    return list;
 }
 
 //
@@ -320,7 +323,7 @@ static moveValueList KnightMoves[64];
 //
 -(char *)findAttackSquaresFor:(ChessPlayer *)player {
     
-    NSLog(@"findAttackSquaresFor:");
+//    NSLog(@"findAttackSquaresFor:");
     
     forceCaptures = NO;
     bzero(attackSquares, 64 * sizeof(char));

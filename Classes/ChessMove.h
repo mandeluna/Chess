@@ -42,7 +42,6 @@ enum {
 @property(nonatomic, readonly) int bestMove;
 @property(nonatomic, assign) int capturedPiece;
 @property(nonatomic, assign) int destinationSquare;
-@property(nonatomic, readonly) int encodedMove;
 @property(nonatomic, assign) int moveType;
 @property(nonatomic, assign) int movingPiece;
 @property(nonatomic, readonly) int promotion;
@@ -65,6 +64,10 @@ enum {
 -(void)moveEncoded:(int)intValue;
 -(void)promote:(ChessMove *)move to:(int)intValue;
 -(void)staleMate:(int)aPiece;
+
+// encoding
+
+-(int)encodedMove;
 
 // copying
 

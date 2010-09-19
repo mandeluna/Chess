@@ -11,7 +11,7 @@
 
 @implementation ChessMove
 
-@synthesize bestMove, capturedPiece, destinationSquare, encodedMove, moveType=type, movingPiece, promotion, sourceSquare, value;
+@synthesize bestMove, capturedPiece, destinationSquare, moveType=type, movingPiece, promotion, sourceSquare, value;
 
 #pragma mark (Class) Accessing
 
@@ -36,6 +36,16 @@ static ChessMove *NullMove = nil;
         NullMove.moveType = kNullMove;
     }
     return NullMove;
+}
+
+#pragma mark encoding
+
+//
+// return an integer encoding enough of a move for printing
+//
+-(int)encodedMove {
+    
+    return destinationSquare + (sourceSquare << 8) + (movingPiece << 16) + (capturedPiece << 24);  
 }
 
 #pragma mark Accessing

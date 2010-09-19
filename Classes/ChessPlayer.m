@@ -461,10 +461,20 @@
     if (nil == moveList)
         return nil;
     
-    NSArray *moves = [moveList copyContents];
+    NSMutableArray *moves = [NSMutableArray array];
+    NSArray *contentsCopy = [moveList copyContents];
+    
+    for (ChessMove *move in contentsCopy) {
+        ChessMove *moveCopy = [move copy];
+        [moves addObject:moveCopy];
+        [moveCopy release];
+    }
+    
+    [contentsCopy release];
+    
     [board.generator recycleMoveList:moveList];
     
-    return [moves autorelease];
+    return moves;
 }
 
 //

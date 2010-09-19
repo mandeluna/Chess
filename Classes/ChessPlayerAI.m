@@ -126,10 +126,8 @@ static const int ValueThreshold = 200;
         int *mv = variations[ply+1];
         count = mv[0];
         // av replaceFrom:3 to:count+2 with:mv startingAt:2
-        int j=1;
         for (int i=2; i<count+2; i++) {
-            av[i] = mv[j];
-            j++;
+            av[i] = mv[i];
         }
     }
     av[0] = count+1;
@@ -171,10 +169,8 @@ static const int ValueThreshold = 200;
             low = value;
             goodMove = move;
             // activeVariation replaceFrom:1 to:activeVariation size with:variations first startingAt:1
-            int j=0;
             for (int i=0; i<VARIATIONS_SIZE; i++) {
-                activeVariation[i] = variations[0][j];
-                j++;
+                activeVariation[i] = variations[0][i];
             }
         }
     }
@@ -203,7 +199,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return nil;
     
-    NSLog(@"*** negaScout processing moveList size = %d", [moveList count]);
+    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
@@ -304,7 +300,7 @@ static const int ValueThreshold = 200;
             beta = MAX(entry.value, initialBeta);
         }
         else {
-            alpha = -MAX(-entry.value, initialAlpha);
+            alpha = MAX(-entry.value, initialAlpha);
         }
         if (beta > initialBeta)
             return beta;
@@ -318,7 +314,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return -AlphaBetaIllegal;
     
-    if ([moveList atEnd]) {
+    if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -402,7 +398,7 @@ static const int ValueThreshold = 200;
             beta = MAX(entry.value, initialBeta);
         }
         else {
-            alpha = -MAX(entry.value, initialAlpha);
+            alpha = MAX(-entry.value, initialAlpha);
         }
         if (beta > initialBeta)
             return beta;
@@ -454,7 +450,7 @@ static const int ValueThreshold = 200;
             return -AlphaBetaIllegal;
     }
     
-    if ([moveList atEnd]) {
+    if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -533,7 +529,7 @@ static const int ValueThreshold = 200;
             beta = MAX(entry.value, initialBeta);
         }
         else {
-            alpha = -MAX(-entry.value, initialAlpha);
+            alpha = MAX(-entry.value, initialAlpha);
         }
         if (beta > initialBeta)
             return beta;
@@ -547,7 +543,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return -AlphaBetaIllegal;
     
-    if ([moveList atEnd]) {
+    if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -619,7 +615,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return nil;
     
-    if ([moveList atEnd]) {
+    if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return nil;
     }
@@ -702,9 +698,9 @@ static const int ValueThreshold = 200;
     [self setActivePlayer:board.activePlayer];
     
     myMove = [ChessMove nullMove];
-    // [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
+    [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
     
-    [self thinkThread];
+    // [self thinkThread];
 }
 
 -(void)thinkThread {
@@ -740,9 +736,6 @@ static const int ValueThreshold = 200;
             theMove = [self mtdfSearch:board score:score depth:depth];
         }
         
-        
-        [self checkClock];
-        
         if (!theMove || stopThinking) {
             isThinking = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
@@ -776,23 +769,20 @@ static const int ValueThreshold = 200;
 
 -(NSString *)statusString {
     
-    if (1)
-        return @"disabled";
-    
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {
-        resultString = [resultString stringByAppendingFormat:@"%d ", myMove.value];
+        resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
     }
     
     int *av = bestVariation;
     int count = av[0];
     
-    if (!count) {
+    if (count <= 0) {
         av = activeVariation;
         count = av[0];
     }
     
-    if (!count) {
+    if (count <= 0) {
         resultString = [resultString stringByAppendingString:@"***"];
         av = variations[0];
         count = av[0];

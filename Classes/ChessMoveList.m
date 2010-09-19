@@ -78,12 +78,23 @@
 }
 
 -(int)count {
-    NSLog(@" --moveList size = %d", readLimit+1);
     return readLimit+1;
 }
 
+//
+// Answer whether the receiver's contents has no elements
+//
+-(BOOL)isEmpty {
+  
+    // returns true if both the set of past and future sequence values
+    // of the receiver are empty. Otherwise returns false
+    
+    return ([self atEnd] && (-1 == position));
+    
+}
+
 -(ChessMove *)next {
-    if (position > readLimit)
+    if (position >= readLimit)
         return nil;
     
     return [collection objectAtIndex:position++];

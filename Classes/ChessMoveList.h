@@ -33,6 +33,7 @@
 -(BOOL)atEnd;
 -(ChessMove *)next;
 -(int)count;
+-(BOOL)isEmpty;
 
 // sorting
 
