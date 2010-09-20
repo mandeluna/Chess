@@ -35,7 +35,7 @@ typedef struct {
     ChessMove *kingAttack;
 }
 
-@property(nonatomic, retain) ChessMove *kingAttack;
+@property(nonatomic, assign) ChessMove *kingAttack;
 
 // public
 
@@ -48,6 +48,10 @@ typedef struct {
 -(ChessMoveList *)moveList;
 -(void)profileGenerationFor:(ChessPlayer *)player;
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList;
+
+// debugging
+
+-(float)moveListUsage;
 
 // moves-pawns
 

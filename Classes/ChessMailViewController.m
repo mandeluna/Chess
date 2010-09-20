@@ -716,26 +716,6 @@ static NSString *imageNames[12] = {
     return CGPointMake(x, y);
 }
 
-- (void)addTextLayers {
-    
-    CGRect bounds = CGRectMake(0, 0, [self cellWidth], [self cellWidth]);
-    
-    for (int j=0; j < BOARD_GRID_COUNT; j++) {
-        for (int i=0; i < BOARD_GRID_COUNT; i++) {
-            CATextLayer *textLayer = [CATextLayer layer];
-            NSString *layerString = [NSString stringWithFormat:@"(%d, %d)", i, j];
-            textLayer.string = layerString;
-            CGPoint pos = [self centerPointOfCellForBoardIndex:CGPointMake(i,j)];
-            textLayer.position = pos;
-            textLayer.alignmentMode = kCAAlignmentCenter;
-            textLayer.bounds = bounds;
-            textLayer.fontSize = 18.0f;
-            NSLog(@"Adding text layer [%@] at (%3.0f, %3.0f)", layerString, pos.x, pos.y);
-            [boardLayer addSublayer:textLayer];
-        }
-    }
-}
-
 #pragma mark callbacks
 
 //
@@ -745,7 +725,9 @@ static NSString *imageNames[12] = {
     
     [hintButton setEnabled:NO];
     [playButton setEnabled:NO];
+    [autoPlayButton setEnabled:NO];
     [activityIndicator startAnimating];
+    [activityIndicator setHidden:NO];
     [self.view setNeedsDisplay];
 }
 
@@ -759,6 +741,7 @@ static NSString *imageNames[12] = {
     
     [hintButton setEnabled:YES];
     [playButton setEnabled:YES];
+    [autoPlayButton setEnabled:YES];
     [activityIndicator stopAnimating];
     [self.view setNeedsDisplay];
     
@@ -792,6 +775,8 @@ static NSString *imageNames[12] = {
         label.text = [board.searchAgent statusString];
         [board.searchAgent checkClock];
     }
+    
+    percentFullIndicator.progress = [board.searchAgent.generator moveListUsage];
 //    else {
 //        label.text = [NSString stringWithFormat: @"%@", [NSDate date]];
 //    }

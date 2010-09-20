@@ -31,9 +31,10 @@
     
     // collection copyFrom:startIndex to:readLimit
     range.location = startIndex;
-    range.length = readLimit - startIndex + 1;
+    range.length = [self count];
     
     NSArray *contentsCopy = [collection subarrayWithRange:range];
+
     return [contentsCopy retain];
 }
 
@@ -48,9 +49,6 @@
 
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex {
 
-    // TODO: this is spinning
-//    NSLog(@" - creating moveList firstIndex = %d, lastIndex = %d", firstIndex, lastIndex);
-
     int len;
     
     if (startIndex < 0) {
@@ -64,6 +62,10 @@
     collection = [anArray retain];
     readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
     position = (firstIndex <= 1) ? 0 : firstIndex - 1;
+    
+//    NSLog(@"created moveList startIndex = %d, readLimit = %d, position = %d, count = %d, atEnd = %d, isEmpty = %d",
+//          startIndex, readLimit, position, [self count], [self atEnd], [self isEmpty]);
+
 }
 
 -(void)dealloc {

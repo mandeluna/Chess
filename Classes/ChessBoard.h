@@ -25,8 +25,6 @@
     ChessPlayer *activePlayer;
     ChessPlayerAI *searchAgent;
     id<ChessUserAgent> userAgent;
-
-    NSString *statusString;
 }
 
 @property(nonatomic, retain) ChessPlayer *whitePlayer;
@@ -35,7 +33,6 @@
 @property(nonatomic, assign) id<ChessUserAgent> userAgent;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, assign) ChessPlayerAI *searchAgent;
-@property(nonatomic, copy) NSString *statusString;
 
 // initialize
 -(void)resetGame;

@@ -250,9 +250,6 @@ static moveValueList KnightMoves[64];
 //
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player {
 
-    // TODO: this is spinning 
-//    NSLog(@"findAllPossibleMovesFor: lastMoveIndex = %d, forceCaptures = %d", lastMoveIndex, forceCaptures);
-    
     ChessPlayer *opponent = [player opponent];
     
     myPlayer = player;
@@ -271,6 +268,21 @@ static moveValueList KnightMoves[64];
     self.kingAttack = nil;
     
     BOOL isWhite = [myPlayer isWhitePlayer];
+    
+    if (isWhite) {
+        for (int i=0; i < 8; i++) {
+            if (1 == myPieces[i]) {
+                NSLog(@"White pawn in row 1. Illegal board state");
+            }
+        }
+    }
+    else {
+        for (int i=56; i < 64; i++) {
+            if (1 == myPieces[i]) {
+                NSLog(@"Black pawn in row 8. Illegal board state");
+            }
+        }
+    }
     
     for (int square = 0; square < 64; square++) {
         if (!myPieces[square])
@@ -329,6 +341,7 @@ static moveValueList KnightMoves[64];
     bzero(attackSquares, 64 * sizeof(char));
     
     ChessMoveList *list = [self findAllPossibleMovesFor:player];
+    [list retain];
     
     for (ChessMove *move in [list originalContents]) {
         
@@ -340,21 +353,18 @@ static moveValueList KnightMoves[64];
     }
     
     [self recycleMoveList:list];
+    [list release];
     
     return attackSquares;
 }
 
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player {
     
-//    NSLog(@"findPossibleMovesFor:");
-
     forceCaptures = NO;
     return [self findAllPossibleMovesFor:player];
 }
 
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player at:(int)square {
-    
-//    NSLog(@"findPossibleMovesFor:at:");
     
     forceCaptures = NO;
     myPlayer = player;
@@ -363,6 +373,12 @@ static moveValueList KnightMoves[64];
     memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
     castlingStatus = [player castlingStatus];
     enpassantSquare = [opponent enpassantSquare];
+    
+    for (int i=0; i < 8; i++) {
+        if ((1 == myPieces[i]) || (1 == itsPieces[i])) {
+            NSLog(@"Pawn in back row. Illegal board state?");
+        }
+    }
     
     if (firstMoveIndex != lastMoveIndex) {
         NSLog(@"findPossibleMovesFor:at: is confused");
@@ -418,7 +434,17 @@ static moveValueList KnightMoves[64];
         return nil;
     }
     
-    ChessMoveList *list = [streamList objectAtIndex:++streamListIndex];
+    ++streamListIndex;
+    
+    int count = [streamList count];
+    if (streamListIndex >= count) {
+        NSException *exception = [NSException exceptionWithName:@"About to overflow move list"
+                                                         reason:@"Subscript out of bounds"
+                                                       userInfo:nil];
+        [exception raise];
+    }
+    
+    ChessMoveList *list = [streamList objectAtIndex:streamListIndex];
     [list on:moveList from:firstMoveIndex+1 to:lastMoveIndex];
     firstMoveIndex = lastMoveIndex;
     
@@ -438,9 +464,14 @@ static moveValueList KnightMoves[64];
         [exception raise];
     }
     streamListIndex--;
-    firstMoveIndex = lastMoveIndex = [aChessMoveList startIndex] - 1;
+    firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
     
 //    NSLog(@"recycled move list. streamListIndex is now %d", streamListIndex);
+}
+
+-(float)moveListUsage {
+    
+    return streamListIndex / 100.0;
 }
 
 #pragma mark moves-pawns

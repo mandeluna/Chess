@@ -39,6 +39,7 @@
     IBOutlet UIButton *playButton;
     IBOutlet UIButton *autoPlayButton;
     IBOutlet UIActivityIndicatorView *activityIndicator;
+    IBOutlet UIProgressView *percentFullIndicator;
 }
 
 //@property(nonatomic, retain) NSDictionary *playerLayers;

@@ -243,7 +243,7 @@
     int piece = [move promotion];
     
     if (piece) {
-        [self replacePiece:piece with:[move movingPiece] at:[move destinationSquare]];
+        [self replacePiece:[move movingPiece] with:piece at:[move destinationSquare]];
     }
 }
 
@@ -492,11 +492,15 @@
     
     NSMutableArray *moves = [NSMutableArray array];
     
-    for (ChessMove *move in [moveList copyContents]) {
+    NSArray *contentsCopy = [moveList copyContents];
+    
+    for (ChessMove *move in contentsCopy) {
         ChessMove *moveCopy = [move copy];
         [moves addObject:moveCopy];
         [moveCopy release];
     }
+    
+    [contentsCopy release];
     
     [board.generator recycleMoveList:moveList];
     

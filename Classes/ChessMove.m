@@ -11,7 +11,7 @@
 
 @implementation ChessMove
 
-@synthesize bestMove, capturedPiece, destinationSquare, moveType=type, movingPiece, promotion, sourceSquare, value;
+@synthesize bestMove, capturedPiece, destinationSquare, moveType=type, movingPiece, sourceSquare, value;
 
 #pragma mark (Class) Accessing
 
@@ -70,6 +70,11 @@ static ChessMove *NullMove = nil;
     sourceSquare = intValue;
 }
 
+-(int)promotion {
+    
+    return type >> kExtractPromotionShift;
+}
+
 #pragma mark Initialize
 
 -(id)init {
@@ -108,6 +113,10 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)move:(int)aPiece from:(int)startSquare to:(int)endSquare {
+    
+    if ((1 == aPiece) && ((endSquare < 8) || (startSquare < 8))) {
+        NSLog(@"illegal move?");
+    }
     
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
@@ -181,6 +190,10 @@ static ChessMove *NullMove = nil;
     return copy;
 }
 
+
+-(void)dealloc {
+    [super dealloc];
+}
 
 #pragma mark Comparing
 

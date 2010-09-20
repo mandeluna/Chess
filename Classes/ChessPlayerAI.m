@@ -216,9 +216,13 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     
     while (nil != move) {
+        
+        // retain the move so it doesn't get deallocated while we recurse
+        [move retain];
+        
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
-        NSLog(@"negaScout evaluating move %@", move);
+//        NSLog(@"negaScout evaluating move %@, depth = %d", move, depth);
         [newBoard nextMove:move];
         
         // search recursively
@@ -265,6 +269,10 @@ static const int ValueThreshold = 200;
             }
             b = a + 1;
         }
+        
+        // undo the previous retain
+        [move release];
+        
         move = [moveList next];
     }
     [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:depth stamp:stamp];
@@ -327,15 +335,18 @@ static const int ValueThreshold = 200;
     ChessMove *move = [moveList next];
     while (move) {
         
+        [move retain];
+        
         ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
+//        NSLog(@"ngSearch evaluating move %@", move);
         [newBoard nextMove:move];
         
         // search recursively
         ply++;
-        int score = -[self ngSearch:theBoard depth:depth-1 alpha:-b beta:-a];
+        int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
         
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
-            score = -[self ngSearch:theBoard depth:depth-1 alpha:-beta beta:-score];
+            score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
         }
         notFirst = YES;
         ply--;
@@ -363,6 +374,9 @@ static const int ValueThreshold = 200;
             }
             b = a + 1;
         }
+        
+        [move release];
+        
         move = [moveList next];
     }
     
@@ -461,13 +475,16 @@ static const int ValueThreshold = 200;
     // and search
     ChessMove *move = [moveList next];
     while (move) {
+        
+        [move retain];
+        
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
         ply++;
-        int score = -[self quiesce:theBoard alpha:-beta beta:-alpha];
+        int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
         
         if (stopThinking) {
             [generator recycleMoveList:moveList];
@@ -493,6 +510,8 @@ static const int ValueThreshold = 200;
                 return bestScore;
             }
         }
+        
+        [move release];
         
         move = [moveList next];
     }
@@ -728,11 +747,11 @@ static const int ValueThreshold = 200;
         ChessMove *theMove = nil;
         
         if (useNegaScout) {
-            NSLog(@"about to enter negaScout. nodesVisited = %d", nodesVisited);
+//            NSLog(@"about to enter negaScout. nodesVisited = %d", nodesVisited);
             theMove = [self negaScout:board depth:depth alpha:AlphaBetaMinVal beta:AlphaBetaMaxVal];
         }
         else {
-            NSLog(@"about to enter mtdfSearch. nodesVisited = %d", nodesVisited);
+//            NSLog(@"about to enter mtdfSearch. nodesVisited = %d", nodesVisited);
             theMove = [self mtdfSearch:board score:score depth:depth];
         }
         

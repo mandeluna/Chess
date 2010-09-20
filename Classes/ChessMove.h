@@ -19,8 +19,8 @@ enum {
 };
 
 #define kBasicMoveMask  15
-#define kPromotionShift 4
-#define kExtractPromotionShift  -4
+#define kPromotionShift 4           // left shift
+#define kExtractPromotionShift  4   // right shift
 
 #define kEvalTypeAccurate   0
 #define kEvalTypeUpperBound 1
@@ -44,7 +44,6 @@ enum {
 @property(nonatomic, assign) int destinationSquare;
 @property(nonatomic, assign) int moveType;
 @property(nonatomic, assign) int movingPiece;
-@property(nonatomic, readonly) int promotion;
 @property(nonatomic, assign) int sourceSquare;
 @property(nonatomic, assign) int value;
 
@@ -68,6 +67,7 @@ enum {
 // encoding
 
 -(int)encodedMove;
+-(int)promotion;
 
 // copying
 

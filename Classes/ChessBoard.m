@@ -20,7 +20,7 @@
 @end
 
 @implementation ChessBoard
-@synthesize whitePlayer, blackPlayer, activePlayer, generator, searchAgent, statusString, userAgent;
+@synthesize whitePlayer, blackPlayer, activePlayer, generator, searchAgent, userAgent;
 
 #pragma mark Class Methods
 
@@ -88,13 +88,14 @@ static int HashLocks[12][64];
 
 -(void)postCopy {
     
-    whitePlayer = [whitePlayer copy];
-    blackPlayer = [blackPlayer copy];
-    
     if (activePlayer == whitePlayer) {
+        whitePlayer = [whitePlayer copy];
+        blackPlayer = [blackPlayer copy];        
         activePlayer = whitePlayer;
     }
     else {
+        whitePlayer = [whitePlayer copy];
+        blackPlayer = [blackPlayer copy];        
         activePlayer = blackPlayer;
     }
     
@@ -157,7 +158,7 @@ static int HashLocks[12][64];
     [activePlayer applyMove:aMove];
     
     if (userAgent) {
-        [userAgent completedMove:aMove white:activePlayer.isWhitePlayer];
+        [userAgent completedMove:aMove white:[activePlayer isWhitePlayer]];
     }
     
     activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
