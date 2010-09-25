@@ -27,8 +27,8 @@
     id<ChessUserAgent> userAgent;
 }
 
-@property(nonatomic, retain) ChessPlayer *whitePlayer;
-@property(nonatomic, retain) ChessPlayer *blackPlayer;
+@property(nonatomic, assign) ChessPlayer *whitePlayer;
+@property(nonatomic, assign) ChessPlayer *blackPlayer;
 @property(nonatomic, assign) ChessPlayer *activePlayer;
 @property(nonatomic, assign) id<ChessUserAgent> userAgent;
 @property(nonatomic, assign) ChessMoveGenerator *generator;

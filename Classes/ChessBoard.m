@@ -48,8 +48,8 @@ static int HashLocks[12][64];
 
 -(void)resetGame {
     hashKey = hashLock = 0;
-    self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
-    self.blackPlayer = [[[ChessPlayer alloc] init] autorelease];
+    self.whitePlayer = [[ChessPlayer alloc] init];
+    self.blackPlayer = [[ChessPlayer alloc] init];
     whitePlayer.opponent = blackPlayer;
     whitePlayer.board = self;
     blackPlayer.opponent = whitePlayer;
@@ -68,8 +68,8 @@ static int HashLocks[12][64];
 }
 
 -(void)dealloc {
-    self.whitePlayer = nil;
-    self.blackPlayer = nil;
+    [whitePlayer release];
+    [blackPlayer release];
     [super dealloc];
 }
 

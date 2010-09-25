@@ -17,7 +17,8 @@
     ChessPlayer *opponent;
     ChessBoard *board;
     
-    char pieces[64];
+//    char pieces[64];
+    unsigned char *pieces;
     int materialValue;
     int positionalValue;
     int numPawns;
@@ -37,7 +38,6 @@
 
 // initialize
 
--(void)initialize;
 -(void)prepareNextMove;
 
 // adding/removing
@@ -66,7 +66,7 @@
 
 -(id<ChessUserAgent>) userAgent;
 -(int)pieceAt:(int)square;
--(char *)pieces;
+-(unsigned char *)pieces;
 
 // testing
 

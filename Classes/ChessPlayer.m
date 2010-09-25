@@ -18,15 +18,24 @@
 
 #pragma mark Initialize
 
--(void)initialize {
-    
-    bzero(pieces, 64 * sizeof(char));
-    materialValue = 0;
-    positionalValue = 0;
-    numPawns = 0;
-    enpassantSquare = -1;
-    castlingRookSquare = -1;
-    castlingStatus = 0;
+-(id)init {
+    if (self = [super init]) {
+        //    bzero(pieces, 64 * sizeof(char));
+        pieces = calloc(64, sizeof(char));
+        materialValue = 0;
+        positionalValue = 0;
+        numPawns = 0;
+        enpassantSquare = -1;
+        castlingRookSquare = -1;
+        castlingStatus = 0;
+    }
+    return self;
+}
+
+-(void)dealloc {
+    free(pieces);
+    pieces = nil;
+    [super dealloc];
 }
 
 //
@@ -46,9 +55,7 @@
 #pragma mark Adding/Removing
 
 -(void)addBlackPieces {
-    
-    [self initialize];
-    
+        
     for (int i=48; i<=55; i++) {
         [self addPiece:kPawn at: i];
     }
@@ -193,6 +200,10 @@
     
     int type = [move moveType] & kBasicMoveMask;
     
+    if (board.userAgent) {
+        NSLog(@"applying move %@ type=%d", move, type);
+    }
+    
     switch(type) {
         case kMoveNormal:
             [self applyNormalMove:move];
@@ -311,7 +322,7 @@
     return pieces[square];
 }
 
--(char *)pieces {
+-(unsigned char *)pieces {
     
     return pieces;
 }
@@ -389,13 +400,18 @@
 
 #pragma mark copying
 
-//
-// post copy not needed because pieces array is part of instance state
-//
+-(void)postCopy {
+    unsigned char *piecesCopy = calloc(64, sizeof(char));
+    memcpy(piecesCopy, pieces, 64 * sizeof(char));
+    pieces = piecesCopy;
+}
+
 -(id)copyWithZone:(NSZone *)zone {
     
     // shallow copy
     id copy = NSCopyObject(self, 0, zone);
+    
+    [copy postCopy];
     
     return copy;
 }

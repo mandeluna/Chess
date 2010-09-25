@@ -253,8 +253,10 @@ static moveValueList KnightMoves[64];
     ChessPlayer *opponent = [player opponent];
     
     myPlayer = player;
-    memcpy(myPieces, [player pieces], 64*sizeof(char));
-    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
+//    memcpy(myPieces, [player pieces], 64*sizeof(char));
+//    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
+    myPieces = [player pieces];
+    itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];
     enpassantSquare = [opponent enpassantSquare];
     
@@ -369,8 +371,10 @@ static moveValueList KnightMoves[64];
     forceCaptures = NO;
     myPlayer = player;
     ChessPlayer *opponent = [player opponent];
-    memcpy(myPieces, [player pieces], 64*sizeof(char));
-    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
+    //    memcpy(myPieces, [player pieces], 64*sizeof(char));
+    //    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
+    myPieces = [player pieces];
+    itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];
     enpassantSquare = [opponent enpassantSquare];
     
@@ -438,7 +442,7 @@ static moveValueList KnightMoves[64];
     
     int count = [streamList count];
     if (streamListIndex >= count) {
-        NSException *exception = [NSException exceptionWithName:@"About to overflow move list"
+        NSException *exception = [NSException exceptionWithName:@"overflow move list"
                                                          reason:@"Subscript out of bounds"
                                                        userInfo:nil];
         [exception raise];
@@ -466,7 +470,7 @@ static moveValueList KnightMoves[64];
     streamListIndex--;
     firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
     
-//    NSLog(@"recycled move list. streamListIndex is now %d", streamListIndex);
+    //NSLog(@"recycled move list. streamListIndex is now %d", streamListIndex);
 }
 
 -(float)moveListUsage {

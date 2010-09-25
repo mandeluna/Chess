@@ -239,6 +239,7 @@ static const int ValueThreshold = 200;
         
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+            [move release];
             return move;
         }
         
@@ -264,6 +265,7 @@ static const int ValueThreshold = 200;
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
+                    [move release];
                     return goodMove;
                 }
             }
@@ -353,6 +355,7 @@ static const int ValueThreshold = 200;
         
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+            [move release];
             return score;
         }
         
@@ -369,6 +372,7 @@ static const int ValueThreshold = 200;
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
+                    [move release];
                     return score;
                 }
             }
@@ -488,31 +492,34 @@ static const int ValueThreshold = 200;
         
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+            [move release];
             return score;
         }
         ply--;
         
         if (AlphaBetaIllegal != score) {
-            if (ply < 10) {
-                [self copyVariation:move];
+            if (score > bestScore) {                
+                if (ply < 10) {
+                    [self copyVariation:move];
+                }
+                bestScore = score;
             }
-            bestScore = score;
-        }
-        
-        // see if we can cut off the search
-        if (score > alpha) {
-            alpha = score;
-            if (score >= beta) {
-                [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:0 stamp:stamp];
-                [historyTable addMove:move];
-                alphaBetaCuts++;
-                [generator recycleMoveList:moveList];
-                return bestScore;
+            
+            // see if we can cut off the search
+            if (score > alpha) {
+                alpha = score;
+                if (score >= beta) {
+                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:0 stamp:stamp];
+                    [historyTable addMove:move];
+                    alphaBetaCuts++;
+                    [generator recycleMoveList:moveList];
+                    [move release];
+                    return bestScore;
+                }
             }
         }
         
         [move release];
-        
         move = [moveList next];
     }
     
