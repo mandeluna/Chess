@@ -159,6 +159,7 @@ static int HashLocks[12][64];
     
     if (userAgent) {
         [userAgent completedMove:aMove white:[activePlayer isWhitePlayer]];
+        [userAgent validateGamePosition];
     }
     
     activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
@@ -186,6 +187,36 @@ static int HashLocks[12][64];
 -(NSString *)description {
     
     return [NSString stringWithFormat:@"%@ (%d %d)", [super description], hashKey, hashLock];
+}
+
+
+-(void)printWhitePieces {
+    printf("\n ==== white ====");
+    for (int i=0; i<64; i++) {
+        if (0 == (i % 8)) {
+            printf("\n");
+        }
+        printf("%2d", whitePlayer.pieces[i]);
+    }
+    printf("\n ===============\n");
+}
+
+-(void)printBlackPieces {
+    printf("\n ==== black ====");
+    for (int i=0; i<64; i++) {
+        if (0 == (i % 8)) {
+            printf("\n");
+        }
+        printf("%2d", blackPlayer.pieces[i]);
+    }
+    printf("\n ===============\n");
+}
+
+-(void)printPieces {
+    
+    printf("\n board: %d %d", hashKey, hashLock);
+    [self printWhitePieces];
+    [self printBlackPieces];
 }
 
 @end

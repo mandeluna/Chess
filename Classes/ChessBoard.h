@@ -55,5 +55,6 @@
 
 // printing
 -(NSString *)description;
+-(void)printPieces;
 
 @end

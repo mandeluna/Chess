@@ -371,18 +371,12 @@ static moveValueList KnightMoves[64];
     forceCaptures = NO;
     myPlayer = player;
     ChessPlayer *opponent = [player opponent];
-    //    memcpy(myPieces, [player pieces], 64*sizeof(char));
-    //    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
+//    memcpy(myPieces, [player pieces], 64*sizeof(char));
+//    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
     myPieces = [player pieces];
     itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];
     enpassantSquare = [opponent enpassantSquare];
-    
-    for (int i=0; i < 8; i++) {
-        if ((1 == myPieces[i]) || (1 == itsPieces[i])) {
-            NSLog(@"Pawn in back row. Illegal board state?");
-        }
-    }
     
     if (firstMoveIndex != lastMoveIndex) {
         NSLog(@"findPossibleMovesFor:at: is confused");
@@ -438,15 +432,13 @@ static moveValueList KnightMoves[64];
         return nil;
     }
     
-    ++streamListIndex;
-    
-    int count = [streamList count];
-    if (streamListIndex >= count) {
-        NSException *exception = [NSException exceptionWithName:@"overflow move list"
-                                                         reason:@"Subscript out of bounds"
-                                                       userInfo:nil];
-        [exception raise];
+    if (streamListIndex + 1 == [streamList count]) {
+//        NSLog(@"moveList: forcing early exit due to overflow");
+        lastMoveIndex = firstMoveIndex;
+        return nil;
     }
+    
+    ++streamListIndex;
     
     ChessMoveList *list = [streamList objectAtIndex:streamListIndex];
     [list on:moveList from:firstMoveIndex+1 to:lastMoveIndex];
@@ -475,7 +467,7 @@ static moveValueList KnightMoves[64];
 
 -(float)moveListUsage {
     
-    return streamListIndex / 100.0;
+    return streamListIndex / (NUM_PLIES * 1.0);
 }
 
 #pragma mark moves-pawns
@@ -521,7 +513,7 @@ static moveValueList KnightMoves[64];
     }
     
     // try to double-push if possible
-    if (square > 47)
+    if (square < 48)
         return;
     destSquare = square - 16;
     if (myPieces[destSquare])
@@ -537,16 +529,39 @@ static moveValueList KnightMoves[64];
 //
 -(void)moveBlackPawnAt:(int)square {
     
+    /*
+     (1 to: 64) collect: [:i | i bitAnd: 7]
+     
+     #(1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0)
+     
+     (0 to: 63) collect: [:i | i bitAnd: 7]
+     #(0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7)
+     */
+    
     if (!forceCaptures) {
         [self blackPawnPushAt:square];
     }
     
-    if (1 != (square & 7)) {
-        [self blackPawnCaptureAt:square direction:1];
-    }
-    
     if (0 != (square & 7)) {
         [self blackPawnCaptureAt:square direction:-1];
+    }
+    
+    if (7 != (square & 7)) {
+        [self blackPawnCaptureAt:square direction:1];
     }
 }
 
@@ -612,12 +627,36 @@ static moveValueList KnightMoves[64];
         [self whitePawnPushAt:square];
     }
     
+    /*
+   (1 to: 64) collect: [:i | i bitAnd: 7]
+     
+   #(1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0
+     1 2 3 4 5 6 7 0)
+     
+   (0 to: 63) collect: [:i | i bitAnd: 7]
+   #(0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7
+     0 1 2 3 4 5 6 7)
+     */
+        
+    
     if (0 != (square & 7)) {
-        [self whitePawnCaptureAt:square direction:1];
+        [self whitePawnCaptureAt:square direction:-1];
     }
     
-    if (1 != (square & 7)) {
-        [self whitePawnCaptureAt:square direction:-1];
+    if (7 != (square & 7)) {
+        [self whitePawnCaptureAt:square direction:1];
     }
 }
 
@@ -637,7 +676,7 @@ static moveValueList KnightMoves[64];
 
 -(BOOL)canCastleBlackKingSide {
     
-    if (0 != (castlingStatus & CastlingEnableKingSide))
+    if (0 != (castlingStatus & kCastlingEnableKingSide))
         return NO;
     
     // quickly check if all the squares are zero
@@ -716,7 +755,7 @@ static moveValueList KnightMoves[64];
 
 -(BOOL)canCastleBlackQueenSide {
     
-    if (0 != (castlingStatus & CastlingEnableQueenSide))
+    if (0 != (castlingStatus & kCastlingEnableQueenSide))
         return NO;
     
     // quickly check if all the squares are zero
@@ -807,7 +846,7 @@ static moveValueList KnightMoves[64];
 
 -(BOOL)canCastleWhiteKingSide {
     
-    if (0 != (castlingStatus & CastlingEnableKingSide))
+    if (0 != (castlingStatus & kCastlingEnableKingSide))
         return NO;
     
     // quickly check if all the squares are zero
@@ -886,7 +925,7 @@ static moveValueList KnightMoves[64];
 
 -(BOOL)canCastleWhiteQueenSide {
     
-    if (0 != (castlingStatus & CastlingEnableQueenSide))
+    if (0 != (castlingStatus & kCastlingEnableQueenSide))
         return NO;
     
     // quickly check if all the squares are zero
@@ -1119,7 +1158,6 @@ static moveValueList KnightMoves[64];
             
             if (!forceCaptures || capture) {
                 
-//                NSLog(@"creating knight move from %d to %d -- lastMoveIndex is %d", square, destSquare, lastMoveIndex);
                 ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
                 [move move:kKnight from:square to:destSquare capture:capture];
                 
@@ -1157,11 +1195,15 @@ static moveValueList KnightMoves[64];
             ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
             [move move:piece from:square to:destSquare capture:capture];
             
+            if ([myPlayer.board userAgent] && (piece == kQueen)) {
+                NSLog(@"queen move: %@", move);
+            }
+            
             if (kKing == capture) {
                 kingAttack = [moveList objectAtIndex:lastMoveIndex];
             }
         }
-        if (!capture)
+        if (capture)
             return;
     }
 }

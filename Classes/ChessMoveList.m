@@ -22,12 +22,12 @@
     
     NSRange range;
     
-    if (startIndex > readLimit) {
-        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
-                                                         reason:@"ChessMoveList is invalid"
-                                                       userInfo:nil];
-        [exception raise];
-    }
+//    if (startIndex > readLimit) {
+//        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
+//                                                         reason:@"ChessMoveList is invalid"
+//                                                       userInfo:nil];
+//        [exception raise];
+//    }
     
     // collection copyFrom:startIndex to:readLimit
     range.location = startIndex;
@@ -69,7 +69,7 @@
 }
 
 -(void)dealloc {
-    [collection release];
+//    [collection release];
     [super dealloc];
 }
 
@@ -99,7 +99,9 @@
     if (position >= readLimit)
         return nil;
     
-    return [collection objectAtIndex:position++];
+    position++;
+    
+    return [collection objectAtIndex:position];
 }
 
 #pragma mark sorting

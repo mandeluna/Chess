@@ -67,7 +67,7 @@
         }
     }
     
-    if (!((-1 == entry.valueType) || (entry.depth < depth) || (entry.timeStamp < timeStamp))) {
+    if (!((-1 == entry.valueType) || (entry.depth <= depth) || (entry.timeStamp < timeStamp))) {
         return;
     }
     

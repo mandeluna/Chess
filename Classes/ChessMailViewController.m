@@ -277,7 +277,7 @@ static NSString *imageNames[12] = {
 //
 -(void)validateGamePosition {
     
-    for (int i=0; i<63; i++) {
+    for (int i=0; i<64; i++) {
         
         int piece = 0;
         BOOL screenIsWhite = NO;
@@ -484,7 +484,7 @@ static NSString *imageNames[12] = {
     if ([board.searchAgent isThinking])
         return;
     
-    for (int i=0; i<63; i++) {
+    for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
         squareLayer.borderWidth = 0;
     }
@@ -527,7 +527,7 @@ static NSString *imageNames[12] = {
         return;
 
     // clear previous move indicators
-    for (int i=0; i<63; i++) {
+    for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
         squareLayer.borderWidth = 0;
     }
@@ -736,8 +736,8 @@ static NSString *imageNames[12] = {
 //
 -(void)stoppedThinking {
     
-    NSLog(@"view controller received stop notification");
-    NSLog(@"autoplay is %d", autoPlay);
+//    NSLog(@"view controller received stop notification");
+//    NSLog(@"autoplay is %d", autoPlay);
     
     [hintButton setEnabled:YES];
     [playButton setEnabled:YES];
@@ -828,7 +828,6 @@ static NSString *imageNames[12] = {
 - (void)viewDidUnload {
 	// we don't retain board layer, so we don't need to release it
     boardLayer = nil;
-//    self.playerLayers = nil;
 }
 
 
@@ -837,8 +836,8 @@ static NSString *imageNames[12] = {
     if (board) {
         [board release];
     }
-    self.redoList = nil;
-    self.history = nil;
+    [redoList release]; redoList = nil;
+    [history release]; history = nil;
 }
 
 @end

@@ -25,73 +25,12 @@ enum {
 
 // castling constants
 
-static int CastlingDone;
-static int CastlingDisableKingSide;
-static int CastlingDisableQueenSide;
-static int CastlingDisableAll;
-static int CastlingEnableKingSide;
-static int CastlingEnableQueenSide;
-
-// piece values
-
-static int PieceValues[6];  // one for each piece constant
-
-// center scores
-
-static int PieceCenterScores[7][64] = {
-    
-    // PieceCenterScores[kEmptySquare] -- placeholder
-    
-    { 0 },
-
-    // PieceCenterScores[kPawn]
-
-    { 0 },
-
-    // PieceCenterScores[kKnight]
-    {
-        -4,	0,	0,	0,	0,	0,	0,	-4,
-        -4,	0,	2,	2,	2,	2,	0,	-4,
-        -4,	2,	3,	2,	2,	3,	2,	-4,
-        -4,	1,	2,	5,	5,	2,	2,	-4,
-        -4,	1,	2,	5,	5,	2,	2,	-4,
-        -4,	2,	3,	2,	2,	3,	2,	-4,
-        -4,	0,	2,	2,	2,	2,	0,	-4,
-        -4,	0,	0,	0,	0,	0,	0,	-4
-    },
-
-    // PieceCenterScores[kBishop]
-    {
-        -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2,
-        -2,	0,	0,	0,	0,	0,	0,	-2,
-        -2,	0,	1,	1,	1,	1,	0,	-2,
-        -2,	0,	1,	2,	2,	1,	0,	-2,
-        -2,	0,	1,	2,	2,	1,	0,	-2,
-        -2,	0,	1,	1,	1,	1,	0,	-2,
-        -2,	0,	0,	0,	0,	0,	0,	-2,
-        -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2
-    },
-
-    // PieceCenterScores[kRook]
-    
-    { 0 },
-    
-    // PieceCenterScores[kQueen]
-    {
-        -3,	0,	0,	0,	0,	0,	0,	-3,
-        -2,	0,	0,	0,	0,	0,	0,	-2,
-        -2,	0,	1,	1,	1,	1,	0,	-2,
-        -2,	0,	1,	2,	2,	1,	0,	-2,
-        -2,	0,	1,	2,	2,	1,	0,	-2,
-        -2,	0,	1,	1,	1,	1,	0,	-2,
-        -2,	0,	0,	0,	0,	0,	0,	-2,
-        -3,	0,	0,	0,	0,	0,	0,	-3
-    },
-    
-    // PieceCenterScores[kKing]
-    
-    { 0 }
-};
+#define kCastlingDone                   1
+#define kCastlingDisableKingSide        2
+#define kCastlingDisableQueenSide       4
+#define kCastlingDisableAll             (kCastlingDisableQueenSide | kCastlingDisableKingSide)
+#define kCastlingEnableKingSide         (kCastlingDone | kCastlingDisableKingSide)
+#define kCastlingEnableQueenSide        (kCastlingDone | kCastlingDisableQueenSide)
 
 // bishop movers
 
@@ -116,8 +55,5 @@ static int A8 = 56, B8 = 57, C8 = 58, D8 = 59, E8 = 60, F8 = 61, G8 = 62, H8 = 6
 @interface ChessConstants : NSObject {
 
 }
-
-+(void)initializeCastlingConstants;
-+(void)initializePieceValues;
 
 @end

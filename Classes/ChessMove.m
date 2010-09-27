@@ -51,9 +51,10 @@ static ChessMove *NullMove = nil;
 #pragma mark Accessing
 
 -(void)setDestinationSquare:(int)intValue {
-    if (intValue < 0) {
+    
+    if ((intValue < 0) || (intValue > 63)) {
         NSException *exception = [NSException exceptionWithName:@"Invalid Index"
-                                                         reason:@"Board index cannot be negative"
+                                                         reason:@"Board index out of range"
                                                        userInfo:nil];
         [exception raise];
     }
@@ -61,9 +62,10 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)setSourceSquare:(int)intValue {
-    if (intValue < 0) {
+    
+    if ((intValue < 0) || (intValue > 63)) {
         NSException *exception = [NSException exceptionWithName:@"Invalid Index"
-                                                         reason:@"Board index cannot be negative"
+                                                         reason:@"Board index out of range"
                                                        userInfo:nil];
         [exception raise];
     }
@@ -114,9 +116,9 @@ static ChessMove *NullMove = nil;
 
 -(void)move:(int)aPiece from:(int)startSquare to:(int)endSquare {
     
-    if ((1 == aPiece) && ((endSquare < 8) || (startSquare < 8))) {
-        NSLog(@"illegal move?");
-    }
+//    if ((1 == aPiece) && ((endSquare < 8) || (startSquare < 8))) {
+//        NSLog(@"illegal move?");
+//    }
     
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
@@ -155,10 +157,12 @@ static ChessMove *NullMove = nil;
 -(void)moveEncoded:(int)intValue {
     
     self.destinationSquare = intValue & 255;
-    self.sourceSquare = (intValue << 8) & 255;
-    movingPiece = (intValue << 16) & 255;
-    capturedPiece = (intValue << 24) && 255;
+    self.sourceSquare = (intValue >> 8) & 255;
+    movingPiece = (intValue >> 16) & 255;
+    capturedPiece = (intValue >> 24) & 255;
     type = kMoveNormal;
+    
+    assert(intValue == [self encodedMove]);
 }
 
 -(void)promote:(ChessMove *)move to:(int)intValue {

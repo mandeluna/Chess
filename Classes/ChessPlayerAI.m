@@ -16,15 +16,15 @@
 #import "ChessTTEntry.h"
 #import "ChessTranspositionTable.h"
 
-static const int AlphaBetaGiveUp = -29990;
-static const int AlphaBetaIllegal = -31000;
-static const int AlphaBetaMaxVal = 30000;
-static const int AlphaBetaMinVal = -30000;
-static const int ValueAccurate = 2;
-static const int ValueBoundary = 4;
-static const int ValueLowerBound = 4;
-static const int ValueUpperBound = 5;
-static const int ValueThreshold = 200;
+#define kAlphaBetaGiveUp        (-29990)
+#define kAlphaBetaIllegal       (-31000)
+#define kAlphaBetaMaxVal        (30000)
+#define kAlphaBetaMinVal        (-30000)
+#define kValueAccurate          2
+#define kValueBoundary          4
+#define kValueLowerBound        4
+#define kValueUpperBound        5
+#define kValueThreshold         200
 
 @interface ChessPlayerAI(Private)
 
@@ -119,6 +119,9 @@ static const int ValueThreshold = 200;
 
 -(void)copyVariation:(ChessMove *)move {
     
+//    if (1)
+//        return;
+    
     int count = 0;
     int *av = variations[ply];
     
@@ -141,8 +144,8 @@ static const int ValueThreshold = 200;
 -(ChessMove *)mtdfSearch:(ChessBoard *)theBoard score:(int)estimate depth:(int)depth {
     
     int value = estimate;
-    int low = AlphaBetaMinVal;
-    int high = AlphaBetaMaxVal;
+    int low = kAlphaBetaMinVal;
+    int high = kAlphaBetaMaxVal;
     ChessMove *goodMove = nil;
     
     while (low < high) {
@@ -190,7 +193,7 @@ static const int ValueThreshold = 200;
     ply = 0;
     int alpha = initialAlpha;
     int beta = initialBeta;
-    int bestScore = AlphaBetaMinVal;
+    int bestScore = kAlphaBetaMinVal;
     ChessMove *goodMove = nil;
     
     // generate new moves
@@ -199,7 +202,7 @@ static const int ValueThreshold = 200;
     if (nil == moveList)
         return nil;
     
-    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
+//    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
@@ -214,15 +217,17 @@ static const int ValueThreshold = 200;
     BOOL notFirst = NO;
     
     ChessMove *move = [moveList next];
+    int count = 0;
     
     while (nil != move) {
+        
+        count++;
         
         // retain the move so it doesn't get deallocated while we recurse
         [move retain];
         
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
-//        NSLog(@"negaScout evaluating move %@, depth = %d", move, depth);
         [newBoard nextMove:move];
         
         // search recursively
@@ -243,7 +248,7 @@ static const int ValueThreshold = 200;
             return move;
         }
         
-        if (score != AlphaBetaIllegal) {
+        if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
                     [self copyVariation:move];
@@ -261,7 +266,7 @@ static const int ValueThreshold = 200;
             if (score > a) {
                 a = score;
                 if (a >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -277,7 +282,7 @@ static const int ValueThreshold = 200;
         
         move = [moveList next];
     }
-    [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
     
     return goodMove;
@@ -304,7 +309,7 @@ static const int ValueThreshold = 200;
     int alpha = initialAlpha;
     int beta = initialBeta;
     
-    if (entry.depth >= depth) {
+    if (entry && (entry.depth >= depth)) {
         ttHits++;
         if ((entry.valueType & 1) == (ply & 1)) {
             beta = MAX(entry.value, initialBeta);
@@ -317,12 +322,12 @@ static const int ValueThreshold = 200;
         if (alpha >= initialBeta)
             return alpha;
     }
-    int bestScore = AlphaBetaMinVal;
+    int bestScore = kAlphaBetaMinVal;
     
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     if (nil == moveList)
-        return -AlphaBetaIllegal;
+        return -kAlphaBetaIllegal;
     
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
@@ -339,8 +344,8 @@ static const int ValueThreshold = 200;
         
         [move retain];
         
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
-//        NSLog(@"ngSearch evaluating move %@", move);
+        ChessBoard *newBoard = [boardList objectAtIndex:ply];
+        [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
         
         // search recursively
@@ -359,16 +364,17 @@ static const int ValueThreshold = 200;
             return score;
         }
         
-        if (score != AlphaBetaIllegal) {
+        if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
-                if (ply < 10)
+                if (ply < 10) {
                     [self copyVariation:move];
+                }
                 bestScore = score;
             }
             if (score > a) {
                 a = score;
                 if (a >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -384,7 +390,7 @@ static const int ValueThreshold = 200;
         move = [moveList next];
     }
     
-    [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
     
     return bestScore;
@@ -430,12 +436,13 @@ static const int ValueThreshold = 200;
         
         moveList = [generator findQuiescenceMovesFor:theBoard.activePlayer];
         if (!moveList) {
-            return -AlphaBetaIllegal;
+            return -kAlphaBetaIllegal;
         }
     }
     
     // Evaluate the current position, assuming that we have a non-capturing move.
     int bestScore = [theBoard.activePlayer evaluate];
+    
     
     // TODO: What follows is clearly not the Right Thing to do. The score we just evaluated doesn't
     // take into account that we may be under attack at this point. I've seen it happening various times that
@@ -455,8 +462,9 @@ static const int ValueThreshold = 200;
     if (bestScore > alpha) {
         alpha = bestScore;
         if (bestScore >= beta) {
-            if (moveList)
+            if (moveList) {
                 [generator recycleMoveList:moveList];
+            }
             return bestScore;
         }
     }
@@ -465,7 +473,7 @@ static const int ValueThreshold = 200;
     if (!moveList) {
         moveList = [generator findQuiescenceMovesFor:theBoard.activePlayer];
         if (!moveList)
-            return -AlphaBetaIllegal;
+            return -kAlphaBetaIllegal;
     }
     
     if ([moveList isEmpty]) {
@@ -475,10 +483,13 @@ static const int ValueThreshold = 200;
     
     // sort move list according to history heuristics
     [moveList sortUsing:historyTable];
-    
+
     // and search
     ChessMove *move = [moveList next];
+    int counter = 0;
     while (move) {
+        
+        counter++;
         
         [move retain];
         
@@ -497,7 +508,7 @@ static const int ValueThreshold = 200;
         }
         ply--;
         
-        if (AlphaBetaIllegal != score) {
+        if (kAlphaBetaIllegal != score) {
             if (score > bestScore) {                
                 if (ply < 10) {
                     [self copyVariation:move];
@@ -509,7 +520,7 @@ static const int ValueThreshold = 200;
             if (score > alpha) {
                 alpha = score;
                 if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:0 stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:0 stamp:stamp];
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -523,9 +534,11 @@ static const int ValueThreshold = 200;
         move = [moveList next];
     }
     
-    [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:0 stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:0 stamp:stamp];
     [generator recycleMoveList:moveList];
-    
+
+//    NSLog(@"quiesce:alpha:beta: bestScore = %d", bestScore);
+
     return bestScore;
 }
 
@@ -549,7 +562,7 @@ static const int ValueThreshold = 200;
     int alpha = initialAlpha;
     int beta = initialBeta;
     
-    if (entry.depth >= depth) {
+    if (entry && (entry.depth >= depth)) {
         ttHits++;
         if ((entry.valueType & 1) == (ply & 1)) {
             beta = MAX(entry.value, initialBeta);
@@ -562,12 +575,12 @@ static const int ValueThreshold = 200;
         if (alpha >= initialBeta)
             return alpha;
     }
-    int bestScore = AlphaBetaMinVal;
+    int bestScore = kAlphaBetaMinVal;
     
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     if (nil == moveList)
-        return -AlphaBetaIllegal;
+        return -kAlphaBetaIllegal;
     
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
@@ -594,16 +607,17 @@ static const int ValueThreshold = 200;
             return score;
         }
         
-        if (score != AlphaBetaIllegal) {
+        if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
-                if (ply < 10)
+                if (ply < 10) {
                     [self copyVariation:move];
+                }
                 bestScore = score;
             }
             if (score > alpha) {
                 alpha = score;
                 if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -614,7 +628,7 @@ static const int ValueThreshold = 200;
         move = [moveList next];
     }
     
-    [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
     
     return bestScore;
@@ -633,7 +647,7 @@ static const int ValueThreshold = 200;
     ply = 0;
     int alpha = initialAlpha;
     int beta = initialBeta;
-    int bestScore = AlphaBetaMinVal;
+    int bestScore = kAlphaBetaMinVal;
     ChessMove *goodMove = nil;
     
     // generate new moves
@@ -666,10 +680,11 @@ static const int ValueThreshold = 200;
             return move;
         }
         
-        if (score != AlphaBetaIllegal) {
+        if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
-                if (ply < 10)
+                if (ply < 10) {
                     [self copyVariation:move];
+                }
                 goodMove = [[move copy] autorelease];
                 goodMove.value = score;
                 bestScore = score;
@@ -677,7 +692,7 @@ static const int ValueThreshold = 200;
             if (score > alpha) {
                 alpha = score;
                 if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(ValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -688,7 +703,7 @@ static const int ValueThreshold = 200;
         move = [moveList next];
     }
     
-    [transTable storeBoard:theBoard value:bestScore type:(ValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
     
     return goodMove;
@@ -726,7 +741,7 @@ static const int ValueThreshold = 200;
     myMove = [ChessMove nullMove];
     [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
     
-    // [self thinkThread];
+//    [self thinkThread];
 }
 
 -(void)thinkThread {
@@ -754,11 +769,9 @@ static const int ValueThreshold = 200;
         ChessMove *theMove = nil;
         
         if (useNegaScout) {
-//            NSLog(@"about to enter negaScout. nodesVisited = %d", nodesVisited);
-            theMove = [self negaScout:board depth:depth alpha:AlphaBetaMinVal beta:AlphaBetaMaxVal];
+            theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
         }
         else {
-//            NSLog(@"about to enter mtdfSearch. nodesVisited = %d", nodesVisited);
             theMove = [self mtdfSearch:board score:score depth:depth];
         }
         
@@ -788,12 +801,15 @@ static const int ValueThreshold = 200;
 //
 -(long)timeToThink {
     
-    return 5.0;
+    return 2.5;
 }
 
 #pragma mark accessing
 
 -(NSString *)statusString {
+    
+//    if (1)
+//        return @"";
     
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {

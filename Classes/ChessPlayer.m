@@ -13,6 +13,67 @@
 #import "ChessMoveGenerator.h"
 #import "ChessMoveList.h"
 
+// piece values
+
+static int PieceValues[7] = {0, 100, 300, 350, 500, 900, 2000};
+
+// center scores
+
+static int PieceCenterScores[7][64] = {
+    
+    // PieceCenterScores[kEmptySquare] -- placeholder
+    
+    { 0 },
+    
+    // PieceCenterScores[kPawn]
+    
+    { 0 },
+    
+    // PieceCenterScores[kKnight]
+    {
+        -4,	0,	0,	0,	0,	0,	0,	-4,
+        -4,	0,	2,	2,	2,	2,	0,	-4,
+        -4,	2,	3,	2,	2,	3,	2,	-4,
+        -4,	1,	2,	5,	5,	2,	2,	-4,
+        -4,	1,	2,	5,	5,	2,	2,	-4,
+        -4,	2,	3,	2,	2,	3,	2,	-4,
+        -4,	0,	2,	2,	2,	2,	0,	-4,
+        -4,	0,	0,	0,	0,	0,	0,	-4
+    },
+    
+    // PieceCenterScores[kBishop]
+    {
+        -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2,
+        -2,	0,	0,	0,	0,	0,	0,	-2,
+        -2,	0,	1,	1,	1,	1,	0,	-2,
+        -2,	0,	1,	2,	2,	1,	0,	-2,
+        -2,	0,	1,	2,	2,	1,	0,	-2,
+        -2,	0,	1,	1,	1,	1,	0,	-2,
+        -2,	0,	0,	0,	0,	0,	0,	-2,
+        -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2
+    },
+    
+    // PieceCenterScores[kRook]
+    
+    { 0 },
+    
+    // PieceCenterScores[kQueen]
+    {
+        -3,	0,	0,	0,	0,	0,	0,	-3,
+        -2,	0,	0,	0,	0,	0,	0,	-2,
+        -2,	0,	1,	1,	1,	1,	0,	-2,
+        -2,	0,	1,	2,	2,	1,	0,	-2,
+        -2,	0,	1,	2,	2,	1,	0,	-2,
+        -2,	0,	1,	1,	1,	1,	0,	-2,
+        -2,	0,	0,	0,	0,	0,	0,	-2,
+        -3,	0,	0,	0,	0,	0,	0,	-3
+    },
+    
+    // PieceCenterScores[kKing]
+    
+    { 0 }
+};
+
 @implementation ChessPlayer
 @synthesize opponent, board, numPawns, enpassantSquare, castlingRookSquare, castlingStatus, positionalValue, materialValue;
 
@@ -22,6 +83,12 @@
     if (self = [super init]) {
         //    bzero(pieces, 64 * sizeof(char));
         pieces = calloc(64, sizeof(char));
+        
+        if (!pieces) {
+            NSLog(@"memory allocation failed");
+            return nil;
+        }
+        
         materialValue = 0;
         positionalValue = 0;
         numPawns = 0;
@@ -111,6 +178,10 @@
     pieces[sourceSquare] = 0;
     pieces[destSquare] = piece;
     
+    if ((piece == kPawn) && (board.activePlayer == board.whitePlayer) && (sourceSquare > destSquare)) {
+        NSLog(@"white pawn moving backwards?");
+    }
+    
     [board updateHash:piece at:sourceSquare from:self];
     [board updateHash:piece at:destSquare from:self];
     
@@ -127,6 +198,9 @@
     
     if (kPawn == piece) {
         numPawns--;
+        if (board.userAgent) {
+            NSLog(@"black has %d pawns, white has %d pawns", board.blackPlayer->numPawns, board.whitePlayer->numPawns);
+        }
     }
     
     [board updateHash:piece at:square from:self];
@@ -167,7 +241,7 @@
     [self movePiece:kRook from:[move sourceSquare]+3 to:(castlingRookSquare = [move sourceSquare]+1)];
     
     pieces[castlingRookSquare] = kKing;
-    castlingStatus ^= CastlingDone;
+    castlingStatus ^= kCastlingDone;
 }
 
 -(void)applyCastleQueenSideMove:(ChessMove *)move {
@@ -176,7 +250,7 @@
     [self movePiece:kRook from:[move sourceSquare]-4 to:(castlingRookSquare = [move sourceSquare]-1)];
     
     pieces[castlingRookSquare] = kKing;
-    castlingStatus ^= CastlingDone;
+    castlingStatus ^= kCastlingDone;
 }
 
 -(void)applyDoublePushMove:(ChessMove *)move {
@@ -202,6 +276,9 @@
     
     if (board.userAgent) {
         NSLog(@"applying move %@ type=%d", move, type);
+        if (type == 4) {
+            NSLog(@"castling");
+        }
     }
     
     switch(type) {
@@ -243,6 +320,9 @@
     int piece = [move capturedPiece];
     
     if (kEmptySquare != piece) {
+        if (board.userAgent) {
+            NSLog(@"removing piece");
+        }
         [opponent removePiece:piece at:[move destinationSquare]];
     }
     
@@ -276,7 +356,10 @@
     
     // cannot castle when king has moved
     if (kKing == [move movingPiece]) {
-        castlingStatus |= CastlingDisableAll;
+        if (board.userAgent) {
+            NSLog(@"moving the king");
+        }
+        castlingStatus |= kCastlingDisableAll;
         return;
     }
     
@@ -287,18 +370,18 @@
     
     if ([self isWhitePlayer]) {
         if (0 == [move sourceSquare]) {
-            castlingStatus |= CastlingDisableQueenSide;
+            castlingStatus |= kCastlingDisableQueenSide;
         }
         else if (7 == [move sourceSquare]) {
-            castlingStatus |= CastlingDisableKingSide;
+            castlingStatus |= kCastlingDisableKingSide;
         }
     }
     else {
         if (56 == [move sourceSquare]) {
-            castlingStatus |= CastlingDisableQueenSide;
+            castlingStatus |= kCastlingDisableQueenSide;
         }
         else if (63 == [move sourceSquare]) {
-            castlingStatus |= CastlingDisableKingSide;
+            castlingStatus |= kCastlingDisableKingSide;
         }
     }
 }
@@ -331,7 +414,7 @@
 
 -(BOOL)canCastleKingSide {
     
-    if (castlingStatus & CastlingEnableKingSide) {
+    if (castlingStatus & kCastlingEnableKingSide) {
         return NO;
     }
     
@@ -351,7 +434,7 @@
 
 -(BOOL)canCastleQueenSide {
     
-    if (castlingStatus & CastlingEnableQueenSide) {
+    if (castlingStatus & kCastlingEnableQueenSide) {
         return NO;
     }
     
@@ -402,6 +485,13 @@
 
 -(void)postCopy {
     unsigned char *piecesCopy = calloc(64, sizeof(char));
+    
+    if (!piecesCopy) {
+        NSLog(@"memory allocation error");
+        self = nil;
+        return;
+    }
+    
     memcpy(piecesCopy, pieces, 64 * sizeof(char));
     pieces = piecesCopy;
 }
@@ -482,6 +572,9 @@
     
     for (ChessMove *move in contentsCopy) {
         ChessMove *moveCopy = [move copy];
+        if (moveCopy.destinationSquare > 63) {
+            NSLog(@"invalid move");
+        }
         [moves addObject:moveCopy];
         [moveCopy release];
     }
@@ -512,6 +605,9 @@
     
     for (ChessMove *move in contentsCopy) {
         ChessMove *moveCopy = [move copy];
+        if (moveCopy.destinationSquare > 63) {
+            NSLog(@"invalid move");
+        }
         [moves addObject:moveCopy];
         [moveCopy release];
     }
@@ -540,6 +636,9 @@
     
     for (ChessMove *move in [moveList originalContents]) {
         ChessMove *moveCopy = [move copy];
+        if (moveCopy.destinationSquare > 63) {
+            NSLog(@"invalid move");
+        }
         [moves addObject:moveCopy];
         [moveCopy release];
     }
@@ -564,6 +663,9 @@
     for (ChessMove *move in moveList) {
         if ([self isValidMove:move]) {
             ChessMove *moveCopy = [move copy];
+            if (moveCopy.destinationSquare > 63) {
+                NSLog(@"invalid move");
+            }
             [moves addObject:moveCopy];
             [moveCopy release];
         }
@@ -585,6 +687,9 @@
         if ([self isValidMove:move]) {
             ChessMove *copy = [move copy];
             [moves addObject:copy];
+            if (copy.destinationSquare > 63) {
+                NSLog(@"invalid move");
+            }
             [copy release];
         }
     }
@@ -614,7 +719,7 @@
 
 -(void)undoDoublePushMove:(ChessMove *)move {
     
-    enpassantSquare = 0;
+    enpassantSquare = -1;
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
 }
 

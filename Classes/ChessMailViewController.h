@@ -19,7 +19,6 @@
 @interface ChessMailViewController : UIViewController <ChessUserAgent> {
     
     CALayer *boardLayer;
-//    NSDictionary *playerLayers;
     NSMutableArray *squares;
     ChessPieceLayer *selectedPlayer;
     int selectionIndex;
@@ -42,7 +41,6 @@
     IBOutlet UIProgressView *percentFullIndicator;
 }
 
-//@property(nonatomic, retain) NSDictionary *playerLayers;
 @property(nonatomic, retain) NSMutableArray *history;
 @property(nonatomic, retain) NSMutableArray *redoList;
 @property(nonatomic, retain) ChessBoard *board;
