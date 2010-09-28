@@ -17,15 +17,15 @@
 
 #define BETWEEN07(i) ((i >= 0) && (i <= 7))
 
-static moveValueList KingMoves[64];
-static moveValueList RookMoves[64];
-static moveValueList BishopMoves[64];
-static moveValueList KnightMoves[64];
+static PossibleMoveList KingMoves[64];
+static PossibleMoveList RookMoves[64];
+static PossibleMoveList BishopMoves[64];
+static PossibleMoveList KnightMoves[64];
 
 
 @interface ChessMoveGenerator(Private)
 
-+(void)logMoves:(moveValueList[64])listValue;
++(void)logMoves:(PossibleMoveList *)possibleMoves;
 +(void)initializeMoves;
 +(void)initializeKnightMoves;
 +(void)initializeRookMoves;
@@ -45,12 +45,24 @@ static moveValueList KnightMoves[64];
     [self initializeMoves];
 }
 
-+(void)logMoves:(moveValueList[64])listValue {
++(void)logMoves:(PossibleMoveList *)possibleMoves {
     
     for (int i=0; i < 64; i++) {
+    
+        // print all the moves for square i
         printf("[%2d] ", i);
-        for (int j=0; j < listValue[i].count; j++) {
-            printf("%2d ", listValue[i].moves[j]);
+        PossibleMoveList moves = possibleMoves[i];
+        
+        for (int j=0; j < moves.count; j++) {
+            
+            printf("{");            
+            DirectionalMoveList ray = moves.directionalMoves[j];
+
+            // print the move list for each set of directional moves emanating from the square
+            for (int k=0; k < ray.count; k++) {
+                printf("%2d ", ray.moves[k]);
+            }
+            printf("} ");
         }
         printf("\n");
     }
@@ -90,11 +102,17 @@ static moveValueList KnightMoves[64];
                     [moveList appendBytes:&byteValue length:sizeof(int)];
                 }
             }
-            //printf("\n");
-            int len = [moveList length] / sizeof(int);
-            KnightMoves[index].count = len;
-            KnightMoves[index].moves = malloc(len * sizeof(int));
-            memcpy(KnightMoves[index].moves, [moveList bytes], len * sizeof(int));
+
+            int len = [moveList length];
+            int *moves = malloc(len);
+            memcpy(moves, [moveList bytes], len);
+            
+            DirectionalMoveList *dml = malloc(1 * sizeof(DirectionalMoveList));
+            dml->count = len / sizeof(int);
+            dml->moves = moves;
+            
+            KnightMoves[index].count = 1;
+            KnightMoves[index].directionalMoves = dml;
         }
     }
     
@@ -108,44 +126,56 @@ static moveValueList KnightMoves[64];
         for (int i=0; i<8; i++) {
             int index = (j * 8) + i;
             
-            NSMutableData *moveList1 = [NSMutableData data];
-            NSMutableData *moveList2 = [NSMutableData data];
-            NSMutableData *moveList3 = [NSMutableData data];
-            NSMutableData *moveList4 = [NSMutableData data];
+            NSMutableData *moveList[4];
             
+            for (int l=0; l < 4; l++) {
+                moveList[l] = [NSMutableData data];
+            }
+                        
             for (int k = 1; k < 8; k++) {
                 int px = i + k;
                 int py = j;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList1 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[0] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i;
                 py = j + k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList2 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[1] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i - k;
                 py = j;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList3 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[2] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i;
                 py = j - k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList4 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[3] appendBytes:&byteValue length:sizeof(int)];
                 }
             }
-            [moveList1 appendData:moveList2];
-            [moveList1 appendData:moveList3];
-            [moveList1 appendData:moveList4];
-            int len = [moveList1 length] / sizeof(int);
-            RookMoves[index].count = len;
-            RookMoves[index].moves = malloc(len * sizeof(int));
-            memcpy(RookMoves[index].moves, [moveList1 bytes], len * sizeof(int));
+            
+            RookMoves[index].count = 4;
+            DirectionalMoveList *dml = calloc(4, sizeof(DirectionalMoveList));
+            RookMoves[index].directionalMoves = dml;
+            
+            for (int l=0; l < 4; l++) {
+                
+                int len = [moveList[l] length];
+                int *moves = nil;
+                if (len > 0)
+                {
+                    moves = malloc(len);
+                    memcpy(moves, [moveList[l] bytes], len);
+                }
+                
+                dml[l].count = len / sizeof(int);
+                dml[l].moves = moves;
+            }
         }
     }
     
@@ -159,44 +189,56 @@ static moveValueList KnightMoves[64];
         for (int i=0; i<8; i++) {
             int index = (j * 8) + i;
             
-            NSMutableData *moveList1 = [NSMutableData data];
-            NSMutableData *moveList2 = [NSMutableData data];
-            NSMutableData *moveList3 = [NSMutableData data];
-            NSMutableData *moveList4 = [NSMutableData data];
+            NSMutableData *moveList[4];
+            
+            for (int l=0; l < 4; l++) {
+                moveList[l] = [NSMutableData data];
+            }
             
             for (int k = 1; k < 8; k++) {
                 int px = i + k;
                 int py = j - k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList1 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[0] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i - k;
                 py = j - k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList2 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[1] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i + k;
                 py = j + k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList3 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[2] appendBytes:&byteValue length:sizeof(int)];
                 }
                 px = i - k;
                 py = j + k;
                 if (BETWEEN07(px) && BETWEEN07(py)) {
                     int byteValue = py * 8 + px;
-                    [moveList4 appendBytes:&byteValue length:sizeof(int)];
+                    [moveList[3] appendBytes:&byteValue length:sizeof(int)];
                 }
             }
-            [moveList1 appendData:moveList2];
-            [moveList1 appendData:moveList3];
-            [moveList1 appendData:moveList4];
-            int len = [moveList1 length] / sizeof(int);
-            BishopMoves[index].count = len;
-            BishopMoves[index].moves = malloc(len * sizeof(int));
-            memcpy(BishopMoves[index].moves, [moveList1 bytes], len * sizeof(int));
+            BishopMoves[index].count = 4;
+            DirectionalMoveList *dml = malloc(4 * sizeof(DirectionalMoveList));
+            BishopMoves[index].directionalMoves = dml;
+            
+            for (int l=0; l < 4; l++) {
+                
+                int len = [moveList[l] length];
+                int *moves = nil;
+                if (len > 0)
+                {
+                    moves = malloc(len);
+                    memcpy(moves, [moveList[l] bytes], len);
+                }
+                
+                dml[l].count = len / sizeof(int);
+                dml[l].moves = moves;
+                
+            }
         }
     }
     
@@ -222,11 +264,16 @@ static moveValueList KnightMoves[64];
                     [moveList appendBytes:&byteValue length:sizeof(int)];
                 }
             }
-            //printf("\n");
-            int len = [moveList length] / sizeof(int);
-            KingMoves[index].count = len;
-            KingMoves[index].moves = malloc(len * sizeof(int));
-            memcpy(KingMoves[index].moves, [moveList bytes], len * sizeof(int));
+            int len = [moveList length];
+            int *moves = malloc(len);
+            memcpy(moves, [moveList bytes], len);
+            
+            DirectionalMoveList *dml = malloc(1 * sizeof(DirectionalMoveList));
+            dml->count = len / sizeof(int);
+            dml->moves = moves;
+            
+            KingMoves[index].count = 1;
+            KingMoves[index].directionalMoves = dml;
         }
     }
     
@@ -686,68 +733,68 @@ static moveValueList KnightMoves[64];
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
     int hRank[7] = {H7,H6,H5,H4,H3,H2,H1};
-    moveValueList sqH = {7, hRank};
+    DirectionalMoveList sqH = {7, hRank};
     if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
     
     int gRank[7] = {G7,G6,G5,G4,G3,G2,G1};
-    moveValueList sqG = {7, gRank};
+    DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
     
     int fRank[7] = {F7,F6,F5,F4,F3,F2,F1};
-    moveValueList sqF = {7, fRank};
+    DirectionalMoveList sqF = {7, fRank};
     if ([self checkAttack:&sqF fromPieces:RookMovers]) return NO;
     
     int eRank[7] = {E7,E6,E5,E4,E3,E2,E1};
-    moveValueList sqE = {7, eRank};
+    DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
     
     // check for a rook attack from the baseline
     int rank8[4] = {D8, C8, B8, A8};
-    moveValueList sq8 = {4, rank8};
+    DirectionalMoveList sq8 = {4, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
     
     // check for bishop attacks from the diagonals
     int b1[7] = {G7, F6, E5, D4, C3, B2, A1};
-    moveValueList sqb1 = {7, b1};
+    DirectionalMoveList sqb1 = {7, b1};
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
     
     int b2[6] = {F7, E6, D5, C4, B3, A2};
-    moveValueList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {7, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
         
     int b3[5] = {E7, D6, C5, B4, A3};
-    moveValueList sqb3 = {5, b3};
+    DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
     
     int b4[4] = {D7, C6, B5, A4};
-    moveValueList sqb4 = {4, b4};
+    DirectionalMoveList sqb4 = {4, b4};
     if ([self checkAttack:&sqb4 fromPieces:BishopMovers]) return NO;
     
     int b5[3] = {F7, G6, H5};
-    moveValueList sqb5 = {3, b5};
+    DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
     
     int b6[2] = {G7, H6};
-    moveValueList sqb6 = {2, b6};
+    DirectionalMoveList sqb6 = {2, b6};
     if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
     
     int b7[1] = {H7};
-    moveValueList sqb7 = {1, b7};
+    DirectionalMoveList sqb7 = {1, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
     
     // check for a knight attack
     int k1[11] = {H7, G7, F7, E7, D7, C7, H6, G6, F6, E6, D6};
-    moveValueList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
     
     // check for a pawn attack
     int p1[5] = {H7, G7, F7, E7, D7};
-    moveValueList sqp1 = {5, p1};
+    DirectionalMoveList sqp1 = {5, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
     
     // check for a king attack
     int kg[1] = {G7};
-    moveValueList sqkg = {1, kg};
+    DirectionalMoveList sqkg = {1, kg};
     if ([self checkUnprotectedAttack:&sqkg fromPiece:kKing]) return NO;
 
     return YES;
@@ -765,80 +812,80 @@ static moveValueList KnightMoves[64];
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
     int aRank[7] = {A7,A6,A5,A4,A3,A2,A1};
-    moveValueList sqA = {7, aRank};
+    DirectionalMoveList sqA = {7, aRank};
     if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
     
     int bRank[7] = {B7,B6,B5,B4,B3,B2,B1};
-    moveValueList sqB = {7, bRank};
+    DirectionalMoveList sqB = {7, bRank};
     if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
     
     int cRank[7] = {C7,C6,C5,C4,C3,C2,C1};
-    moveValueList sqC = {7, cRank};
+    DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
     
     int dRank[7] = {D7,D6,D5,D4,D3,D2,D1};
-    moveValueList sqD = {7, dRank};
+    DirectionalMoveList sqD = {7, dRank};
     if ([self checkAttack:&sqD fromPieces:RookMovers]) return NO;
     
     int eRank[7] = {E7,E6,E5,E4,E3,E2,E1};
-    moveValueList sqE = {7, eRank};
+    DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
     
     // check for a rook attack from the baseline
     int rank8[3] = {F8, G8, H8};
-    moveValueList sq8 = {3, rank8};
+    DirectionalMoveList sq8 = {3, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
     
     // check for bishop attacks from the diagonals
     int b1[7] = {B7, C6, D5, E4, F3, G2, H1};
-    moveValueList sqb1 = {7, b1};
+    DirectionalMoveList sqb1 = {7, b1};
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
     
     int b2[6] = {C7, D6, E5, F4, G3, H2};
-    moveValueList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {7, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
     
     int b3[5] = {D7, E6, F5, G4, H3};
-    moveValueList sqb3 = {5, b3};
+    DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
     
     int b4[4] = {E7, F6, G5, H4};
-    moveValueList sqb4 = {4, b4};
+    DirectionalMoveList sqb4 = {4, b4};
     if ([self checkAttack:&sqb4 fromPieces:BishopMovers]) return NO;
     
     int b5[3] = {F7, G6, H5};
-    moveValueList sqb5 = {3, b5};
+    DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
     
     int b6[1] = {A7};
-    moveValueList sqb6 = {1, b6};
+    DirectionalMoveList sqb6 = {1, b6};
     if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
 
     int b7[2] = {B7, A6};
-    moveValueList sqb7 = {2, b7};
+    DirectionalMoveList sqb7 = {2, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
     
     int b8[3] = {C7, B6, A5};
-    moveValueList sqb8 = {3, b8};
+    DirectionalMoveList sqb8 = {3, b8};
     if ([self checkAttack:&sqb8 fromPieces:BishopMovers]) return NO;
     
     int b9[4] = {D7, C6, B5, A4};
-    moveValueList sqb9 = {4, b9};
+    DirectionalMoveList sqb9 = {4, b9};
     if ([self checkAttack:&sqb9 fromPieces:BishopMovers]) return NO;
     
     // check for a knight attack
     int k1[12] = {A7, B7, C7, D7, E7, F7, G7, A6, B6, D6, E6, F6};
-    moveValueList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
     
     // check for a pawn attack
     int p1[6] = {A7, B7, C7, D7, E7, F7};
-    moveValueList sqp1 = {6, p1};
+    DirectionalMoveList sqp1 = {6, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
     
     // check for a king attack
     int kg[2] = {B7, C7};
-    moveValueList sqkg = {2, kg};
+    DirectionalMoveList sqkg = {2, kg};
     if ([self checkUnprotectedAttack:&sqkg fromPiece:kKing]) return NO;
     
     return YES;
@@ -856,68 +903,68 @@ static moveValueList KnightMoves[64];
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
     int hRank[7] = {H2,H3,H4,H5,H6,H7,H8};
-    moveValueList sqH = {7, hRank};
+    DirectionalMoveList sqH = {7, hRank};
     if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
     
     int gRank[7] = {G2,G3,G4,G5,G6,G7,G8};
-    moveValueList sqG = {7, gRank};
+    DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
     
     int fRank[7] = {F2,F3,F4,F5,F6,F7,F8};
-    moveValueList sqF = {7, fRank};
+    DirectionalMoveList sqF = {7, fRank};
     if ([self checkAttack:&sqF fromPieces:RookMovers]) return NO;
     
     int eRank[7] = {E2,E3,E4,E5,E6,E7,E8};
-    moveValueList sqE = {7, eRank};
+    DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
     
     // check for a rook attack from the baseline
     int rank8[4] = {A1, A2, A3, A4};
-    moveValueList sq8 = {4, rank8};
+    DirectionalMoveList sq8 = {4, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
     
     // check for bishop attacks from the diagonals
     int b1[7] = {G2, F3, E4, D5, C6, B7, A8};
-    moveValueList sqb1 = {7, b1};
+    DirectionalMoveList sqb1 = {7, b1};
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
     
     int b2[6] = {F2, E3, D4, C5, B6, A7};
-    moveValueList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {7, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
     
     int b3[5] = {E2, D3, C4, B5, A6};
-    moveValueList sqb3 = {5, b3};
+    DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
     
     int b4[4] = {D2, C3, B4, A5};
-    moveValueList sqb4 = {4, b4};
+    DirectionalMoveList sqb4 = {4, b4};
     if ([self checkAttack:&sqb4 fromPieces:BishopMovers]) return NO;
     
     int b5[3] = {F2, G3, H4};
-    moveValueList sqb5 = {3, b5};
+    DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
     
     int b6[2] = {G2, H3};
-    moveValueList sqb6 = {2, b6};
+    DirectionalMoveList sqb6 = {2, b6};
     if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
     
     int b7[1] = {H2};
-    moveValueList sqb7 = {1, b7};
+    DirectionalMoveList sqb7 = {1, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
     
     // check for a knight attack
     int k1[11] = {H2, G2, F2, E2, D2, C2, H3, G3, F3, E3, D3};
-    moveValueList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
     
     // check for a pawn attack
     int p1[5] = {H2, G2, F2, E2, D2};
-    moveValueList sqp1 = {5, p1};
+    DirectionalMoveList sqp1 = {5, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
     
     // check for a king attack
     int kg[1] = {G2};
-    moveValueList sqkg = {1, kg};
+    DirectionalMoveList sqkg = {1, kg};
     if ([self checkUnprotectedAttack:&sqkg fromPiece:kKing]) return NO;
     
     return YES;
@@ -935,80 +982,80 @@ static moveValueList KnightMoves[64];
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
     int aRank[7] = {A2,A3,A4,A5,A6,A7,A8};
-    moveValueList sqA = {7, aRank};
+    DirectionalMoveList sqA = {7, aRank};
     if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
     
     int bRank[7] = {B2,B3,B4,B5,B6,B7,B8};
-    moveValueList sqB = {7, bRank};
+    DirectionalMoveList sqB = {7, bRank};
     if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
     
     int cRank[7] = {C2,C3,C4,C5,C6,C7,C8};
-    moveValueList sqC = {7, cRank};
+    DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
     
     int dRank[7] = {D2,D3,D4,D5,D6,D7,D8};
-    moveValueList sqD = {7, dRank};
+    DirectionalMoveList sqD = {7, dRank};
     if ([self checkAttack:&sqD fromPieces:RookMovers]) return NO;
     
     int eRank[7] = {E2,E3,E4,E5,E6,E7,E8};
-    moveValueList sqE = {7, eRank};
+    DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
     
     // check for a rook attack from the baseline
     int rank8[3] = {F1, G1, H1};
-    moveValueList sq8 = {3, rank8};
+    DirectionalMoveList sq8 = {3, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
     
     // check for bishop attacks from the diagonals
     int b1[7] = {B2, C3, D4, E5, F6, G7, H8};
-    moveValueList sqb1 = {7, b1};
+    DirectionalMoveList sqb1 = {7, b1};
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
     
     int b2[6] = {C2, D3, E4, F5, G6, H7};
-    moveValueList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {7, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
     
     int b3[5] = {D2, E3, F4, G5, H6};
-    moveValueList sqb3 = {5, b3};
+    DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
     
     int b4[4] = {E2, F3, G4, H5};
-    moveValueList sqb4 = {4, b4};
+    DirectionalMoveList sqb4 = {4, b4};
     if ([self checkAttack:&sqb4 fromPieces:BishopMovers]) return NO;
     
     int b5[3] = {F2, G3, H4};
-    moveValueList sqb5 = {3, b5};
+    DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
     
     int b6[1] = {A2};
-    moveValueList sqb6 = {1, b6};
+    DirectionalMoveList sqb6 = {1, b6};
     if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
     
     int b7[2] = {B2, A3};
-    moveValueList sqb7 = {2, b7};
+    DirectionalMoveList sqb7 = {2, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
     
     int b8[3] = {C2, B3, A4};
-    moveValueList sqb8 = {3, b8};
+    DirectionalMoveList sqb8 = {3, b8};
     if ([self checkAttack:&sqb8 fromPieces:BishopMovers]) return NO;
     
     int b9[4] = {D2, C3, B4, A5};
-    moveValueList sqb9 = {4, b9};
+    DirectionalMoveList sqb9 = {4, b9};
     if ([self checkAttack:&sqb9 fromPieces:BishopMovers]) return NO;
     
     // check for a knight attack
     int k1[12] = {A2, B2, C2, D2, E2, F2, G2, A3, B3, D3, E3, F3};
-    moveValueList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
     
     // check for a pawn attack
     int p1[6] = {A2, B2, C2, D2, E2, F2};
-    moveValueList sqp1 = {6, p1};
+    DirectionalMoveList sqp1 = {6, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
     
     // check for a king attack
     int kg[2] = {B2, C2};
-    moveValueList sqkg = {2, kg};
+    DirectionalMoveList sqkg = {2, kg};
     if ([self checkUnprotectedAttack:&sqkg fromPiece:kKing]) return NO;
     
     return YES;
@@ -1022,7 +1069,7 @@ static moveValueList KnightMoves[64];
 // checkAttack:{B7. C6.D5. E4. F3. G2. H1} fromPieces:BishopMovers.  Note the order is important;
 // squares must be listed in increasing distance from the square of interest
 //
--(BOOL)checkAttack:(moveValueList *)squares fromPieces:(int *)pieces {
+-(BOOL)checkAttack:(DirectionalMoveList *)squares fromPieces:(int *)pieces {
     
     for (int i=0; i<squares->count; i++) {
         // invariant: no piece has been seen on this file at all
@@ -1047,7 +1094,7 @@ static moveValueList KnightMoves[64];
 // check to see if my opponent has a piece of type piece on any of squares.  In general, this
 // is used because that piece could launch an attack on me from those squares
 //
--(BOOL)checkUnprotectedAttack:(moveValueList *)squares fromPiece:(int)piece {
+-(BOOL)checkUnprotectedAttack:(DirectionalMoveList *)squares fromPiece:(int)piece {
     
     for (int i=0; i<squares->count; i++) {
         if (itsPieces[i] == piece) {
@@ -1092,18 +1139,20 @@ static moveValueList KnightMoves[64];
 
 -(void)moveBishopAt:(int)square {
     
-    moveValueList moves = BishopMoves[square];
+    PossibleMoveList moves = BishopMoves[square];
     
-    [self movePiece:kBishop along:&moves at:square];
+    for (int i=0; i < moves.count; i++) {
+        [self movePiece:kBishop along:moves.directionalMoves at:square];
+    }
 }
 
 -(void)moveBlackKingAt:(int)square {
     
-    moveValueList kingMoves = KingMoves[square];
+    DirectionalMoveList *kingMoves = KingMoves[square].directionalMoves;
 
-    for (int i=0; i<kingMoves.count; i++) {
+    for (int i=0; i<kingMoves->count; i++) {
         
-        int destSquare = kingMoves.moves[i];
+        int destSquare = kingMoves->moves[i];
         
         if (!myPieces[destSquare]) {
             
@@ -1148,10 +1197,10 @@ static moveValueList KnightMoves[64];
 
 -(void)moveKnightAt:(int)square {
     
-    moveValueList moves = KnightMoves[square];
+    DirectionalMoveList *moves = KnightMoves[square].directionalMoves;
     
-    for (int i=0; i<moves.count; i++) {
-        int destSquare = moves.moves[i];
+    for (int i=0; i<moves->count; i++) {
+        int destSquare = moves->moves[i];
         
         if (!myPieces[destSquare]) {
             int capture = itsPieces[destSquare];
@@ -1179,7 +1228,7 @@ static moveValueList KnightMoves[64];
     }
 }
 
--(void)movePiece:(int)piece along:(moveValueList *)rayList at:(int)square {
+-(void)movePiece:(int)piece along:(DirectionalMoveList *)rayList at:(int)square {
     
     for (int i=0; i<rayList->count; i++) {
         
@@ -1210,27 +1259,32 @@ static moveValueList KnightMoves[64];
 
 -(void)moveQueenAt:(int)square {
     
-    moveValueList moves = RookMoves[square];
-    [self movePiece:kQueen along:&moves at:square];
+    PossibleMoveList moves = RookMoves[square];
+    for (int i=0; i < moves.count; i++) {
+        [self movePiece:kQueen along:moves.directionalMoves at:square];
+    }
     
     moves = BishopMoves[square];
-    [self movePiece:kQueen along:&moves at:square];
-    
+    for (int i=0; i < moves.count; i++) {
+        [self movePiece:kQueen along:moves.directionalMoves at:square];
+    }
 }
 
 -(void)moveRookAt:(int)square {
     
-    moveValueList moves = RookMoves[square];
-    [self movePiece:kRook along:&moves at:square];
+    PossibleMoveList moves = RookMoves[square];
+    for (int i=0; i < moves.count; i++) {
+        [self movePiece:kRook along:moves.directionalMoves at:square];
+    }
 }
 
 -(void)moveWhiteKingAt:(int)square {
     
-    moveValueList kingMoves = KingMoves[square];
+    DirectionalMoveList *kingMoves = KingMoves[square].directionalMoves;
     
-    for (int i=0; i<kingMoves.count; i++) {
+    for (int i=0; i<kingMoves->count; i++) {
         
-        int destSquare = kingMoves.moves[i];
+        int destSquare = kingMoves->moves[i];
         
         if (!myPieces[destSquare]) {
             

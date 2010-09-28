@@ -159,7 +159,6 @@ static int HashLocks[12][64];
     
     if (userAgent) {
         [userAgent completedMove:aMove white:[activePlayer isWhitePlayer]];
-        [userAgent validateGamePosition];
     }
     
     activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;

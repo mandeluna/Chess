@@ -14,9 +14,18 @@
 @class ChessMoveList;
 
 typedef struct {
+    
     int count;
     int *moves;
-} moveValueList;
+    
+} DirectionalMoveList;
+
+typedef struct {
+    
+    int count;
+    DirectionalMoveList *directionalMoves;
+    
+} PossibleMoveList;
 
 @interface ChessMoveGenerator : NSObject {
 
@@ -71,8 +80,8 @@ typedef struct {
 -(BOOL)canCastleBlackQueenSide;
 -(BOOL)canCastleWhiteKingSide;
 -(BOOL)canCastleWhiteQueenSide;
--(BOOL)checkAttack:(moveValueList *)squares fromPieces:(int *)pieces;
--(BOOL)checkUnprotectedAttack:(moveValueList *)squares fromPiece:(int)piece;
+-(BOOL)checkAttack:(DirectionalMoveList *)squares fromPieces:(int *)pieces;
+-(BOOL)checkUnprotectedAttack:(DirectionalMoveList *)squares fromPiece:(int)piece;
 
 // moves-general
 
@@ -81,7 +90,7 @@ typedef struct {
 -(void)moveKingAt:(int)square;
 -(void)moveKnightAt:(int)square;
 -(void)movePawnAt:(int)square;
--(void)movePiece:(int)piece along:(moveValueList *)rayList at:(int)square;
+-(void)movePiece:(int)piece along:(DirectionalMoveList *)rayList at:(int)square;
 -(void)moveQueenAt:(int)square;
 -(void)moveRookAt:(int)square;
 -(void)moveWhiteKingAt:(int)square;
