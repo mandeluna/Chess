@@ -183,6 +183,8 @@ static NSString *imageNames[12] = {
         return;
     
     [history addObject:move];
+    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexUndo];
+
     [self validateGamePosition];
 }
 
@@ -227,6 +229,8 @@ static NSString *imageNames[12] = {
         return;
     
     [redoList addObject:move];
+    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexRedo];
+    
     [self validateGamePosition];
 }
 
@@ -341,6 +345,34 @@ static NSString *imageNames[12] = {
 
 #pragma mark playing
 
+-(IBAction)controlBarSelected {
+    
+    switch (controlBar.selectedSegmentIndex) {
+            
+        case (kSegmentIndexNew):
+            [self newGame];
+            break;
+        case (kSegmentIndexHint):
+            [self findBestMove];
+            break;
+        case (kSegmentIndexPlay):
+            [self play];
+            break;
+        case (kSegmentIndexAuto):
+            [self autoPlay];
+            break;
+        case (kSegmentIndexUndo):
+            [self undoMove];
+            break;
+        case (kSegmentIndexRedo):
+            [self redoMove];
+            break;
+        default:
+            NSLog(@"Unknown segment index %d", controlBar.selectedSegmentIndex);
+    }
+    controlBar.selectedSegmentIndex = -1;
+}
+
 -(IBAction)autoPlay {
     
     autoPlay = !autoPlay;
@@ -380,6 +412,9 @@ static NSString *imageNames[12] = {
     [board initializeNewBoard];
     self.history = [NSMutableArray array];
     self.redoList = [NSMutableArray array];
+    
+    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexRedo];
+    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexUndo];
 
     [self validateGamePosition];
 }
@@ -407,9 +442,15 @@ static NSString *imageNames[12] = {
         return;
     
     ChessMove *move = [redoList lastObject];
+    [move retain];
     [redoList removeLastObject];
     
+    if ([redoList count] == 0) {
+        [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexRedo];
+    }
+    
     [board nextMove:move];
+    [move release];
 }
 
 //
@@ -436,9 +477,15 @@ static NSString *imageNames[12] = {
         return;
     
     ChessMove *move = [history lastObject];
+    [move retain];
     [history removeLastObject];
     
+    if ([history count] == 0) {
+        [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexUndo];
+    }
+    
     [board undoMove:move];
+    [move release];
 }
 
 
@@ -526,6 +573,16 @@ static NSString *imageNames[12] = {
     if (nil == theTouch)
         return;
 
+    CGPoint touchPoint = [theTouch locationInView:theTouch.view];
+    touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
+    int startIndex = [self squareIndexForLayerLocation:touchPoint];
+    
+    // touch down outside of board
+    if (startIndex < 0)
+        return;
+    
+    selectionIndex = startIndex;
+    
     // clear previous move indicators
     for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
@@ -534,9 +591,6 @@ static NSString *imageNames[12] = {
     
     [self selectPlayer:nil];
     
-    CGPoint touchPoint = [theTouch locationInView:theTouch.view];
-    touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
-    selectionIndex = [self squareIndexForLayerLocation:touchPoint];
     SquareLayer *squareLayer = [squares objectAtIndex:selectionIndex];
     ChessPieceLayer *candidate = squareLayer.pieceLayer;
     [self selectPlayer:candidate];
@@ -544,7 +598,7 @@ static NSString *imageNames[12] = {
     // need to be able to return piece to original position for invalid moves
     candidate.sourceSquare = squareLayer.squarePosition;
     
-//    [self showMovesFrom:squareLayer];
+    [self showMovesFrom:squareLayer];
     
     label.text = [NSString stringWithFormat:@"%d", selectionIndex];
 }
@@ -566,6 +620,11 @@ static NSString *imageNames[12] = {
         [CATransaction commit];
         
         int squareIndex = [self squareIndexForLayerLocation:touchPoint];
+        
+        // stop tracking outside of board
+        if (squareIndex < 0)
+            return;
+        
         SquareLayer *squareBelow = [squares objectAtIndex:squareIndex];
         
         [self enteredSquare:squareBelow];
@@ -584,19 +643,31 @@ static NSString *imageNames[12] = {
         
         int destIndex = [self squareIndexForLayerLocation:touchPoint];
         
-        SquareLayer *destinationCell = [squares objectAtIndex:destIndex];
-
-        BOOL moveIsValid = [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare to:destinationCell.squarePosition];
+        BOOL moveIsValid = NO;
+        SquareLayer *destinationCell = nil;
+        
+        if (destIndex >= 0) {
+            destinationCell = [squares objectAtIndex:destIndex];
+            moveIsValid = [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare to:destinationCell.squarePosition];
+        }        
         
         // if the move is not valid, animate the piece back to its original position
-        if (!moveIsValid)
+        if ((destIndex < 0) || (!moveIsValid))
         {
             destIndex = selectionIndex;
             destinationCell = [squares objectAtIndex:destIndex];
-            NSLog(@"invalid move: returning player to %d", destIndex);
+            // animate the player to the center point of the destination cell
+            selectedPlayer.position = destinationCell.position;
         }
-        // animate the player to the center point of the destination cell
-        selectedPlayer.position = destinationCell.position;
+        else {
+            [self movePieceFrom:selectionIndex to:destIndex];
+        }
+        
+        // clear move indicators
+        for (int i=0; i<64; i++) {
+            SquareLayer *squareLayer = [squares objectAtIndex:i];
+            squareLayer.borderWidth = 0;
+        }
         
         // clear the selection
         [self selectPlayer:nil];
@@ -677,20 +748,20 @@ static NSString *imageNames[12] = {
     float j = 0;
     
     if (screenLoc.x > boardLayer.frame.size.width) {
-        i = BOARD_GRID_COUNT - 1;        
+        return -1;        
     }
     else if (screenLoc.x <= 0) {
-        i = 0;
+        return -1;
     }
     else {
         i = trunc((screenLoc.x / boardLayer.frame.size.width) * BOARD_GRID_COUNT);
     }
     
     if (screenLoc.y > boardLayer.frame.size.height) {
-        j = BOARD_GRID_COUNT - 1;        
+        return -1;        
     }
     else if (screenLoc.y <= 0) {
-        j = 0;
+        return -1;
     }
     else {
         j = trunc((screenLoc.y / boardLayer.frame.size.height) * BOARD_GRID_COUNT);
@@ -723,11 +794,8 @@ static NSString *imageNames[12] = {
 //
 -(void)startedThinking {
     
-    [hintButton setEnabled:NO];
-    [playButton setEnabled:NO];
-    [autoPlayButton setEnabled:NO];
-    [activityIndicator startAnimating];
-    [activityIndicator setHidden:NO];
+    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexHint];
+    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexPlay];
     [self.view setNeedsDisplay];
 }
 
@@ -736,14 +804,8 @@ static NSString *imageNames[12] = {
 //
 -(void)stoppedThinking {
     
-//    NSLog(@"view controller received stop notification");
-//    NSLog(@"autoplay is %d", autoPlay);
-    
-    [hintButton setEnabled:YES];
-    [playButton setEnabled:YES];
-    [autoPlayButton setEnabled:YES];
-    [activityIndicator stopAnimating];
-    [self.view setNeedsDisplay];
+    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexHint];
+    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexPlay];
     
     ChessMove *move = board.searchAgent.myMove;
     
@@ -775,11 +837,6 @@ static NSString *imageNames[12] = {
         label.text = [board.searchAgent statusString];
         [board.searchAgent checkClock];
     }
-    
-    percentFullIndicator.progress = [board.searchAgent.generator moveListUsage];
-//    else {
-//        label.text = [NSString stringWithFormat: @"%@", [NSDate date]];
-//    }
 }
 
 #pragma mark view loading
@@ -798,7 +855,6 @@ static NSString *imageNames[12] = {
 
     animateMove = NO;
     autoPlay = NO;
-    [activityIndicator setHidesWhenStopped:YES];
     
     // needed because the class actually needs to be sent a message to invoke initialization
     [[ChessConstants class] initialize];

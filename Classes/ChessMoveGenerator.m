@@ -604,11 +604,11 @@ static PossibleMoveList KnightMoves[64];
     }
     
     if (0 != (square & 7)) {
-        [self blackPawnCaptureAt:square direction:-1];
+        [self blackPawnCaptureAt:square direction:1];
     }
     
     if (7 != (square & 7)) {
-        [self blackPawnCaptureAt:square direction:1];
+        [self blackPawnCaptureAt:square direction:-1];
     }
 }
 
@@ -1142,7 +1142,7 @@ static PossibleMoveList KnightMoves[64];
     PossibleMoveList moves = BishopMoves[square];
     
     for (int i=0; i < moves.count; i++) {
-        [self movePiece:kBishop along:moves.directionalMoves at:square];
+        [self movePiece:kBishop along:&moves.directionalMoves[i] at:square];
     }
 }
 
@@ -1261,12 +1261,12 @@ static PossibleMoveList KnightMoves[64];
     
     PossibleMoveList moves = RookMoves[square];
     for (int i=0; i < moves.count; i++) {
-        [self movePiece:kQueen along:moves.directionalMoves at:square];
+        [self movePiece:kQueen along:&moves.directionalMoves[i] at:square];
     }
     
     moves = BishopMoves[square];
     for (int i=0; i < moves.count; i++) {
-        [self movePiece:kQueen along:moves.directionalMoves at:square];
+        [self movePiece:kQueen along:&moves.directionalMoves[i] at:square];
     }
 }
 
@@ -1274,7 +1274,7 @@ static PossibleMoveList KnightMoves[64];
     
     PossibleMoveList moves = RookMoves[square];
     for (int i=0; i < moves.count; i++) {
-        [self movePiece:kRook along:moves.directionalMoves at:square];
+        [self movePiece:kRook along:&moves.directionalMoves[i] at:square];
     }
 }
 

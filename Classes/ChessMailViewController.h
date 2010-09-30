@@ -34,16 +34,21 @@
     BOOL moveExpected;  // YES if the AI should execute the move, otherwise just display a hint
     
     IBOutlet UILabel *label;
-    IBOutlet UIButton *hintButton;
-    IBOutlet UIButton *playButton;
-    IBOutlet UIButton *autoPlayButton;
-    IBOutlet UIActivityIndicatorView *activityIndicator;
-    IBOutlet UIProgressView *percentFullIndicator;
+    IBOutlet UISegmentedControl *controlBar;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
 @property(nonatomic, retain) NSMutableArray *redoList;
 @property(nonatomic, retain) ChessBoard *board;
+
+typedef enum {
+    kSegmentIndexNew = 0,
+    kSegmentIndexHint,
+    kSegmentIndexPlay,
+    kSegmentIndexAuto,
+    kSegmentIndexUndo,
+    kSegmentIndexRedo
+} SegmentIndex;
 
 // initialize
 
@@ -73,6 +78,7 @@
 -(IBAction)redoMove;
 -(IBAction)thinkAndMove;    // play
 -(IBAction)undoMove;
+-(IBAction)controlBarSelected;
 
 @end
 

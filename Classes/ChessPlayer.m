@@ -178,10 +178,6 @@ static int PieceCenterScores[7][64] = {
     pieces[sourceSquare] = 0;
     pieces[destSquare] = piece;
     
-    if ((piece == kPawn) && (board.activePlayer == board.whitePlayer) && (sourceSquare > destSquare)) {
-        NSLog(@"white pawn moving backwards?");
-    }
-    
     [board updateHash:piece at:sourceSquare from:self];
     [board updateHash:piece at:destSquare from:self];
     
@@ -732,20 +728,34 @@ static int PieceCenterScores[7][64] = {
 
 -(void)undoMove:(ChessMove *)move {
     
-    NSString *actions[] = {
-        @"undoNormalMove:",
-        @"undoDoublePushMove:",
-        @"undoEnPassantMove:",
-        @"undoCastleKingSideMove:",
-        @"undoCastleQueenSideMove:",
-        @"undoResign:",
-        @"undoStaleMate:"
-    };
-    
-    int type = [move moveType];
-    NSString *actionString = actions[type & kBasicMoveMask];
-    SEL action = NSSelectorFromString(actionString);
-    [self performSelector:action withObject:move];
+    int type = [move moveType] & kBasicMoveMask;
+
+    switch(type) {
+        case kMoveNormal:
+            [self undoNormalMove:move];
+            break;
+        case kMoveDoublePush:
+            [self undoDoublePushMove:move];
+            break;
+        case kMoveCaptureEnPassant:
+            [self undoEnpassantMove:move];
+            break;
+        case kMoveCastlingKingSide:
+            [self undoCastlingKingSideMove:move];
+            break;
+        case kMoveCastlingQueenSide:
+            [self undoCastlingQueenSideMove:move];
+            break;
+        case kMoveResign:
+            [self undoResign:move];
+            break;
+        case kMoveStaleMate:
+            [self undoStaleMate:move];
+            break;
+        default:
+            NSLog(@"applying unknown move %d", type);
+            break;
+    }
 }
 
 -(void)undoNormalMove:(ChessMove *)move {
