@@ -46,6 +46,7 @@
 		69C4847B1218BFC300089898 /* blackplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C484791218BFC300089898 /* blackplayer.png */; };
 		69C4847C1218BFC300089898 /* redplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4847A1218BFC300089898 /* redplayer.png */; };
 		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
+		69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D353831257C6FF002E2FB9 /* MediaPlayer.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,6 +106,7 @@
 		69C484791218BFC300089898 /* blackplayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackplayer.png; sourceTree = "<group>"; };
 		69C4847A1218BFC300089898 /* redplayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redplayer.png; sourceTree = "<group>"; };
 		69C4850A1218F8DE00089898 /* checkerboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkerboard.png; sourceTree = "<group>"; };
+		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* ChessMail-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ChessMail-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,6 +119,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */,
+				69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +129,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
 				6942F9CF1220971B002E59B5 /* ChessBoard.h */,
 				6942F9D01220971B002E59B5 /* ChessBoard.m */,
@@ -200,6 +204,7 @@
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
 				69C483AE1218A87E00089898 /* QuartzCore.framework */,
+				69D353831257C6FF002E2FB9 /* MediaPlayer.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -265,6 +270,13 @@
 				69C4839B1218A3FF00089898 /* leather.jpeg */,
 			);
 			name = images;
+			sourceTree = "<group>";
+		};
+		69D353ED1257D190002E2FB9 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

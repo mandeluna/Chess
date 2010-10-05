@@ -7,7 +7,6 @@
 //
 
 #import "ChessMailViewController.h"
-#import <QuartzCore/QuartzCore.h>
 
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
@@ -20,11 +19,14 @@
 #import "ChessMoveGenerator.h"
 
 @interface ChessMailViewController(Private)
+- (void)addGameLayer;
 - (float)boardWidth;
 - (float)cellWidth;
 - (float)playerWidth;
 - (int)squareIndexForLayerLocation:(CGPoint)screenLoc;
 - (CGPoint)centerPointOfCellForBoardIndex:(CGPoint)boardPoint;
+- (void)updateBoardTransforms;
+- (void)switchSides;
 @end
 
 @implementation ChessMailViewController
@@ -32,21 +34,94 @@
 
 #pragma mark initialize
 
-#define NUM_ROWS 10
-#define NUM_COLS 10
+-(BOOL)isWhiteCell:(int)index {
+    
+    int row = index / 8;
+    int col = index % 8;
+    
+    return ((row % 2) && !(col % 2)) || (!(row % 2) && (col % 2));
+}
 
-static char cellChars[NUM_COLS][NUM_ROWS] = {
-    {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '},
-    {'1', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
-    {'2', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
-    {'3', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
-    {'4', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
-    {'5', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
-    {'6', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
-    {'7', 'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W', ' '},
-    {'8', 'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B', ' '},
-    {' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' '}
-};
+-(void)updateBoardTransforms {
+    
+    CGFloat boardRotation = boardDirection > 0 ? 0.0 : M_PI;
+    
+    boardTransform = CATransform3DMakeRotation(boardRotation, 0.0, 0.0, 1.0);
+    boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
+    playerTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0);    
+    
+    boardLayer.transform = boardTransform;
+    
+    for (int i=0; i < 64; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        squareLayer.pieceLayer.transform = playerTransform;
+    }
+
+    for (int i=0; i < 16; i++) {
+        CATextLayer *labelLayer = [labels objectAtIndex:i];
+        labelLayer.transform = playerTransform;
+    }
+}
+
+
+-(void)removeLabels {
+    
+    for (CATextLayer *labelLayer in labels) {
+        [labelLayer removeFromSuperlayer];
+    }
+    
+    [labels removeAllObjects];
+}
+
+-(void)addLabels {
+    
+    labels = [NSMutableArray arrayWithCapacity:16];
+    [labels retain];
+    
+    CGFloat w = [self cellWidth];
+
+    for (int i = 0; i < 8; i++) {
+        
+        CATextLayer *labelLayer = [CATextLayer layer];
+        labelLayer.foregroundColor = [UIColor darkGrayColor].CGColor;
+        
+        CGPoint loc = [self centerPointOfCellForBoardIndex:CGPointMake(i, -1)];
+        loc.y = loc.y + 9.0f;
+        
+        labelLayer.position = loc;
+        labelLayer.string = [NSString stringWithFormat:@"%c",'A' + (i & 7)];
+        labelLayer.bounds = CGRectMake(0, 0, 18.0f, 18.0f);
+        labelLayer.alignmentMode = kCAAlignmentCenter;
+        labelLayer.fontSize = 12.0f;
+        
+//        labelLayer.borderColor = [UIColor greenColor].CGColor;
+//        labelLayer.borderWidth = 1.0;
+        
+        [boardLayer addSublayer:labelLayer];
+        [labels addObject:labelLayer];
+    }
+    
+    for (int i = 0; i < 8; i++) {
+        
+        CATextLayer *labelLayer = [CATextLayer layer];
+        labelLayer.foregroundColor = [UIColor darkGrayColor].CGColor;
+        
+        CGPoint loc = [self centerPointOfCellForBoardIndex:CGPointMake(-1, i)];
+        loc.x = loc.x + w/2 - 9.0;
+        
+        labelLayer.position = loc;
+        labelLayer.string = [NSString stringWithFormat:@"%c",'1' + i];
+        labelLayer.bounds = CGRectMake(0, 0, 18.0f, 18.0f);
+        labelLayer.alignmentMode = kCAAlignmentCenter;
+        labelLayer.fontSize = 12.0f;
+       
+//        labelLayer.borderColor = [UIColor yellowColor].CGColor;
+//        labelLayer.borderWidth = 1.0;
+        
+        [boardLayer addSublayer:labelLayer];
+        [labels addObject:labelLayer];
+    }
+}
 
 -(void)addSquares {
     
@@ -56,55 +131,25 @@ static char cellChars[NUM_COLS][NUM_ROWS] = {
     squares = [NSMutableArray arrayWithCapacity:64];
     [squares retain];
     
-    int index = 0;
+    CGFloat w = [self cellWidth];
     
-    for (int i=0; i<NUM_ROWS; i++) {
-        for (int j=0; j<NUM_COLS; j++) {
-            
-            char sq = cellChars[j][i];
-            
-            SquareLayer *square = [self squareLayer];
-            CGFloat w = [self cellWidth];
-            square.bounds = CGRectMake(0, 0, w, w);
-            
-            if ((sq == 'W') || (sq == 'B')) {
-                
-                square.backgroundColor = ('W' == sq) ? white : black;
-                square.borderColor = [UIColor redColor].CGColor;
-                
-                square.squarePosition = index;
-                [squares addObject:square];
-                square.name = [NSString stringWithFormat:@"%c%c",'a' + (index & 7), '1' + (index >> 3)];
-                float x = index % 8;
-                float y = index / 8;
-                CGPoint loc = [self centerPointOfCellForBoardIndex:(CGPointMake(x, y))];
-                square.position = loc;
-                // NSLog(@"adding square %d named %@ at position (%3.1f, %3.1f)", index, square.name, loc.x, loc.y);
-                index++;
-
-                
-                // TODO: add delegate to square layer for dragging and dropping
-            }
-            else {  // decoration
-                
-                square.backgroundColor = [UIColor clearColor].CGColor;
-                
-                if (sq != ' ') {
-                    
-                    CATextLayer *labelLayer = [CATextLayer layer];
-                    labelLayer.string = [NSString stringWithFormat:@"%c", sq];
-                    labelLayer.bounds = square.bounds;
-                    CGPoint pos = [self centerPointOfCellForBoardIndex:CGPointMake(i,j)];
-                    labelLayer.position = pos;
-                    labelLayer.alignmentMode = kCAAlignmentLeft;
-                    labelLayer.fontSize = 18.0f;
-                    [square addSublayer:labelLayer];
-                }
-            }
-            
-            square.zPosition = -1;
-            [boardLayer addSublayer:square];
-        }
+    for (int index = 0; index < 64; index++) {
+        
+        SquareLayer *square = [SquareLayer layer];
+        square.bounds = CGRectMake(0, 0, w, w);
+        
+        square.backgroundColor = [self isWhiteCell:index] ? white : black;
+        square.borderColor = [UIColor redColor].CGColor;
+        
+        square.squarePosition = index;
+        [squares addObject:square];
+        square.name = [NSString stringWithFormat:@"%c%c",'a' + (index & 7), '1' + (index >> 3)];
+        float x = index % 8;
+        float y = index / 8;
+        CGPoint loc = [self centerPointOfCellForBoardIndex:(CGPointMake(x, y))];
+        square.position = loc;
+        
+        [boardLayer addSublayer:square];
     }
 }
 
@@ -136,16 +181,11 @@ static NSString *imageNames[12] = {
     CGFloat w = [self cellWidth];
     m.bounds = CGRectMake(0,0, w, w);
     m.shadowColor = [UIColor blackColor].CGColor;
+    m.transform = playerTransform;
     
     [boardLayer addSublayer:m];
     
     return m;
-}
-
--(SquareLayer *)squareLayer {
-    
-    SquareLayer *squareLayer = [SquareLayer layer];
-    return squareLayer;
 }
 
 #pragma mark ChessUserAgent protocol
@@ -183,7 +223,7 @@ static NSString *imageNames[12] = {
         return;
     
     [history addObject:move];
-    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexUndo];
+    [undoButton setEnabled:YES];
 
     [self validateGamePosition];
 }
@@ -229,7 +269,7 @@ static NSString *imageNames[12] = {
         return;
     
     [redoList addObject:move];
-    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexRedo];
+    [redoButton setEnabled:YES];
     
     [self validateGamePosition];
 }
@@ -241,15 +281,7 @@ static NSString *imageNames[12] = {
             printf("\n");
         }
         SquareLayer *layer = [squares objectAtIndex:i];
-        printf("%2d", layer.pieceLayer.piece); /*
-        if (layer.pieceLayer.isWhite == isWhitePlayer)
-        {
-            printf("%2d", layer.pieceLayer.piece);
-        }
-        else {
-            printf("  ");
-        } */
-
+        printf("%2d", layer.pieceLayer.piece);
     }
     printf("\n ===============\n");
 }
@@ -345,33 +377,6 @@ static NSString *imageNames[12] = {
 
 #pragma mark playing
 
--(IBAction)controlBarSelected {
-    
-    switch (controlBar.selectedSegmentIndex) {
-            
-        case (kSegmentIndexNew):
-            [self newGame];
-            break;
-        case (kSegmentIndexHint):
-            [self findBestMove];
-            break;
-        case (kSegmentIndexPlay):
-            [self play];
-            break;
-        case (kSegmentIndexAuto):
-            [self autoPlay];
-            break;
-        case (kSegmentIndexUndo):
-            [self undoMove];
-            break;
-        case (kSegmentIndexRedo):
-            [self redoMove];
-            break;
-        default:
-            NSLog(@"Unknown segment index %d", controlBar.selectedSegmentIndex);
-    }
-    controlBar.selectedSegmentIndex = -1;
-}
 
 -(IBAction)autoPlay {
     
@@ -413,8 +418,8 @@ static NSString *imageNames[12] = {
     self.history = [NSMutableArray array];
     self.redoList = [NSMutableArray array];
     
-    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexRedo];
-    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexUndo];
+    [undoButton setEnabled:NO];
+    [redoButton setEnabled:NO];
 
     [self validateGamePosition];
 }
@@ -446,7 +451,7 @@ static NSString *imageNames[12] = {
     [redoList removeLastObject];
     
     if ([redoList count] == 0) {
-        [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexRedo];
+        [redoButton setEnabled:NO];
     }
     
     [board nextMove:move];
@@ -481,13 +486,31 @@ static NSString *imageNames[12] = {
     [history removeLastObject];
     
     if ([history count] == 0) {
-        [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexUndo];
+        [undoButton setEnabled:NO];
     }
     
     [board undoMove:move];
     [move release];
 }
 
+//
+// flip the board upside down
+//
+-(void)switchSides {
+    
+    boardDirection *= -1;
+    
+    [self updateBoardTransforms];
+}
+
+//
+// TODO: bring up a list of settings
+//
+-(IBAction)displaySettings {
+    
+    // initially just testing board rotation
+    [self switchSides];
+}
 
 #pragma mark Private
 
@@ -677,39 +700,55 @@ static NSString *imageNames[12] = {
 // reposition the board in the center of the screen
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
                                          duration:(NSTimeInterval)duration {
+    
+    CGFloat width = [self boardWidth];
+    CGRect desiredBounds = CGRectMake(0, 0, width, width);
+    
+    // board isn't big enough in landscape mode, scale down the board
+    if ((interfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
+        (interfaceOrientation == UIInterfaceOrientationLandscapeRight)) {
+        
+        CGRectInset(desiredBounds, -18.0, -18.0);
+    }
+    
     [boardLayer setPosition:(CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height/2))];
+    boardLayer.bounds = desiredBounds;
+
+    
+    [self updateBoardTransforms];
 }
 
-// set the bounds to fit the screen (some percentage of the minimum boundary)
+// set the minimum boundary to fit the screen
 - (float)boardWidth {
-    return 0.85 * fmin(self.view.frame.size.width, self.view.frame.size.height);
+    return fmin(self.view.frame.size.width, self.view.frame.size.height);
 }
 
 - (float)cellWidth {
-    return [self boardWidth] / BOARD_GRID_COUNT * 1.0f;    
+    return [self boardWidth] * boardScale * gameScale / 8.0;   
 }
 
 - (float)playerWidth {
     return 0.85f * [self cellWidth];
 }
 
+
 //
 // Add the layer representing the chessboard
 //
 - (void)addBoardLayer {
+    
     boardLayer = [CALayer layer];
     
-    // load the contents from a local resource
-    CGImageRef image = [UIImage imageNamed:@"checkerboard.png"].CGImage;
-    boardLayer.contents = (id)image;
-    
-    float width = [self boardWidth];
+    float width = [self boardWidth] * boardScale;
     CGRect bounds = CGRectMake(0, 0, width, width);
     boardLayer.bounds = bounds;
+    boardLayer.geometryFlipped = YES;
+    boardLayer.borderColor = [UIColor magentaColor].CGColor;
+    boardLayer.borderWidth = 1.0;
     
-    // position the board in the center of the screen
-    [boardLayer setPosition:(CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2))];
-    [self.view.layer addSublayer:boardLayer];    
+    // position the board in the center of the parent view
+    [boardLayer setPosition:(CGPointMake([self view].bounds.size.width/2, [self view].bounds.size.height/2))];
+    [[self view].layer addSublayer:boardLayer];    
 }
 
 //
@@ -747,31 +786,27 @@ static NSString *imageNames[12] = {
     float i = 0;
     float j = 0;
     
-    if (screenLoc.x > boardLayer.frame.size.width) {
+    if (screenLoc.x > boardLayer.bounds.size.width) {
         return -1;        
     }
     else if (screenLoc.x <= 0) {
         return -1;
     }
     else {
-        i = trunc((screenLoc.x / boardLayer.frame.size.width) * BOARD_GRID_COUNT);
+        i = trunc((screenLoc.x / boardLayer.bounds.size.width) * 8);
     }
     
-    if (screenLoc.y > boardLayer.frame.size.height) {
+    if (screenLoc.y > boardLayer.bounds.size.height) {
         return -1;        
     }
     else if (screenLoc.y <= 0) {
         return -1;
     }
     else {
-        j = trunc((screenLoc.y / boardLayer.frame.size.height) * BOARD_GRID_COUNT);
+        j = trunc((screenLoc.y / boardLayer.bounds.size.height) * 8);
     }
     
-    int result = j * BOARD_GRID_COUNT + i;
-    
-    //NSLog(@"Converted (%3.1f, %3.1f) to (%3.1f, %3.1f) = %d", screenLoc.x, screenLoc.y, i, j, result);
-    
-    return result;
+    return j * 8 + i;
 }
 
 //
@@ -781,8 +816,8 @@ static NSString *imageNames[12] = {
 - (CGPoint)centerPointOfCellForBoardIndex:(CGPoint)boardPoint {
     
     float cellWidth = [self cellWidth];
-    float x = cellWidth / 2.0 + boardPoint.x * cellWidth;
-    float y = cellWidth / 2.0 + boardPoint.y * cellWidth;
+    float x = cellWidth / 2 + boardPoint.x * cellWidth;
+    float y = cellWidth / 2 + boardPoint.y * cellWidth;
     
     return CGPointMake(x, y);
 }
@@ -794,9 +829,22 @@ static NSString *imageNames[12] = {
 //
 -(void)startedThinking {
     
-    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexHint];
-    [controlBar setEnabled:NO forSegmentAtIndex:kSegmentIndexPlay];
+    [hintButton setEnabled:NO];
+    [playButton setEnabled:NO];
     [self.view setNeedsDisplay];
+}
+
+//
+// delegate method for suggested move alert
+//
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    
+    // assume this is the suggested move alert from stoppedThinking
+    if (buttonIndex == 1) {
+        
+        [board movePieceFrom:moveHint.sourceSquare to:moveHint.destinationSquare];
+    }
+    [moveHint release];
 }
 
 //
@@ -804,16 +852,19 @@ static NSString *imageNames[12] = {
 //
 -(void)stoppedThinking {
     
-    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexHint];
-    [controlBar setEnabled:YES forSegmentAtIndex:kSegmentIndexPlay];
+    [hintButton setEnabled:YES];
+    [playButton setEnabled:YES];
     
     ChessMove *move = board.searchAgent.myMove;
     
     if (!moveExpected) {
+        
+        moveHint = [move retain];
+        
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Suggested move"
                                                         message:[move description]
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                                                       delegate:self
+                                              cancelButtonTitle:@"No thanks" otherButtonTitles:@"Accept", nil];
         [alert show];
         [alert release];
         
@@ -859,11 +910,16 @@ static NSString *imageNames[12] = {
     // needed because the class actually needs to be sent a message to invoke initialization
     [[ChessConstants class] initialize];
     
-    // initial setup for checkers, with 3 player rows. chess = 2
-    numPlayerRows = 3;
+    // initial view with white at the bottom of the board
+    boardDirection = 1.0;
+    gameScale = 1.0;
+    boardScale = 0.95;
     
     [self addBoardLayer];
     [self addSquares];
+    [self addLabels];
+
+    [self updateBoardTransforms];    
     [self newGame];
 }
 
@@ -882,13 +938,14 @@ static NSString *imageNames[12] = {
 }
 
 - (void)viewDidUnload {
-	// we don't retain board layer, so we don't need to release it
-    boardLayer = nil;
 }
 
 
 - (void)dealloc {
     [super dealloc];
+    [squares release];
+    [labels release];
+    
     if (board) {
         [board release];
     }

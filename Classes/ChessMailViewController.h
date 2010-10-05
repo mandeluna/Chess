@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ChessUserAgent.h"
-
-#define BOARD_GRID_COUNT 8.0f
+#import <QuartzCore/QuartzCore.h>
 
 @class ChessBoard;
 @class ChessPieceLayer;
@@ -20,11 +19,9 @@
     
     CALayer *boardLayer;
     NSMutableArray *squares;
+    NSMutableArray *labels;
     ChessPieceLayer *selectedPlayer;
     int selectionIndex;
-    
-    int numPlayers;
-    int numPlayerRows;
     
     ChessBoard *board;
     NSMutableArray *history;
@@ -34,7 +31,20 @@
     BOOL moveExpected;  // YES if the AI should execute the move, otherwise just display a hint
     
     IBOutlet UILabel *label;
-    IBOutlet UISegmentedControl *controlBar;
+    IBOutlet UIBarButtonItem *newGameButton;
+    IBOutlet UIBarButtonItem *playButton;
+    IBOutlet UIBarButtonItem *undoButton;
+    IBOutlet UIBarButtonItem *redoButton;
+    IBOutlet UIBarButtonItem *hintButton;
+    IBOutlet UIBarButtonItem *settingsButton;
+    
+    CATransform3D boardTransform;   // for scaling to display/hide labels and flipping board to switch sides
+    CATransform3D playerTransform;  // for flipping pieces to compensate for flipping board
+    CGFloat boardDirection;         // white is at the top of the screen if this is 1
+    CGFloat gameScale;              // game is scaled down for landscape display
+    CGFloat boardScale;             // board is scaled down to display labels
+    
+    ChessMove *moveHint;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
@@ -54,7 +64,6 @@ typedef enum {
 
 -(void)addSquares;
 -(ChessPieceLayer *)newPiece:(int)piece white:(BOOL)isWhite;
--(SquareLayer *)squareLayer;    // return a new instance with a retain count of +0
 
 // chess user agent
 
@@ -78,7 +87,7 @@ typedef enum {
 -(IBAction)redoMove;
 -(IBAction)thinkAndMove;    // play
 -(IBAction)undoMove;
--(IBAction)controlBarSelected;
+-(IBAction)displaySettings;
 
 @end
 

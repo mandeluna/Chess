@@ -919,7 +919,9 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
     
     // check for a rook attack from the baseline
-    int rank8[4] = {A1, A2, A3, A4};
+    // TODO: should this be A1, B1, C1, D1 ???
+//    int rank8[4] = {A1, A2, A3, A4};
+    int rank8[4] = {A1, B1, C1, D1};
     DirectionalMoveList sq8 = {4, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
     
@@ -1244,9 +1246,9 @@ static PossibleMoveList KnightMoves[64];
             ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
             [move move:piece from:square to:destSquare capture:capture];
             
-            if ([myPlayer.board userAgent] && (piece == kQueen)) {
-                NSLog(@"queen move: %@", move);
-            }
+//            if ([myPlayer.board userAgent] && (piece == kQueen)) {
+//                NSLog(@"queen move: %@", move);
+//            }
             
             if (kKing == capture) {
                 kingAttack = [moveList objectAtIndex:lastMoveIndex];
