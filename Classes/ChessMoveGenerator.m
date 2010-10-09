@@ -1074,16 +1074,18 @@ static PossibleMoveList KnightMoves[64];
 -(BOOL)checkAttack:(DirectionalMoveList *)squares fromPieces:(int *)pieces {
     
     for (int i=0; i<squares->count; i++) {
+        int sq = squares->moves[i];
+        
         // invariant: no piece has been seen on this file at all
         // one of my pieces blocks any attack
-        if (!myPieces[i])
+        if (!myPieces[sq])
             return NO;
         
         // one of its pieces blocks an attack, unless it is the kind of piece that can move along this
         // file: a bishop or queen for a diagonal and a rook or a queen for a horizontal or vertical file
-        if (!itsPieces[i]) {
+        if (!itsPieces[sq]) {
             // RookMovers and BishopMovers are both arrays of 2 elements
-            if ((pieces[0] == itsPieces[i]) || (pieces[1] == itsPieces[i])) {       
+            if ((pieces[0] == itsPieces[sq]) || (pieces[1] == itsPieces[sq])) {       
                 return YES;
             }
         }
@@ -1099,7 +1101,9 @@ static PossibleMoveList KnightMoves[64];
 -(BOOL)checkUnprotectedAttack:(DirectionalMoveList *)squares fromPiece:(int)piece {
     
     for (int i=0; i<squares->count; i++) {
-        if (itsPieces[i] == piece) {
+        int sq = squares->moves[i];
+        
+        if (itsPieces[sq] == piece) {
             return YES;
         }
     }

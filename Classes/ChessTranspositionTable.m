@@ -21,7 +21,7 @@
 //
 -(void)clear {
     
-    if (0) {
+    if (1) {
         if ([array count] > 0) {
             NSLog(@"entries used:   %d (%2d%%)", [used count], ([used count] * 100 / [array count]));
             
@@ -44,6 +44,7 @@
         array = [[NSMutableArray arrayWithCapacity:capacity] retain];
         used = [[NSMutableArray arrayWithCapacity:50000] retain];
         ChessTTEntry *entry = [[ChessTTEntry alloc] init];
+        [entry clear];
         for (int i=0; i<capacity; i++) {
             [array addObject:[[entry copy] autorelease]];
         }
@@ -67,9 +68,14 @@
         }
     }
     
-    if (!((-1 == entry.valueType) || (entry.depth <= depth) || (entry.timeStamp < timeStamp))) {
-        return;
-    }
+//    (entry valueType = -1 
+//     or:[entry depth <= depth
+//         or:[entry timeStamp < timeStamp]]) ifFalse:[^self].
+    
+    if (entry.valueType != -1) return;
+    if (entry.depth > depth) return;
+    if (entry.timeStamp >= timeStamp) return;
+    
     
     entry.hashLock = aBoard.hashLock;
     entry.value = value;

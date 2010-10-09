@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class ChessMailViewController;
+@class ChessSettingsViewController;
 
 @interface ChessMailAppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;

@@ -14,6 +14,7 @@
 @class ChessPieceLayer;
 @class SquareLayer;
 @class ChessMove;
+@class ChessSettingsViewController;
 
 @interface ChessMailViewController : UIViewController <ChessUserAgent> {
     
@@ -45,11 +46,18 @@
     CGFloat boardScale;             // board is scaled down to display labels
     
     ChessMove *moveHint;
+    
+    ChessSettingsViewController *settingsController;
+    UINavigationController *settingsNavigationController;
+    UIPopoverController *settingsPopoverController;
+    
+    BOOL usePopoverController;      // true if we are running on an iPad
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
 @property(nonatomic, retain) NSMutableArray *redoList;
 @property(nonatomic, retain) ChessBoard *board;
+@property(nonatomic, assign) BOOL usePopoverController;
 
 typedef enum {
     kSegmentIndexNew = 0,

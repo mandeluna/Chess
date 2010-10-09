@@ -7,6 +7,7 @@
 //
 
 #import "ChessMailViewController.h"
+#import "ChessSettingsViewController.h"
 
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
@@ -30,7 +31,7 @@
 @end
 
 @implementation ChessMailViewController
-@synthesize history, redoList, board;
+@synthesize history, redoList, board, usePopoverController;
 
 #pragma mark initialize
 
@@ -47,7 +48,7 @@
     CGFloat boardRotation = boardDirection > 0 ? 0.0 : M_PI;
     
     boardTransform = CATransform3DMakeRotation(boardRotation, 0.0, 0.0, 1.0);
-    boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
+//    boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
     playerTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0);    
     
     boardLayer.transform = boardTransform;
@@ -508,8 +509,17 @@ static NSString *imageNames[12] = {
 //
 -(IBAction)displaySettings {
     
-    // initially just testing board rotation
-    [self switchSides];
+    settingsController = [[ChessSettingsViewController alloc] initWithStyle:UITableViewStylePlain];
+    settingsNavigationController = [[UINavigationController alloc] initWithRootViewController:settingsController];
+    
+    if (usePopoverController) {
+        settingsPopoverController = [[UIPopoverController alloc] initWithContentViewController:settingsNavigationController];
+        [settingsPopoverController presentPopoverFromBarButtonItem:settingsButton
+                                          permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    }
+    else {
+        [settingsNavigationController presentModalViewController:settingsController animated:YES];
+    }
 }
 
 #pragma mark Private
@@ -701,19 +711,19 @@ static NSString *imageNames[12] = {
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
                                          duration:(NSTimeInterval)duration {
     
-    CGFloat width = [self boardWidth];
-    CGRect desiredBounds = CGRectMake(0, 0, width, width);
-    
     // board isn't big enough in landscape mode, scale down the board
     if ((interfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
         (interfaceOrientation == UIInterfaceOrientationLandscapeRight)) {
         
-        CGRectInset(desiredBounds, -18.0, -18.0);
+        // TODO: disallow landscape mode on iphone
+        boardScale = 0.925;
     }
+    else {
+        boardScale = 1.0;
+    }
+
     
     [boardLayer setPosition:(CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height/2))];
-    boardLayer.bounds = desiredBounds;
-
     
     [self updateBoardTransforms];
 }
@@ -913,7 +923,7 @@ static NSString *imageNames[12] = {
     // initial view with white at the bottom of the board
     boardDirection = 1.0;
     gameScale = 1.0;
-    boardScale = 0.95;
+    boardScale = 0.925;
     
     [self addBoardLayer];
     [self addSquares];

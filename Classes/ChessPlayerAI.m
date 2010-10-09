@@ -42,7 +42,8 @@
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *appDefaults = [NSDictionary
-                                 dictionaryWithObject:@"YES" forKey:@"UseNegaScout"];
+                                 dictionaryWithObject:[NSNumber numberWithBool:YES]
+                                 forKey:@"UseNegaScout"];
     
     [defaults registerDefaults:appDefaults];
 }
@@ -112,15 +113,13 @@
 //                                                           
 -(void)initializeTranspositionTable {
     
-    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 1 << 16 entries
+//    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 1 << 16 entries
+    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 1 << 18 entries   [256k entries improve utilization on ipad]
 }
 
 #pragma mark searching
 
 -(void)copyVariation:(ChessMove *)move {
-    
-//    if (1)
-//        return;
     
     int count = 0;
     int *av = variations[ply];
@@ -740,8 +739,6 @@
     
     myMove = [ChessMove nullMove];
     [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
-    
-//    [self thinkThread];
 }
 
 -(void)thinkThread {
@@ -763,7 +760,8 @@
     nodesVisited = ttHits = alphaBetaCuts = 0;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
-    
+
+    // TODO: increasing this to 200,000 seemed to worsen problem where it sometimes just doesn't make a move
     while (nodesVisited < 50000) {
         
         ChessMove *theMove = nil;
@@ -801,15 +799,12 @@
 //
 -(long)timeToThink {
     
-    return 2.5;
+    return 5.0;
 }
 
 #pragma mark accessing
 
 -(NSString *)statusString {
-    
-//    if (1)
-//        return @"";
     
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {

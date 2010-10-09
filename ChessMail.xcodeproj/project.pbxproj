@@ -15,6 +15,7 @@
 		2899E5220DE3E06400AC0155 /* ChessMailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ChessMailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ChessMailViewController.m */; };
+		690A39EE125FEEFC00E1173B /* Settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 690A39ED125FEEFC00E1173B /* Settings.plist */; };
 		690E50ED123417E600DC1CED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		690E510112341DB500DC1CED /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
 		690E510212341DB500DC1CED /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
@@ -28,6 +29,9 @@
 		690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
 		690E510B12341DB500DC1CED /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
 		690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
+		691E5D7D125D4CFF002B41D6 /* ChessSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D7C125D4CFF002B41D6 /* ChessSettingsViewController.m */; };
+		691E5D82125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D81125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m */; };
+		691E5D87125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D86125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m */; };
 		6942F9D11220971B002E59B5 /* ChessBoard.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D01220971B002E59B5 /* ChessBoard.m */; };
 		6942F9D412209736002E59B5 /* ChessMoveGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D312209736002E59B5 /* ChessMoveGenerator.m */; };
 		6942F9D712209743002E59B5 /* ChessPlayerAI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D612209743002E59B5 /* ChessPlayerAI.m */; };
@@ -62,6 +66,7 @@
 		28D7ACF70DDB3853001CB0EB /* ChessMailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* ChessMail_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMail_Prefix.pch; sourceTree = "<group>"; };
+		690A39ED125FEEFC00E1173B /* Settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Settings.plist; sourceTree = "<group>"; };
 		690E50EB123417E600DC1CED /* SquareLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SquareLayer.h; sourceTree = "<group>"; };
 		690E50EC123417E600DC1CED /* SquareLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SquareLayer.m; sourceTree = "<group>"; };
 		690E50F512341DB500DC1CED /* whiteRookImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteRookImage.png; sourceTree = "<group>"; };
@@ -76,6 +81,12 @@
 		690E50FE12341DB500DC1CED /* blackKnightImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKnightImage.png; sourceTree = "<group>"; };
 		690E50FF12341DB500DC1CED /* blackKingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKingImage.png; sourceTree = "<group>"; };
 		690E510012341DB500DC1CED /* blackBishopImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackBishopImage.png; sourceTree = "<group>"; };
+		691E5D7B125D4CFF002B41D6 /* ChessSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessSettingsViewController.h; sourceTree = "<group>"; };
+		691E5D7C125D4CFF002B41D6 /* ChessSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessSettingsViewController.m; sourceTree = "<group>"; };
+		691E5D80125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMailAppDelegate_ipad.h; sourceTree = "<group>"; };
+		691E5D81125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailAppDelegate_ipad.m; sourceTree = "<group>"; };
+		691E5D85125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMailAppDelegate_iphone.h; sourceTree = "<group>"; };
+		691E5D86125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailAppDelegate_iphone.m; sourceTree = "<group>"; };
 		6942F9CF1220971B002E59B5 /* ChessBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessBoard.h; sourceTree = "<group>"; };
 		6942F9D01220971B002E59B5 /* ChessBoard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessBoard.m; sourceTree = "<group>"; };
 		6942F9D212209736002E59B5 /* ChessMoveGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMoveGenerator.h; sourceTree = "<group>"; };
@@ -214,6 +225,10 @@
 			children = (
 				1D3623240D0F684500981E51 /* ChessMailAppDelegate.h */,
 				1D3623250D0F684500981E51 /* ChessMailAppDelegate.m */,
+				691E5D80125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.h */,
+				691E5D81125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m */,
+				691E5D85125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.h */,
+				691E5D86125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m */,
 				6942FA6A1220A569002E59B5 /* ChessPieceLayer.h */,
 				6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */,
 				690E50EB123417E600DC1CED /* SquareLayer.h */,
@@ -275,6 +290,9 @@
 		69D353ED1257D190002E2FB9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				691E5D7B125D4CFF002B41D6 /* ChessSettingsViewController.h */,
+				691E5D7C125D4CFF002B41D6 /* ChessSettingsViewController.m */,
+				690A39ED125FEEFC00E1173B /* Settings.plist */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -348,6 +366,7 @@
 				690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */,
 				690E510B12341DB500DC1CED /* blackKingImage.png in Resources */,
 				690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */,
+				690A39EE125FEEFC00E1173B /* Settings.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +392,9 @@
 				699CF5581229BA430054F0B2 /* ChessTranspositionTable.m in Sources */,
 				699CF60E1229D0790054F0B2 /* ChessTTEntry.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
+				691E5D7D125D4CFF002B41D6 /* ChessSettingsViewController.m in Sources */,
+				691E5D82125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m in Sources */,
+				691E5D87125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
