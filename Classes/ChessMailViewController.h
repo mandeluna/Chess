@@ -7,8 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ChessUserAgent.h"
 #import <QuartzCore/QuartzCore.h>
+#import <GameKit/GameKit.h>
+#import "BrowserViewController.h"
+#import "Picker.h"
+#import "TCPServer.h"
+
+#import "ChessUserAgent.h"
 
 @class ChessBoard;
 @class ChessPieceLayer;
@@ -16,7 +21,18 @@
 @class ChessMove;
 @class ChessSettingsViewController;
 
-@interface ChessMailViewController : UIViewController <ChessUserAgent> {
+enum {
+	kVoicePacketType = 0, kGamePacketType = 1
+};
+
+typedef struct {
+	uint8_t type;
+	uint16_t length;
+	uint16_t padding; //to 4 bytes total
+} VoiceMessageHeader;
+
+
+@interface ChessMailViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate, BrowserViewControllerDelegate, TCPServerDelegate, GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate> {
     
     CALayer *boardLayer;
     NSMutableArray *squares;
@@ -37,7 +53,9 @@
     IBOutlet UIBarButtonItem *undoButton;
     IBOutlet UIBarButtonItem *redoButton;
     IBOutlet UIBarButtonItem *hintButton;
-    IBOutlet UIBarButtonItem *settingsButton;
+    
+    IBOutlet UILabel *whitePlayerLabel;
+    IBOutlet UILabel *blackPlayerLabel;
     
     CATransform3D boardTransform;   // for scaling to display/hide labels and flipping board to switch sides
     CATransform3D playerTransform;  // for flipping pieces to compensate for flipping board
@@ -47,11 +65,28 @@
     
     ChessMove *moveHint;
     
-    ChessSettingsViewController *settingsController;
-    UINavigationController *settingsNavigationController;
-    UIPopoverController *settingsPopoverController;
-    
     BOOL usePopoverController;      // true if we are running on an iPad
+    
+    // data connections from witap example
+    Picker*				picker;
+	TCPServer*			server;
+	NSInputStream*		inStream;
+	NSOutputStream*		outStream;
+	BOOL				inReady;
+	BOOL				outReady;
+    
+	//ivars for voice chat
+	BOOL				hasTCPServer;
+	BOOL				interruptedVoiceChat;
+	BOOL				didStartVoiceChat;
+	GKVoiceChatService  *vcService;
+	VoiceMessageHeader	*currentMessageHeader;
+	NSMutableData		*currentMessageBuffer;
+	NSString			*remoteInstanceName;    //name of game counterparty
+	NSString			*remoteParticipantID;   //last voice chat counterparty
+    
+    // TODO: update session management to use GKSessions
+    GKSession           *session;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
@@ -85,17 +120,33 @@ typedef enum {
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
 -(void)validateGamePosition;
 
+// action sheet delegate
+
+-(void)actionSheetCancel:(UIActionSheet *)actionSheet;
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
+
 // playing
 
 -(IBAction)autoPlay;
 -(IBAction)play;
 -(IBAction)findBestMove;    // hint
 -(IBAction)newGame;
--(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 -(IBAction)redoMove;
 -(IBAction)thinkAndMove;    // play
 -(IBAction)undoMove;
--(IBAction)displaySettings;
+
+-(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
+-(void)playOnline;
+-(void)setupBoard;
+
+-(BOOL)isPlayerWhite;
+
+#pragma mark VoiceChatClient protocol required methods
+- (NSString *)participantID; //voice chat client protocol required method
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService 
+				sendData:(NSData *)data 
+		 toParticipantID:(NSString *)participantID;
 
 @end
 

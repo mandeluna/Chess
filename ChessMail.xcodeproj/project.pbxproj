@@ -16,6 +16,18 @@
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ChessMailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ChessMailViewController.m */; };
 		690A39EE125FEEFC00E1173B /* Settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 690A39ED125FEEFC00E1173B /* Settings.plist */; };
+		690A3BE7126215CF00E1173B /* UIButtonBarPlay.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */; };
+		690A3BF01262164500E1173B /* UIButtonBarRevert.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BEF1262164500E1173B /* UIButtonBarRevert.png */; };
+		690A3C811262310D00E1173B /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3C801262310D00E1173B /* GameKit.framework */; };
+		690A3CE3126239C900E1173B /* blackButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE2126239C900E1173B /* blackButton.png */; };
+		690A3CE512623A2E00E1173B /* clearButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE412623A2E00E1173B /* clearButton.png */; };
+		690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0412623E0000E1173B /* BrowserViewController.m */; };
+		690A3D0812623E0000E1173B /* TCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0612623E0000E1173B /* TCPServer.m */; };
+		690A3D0B12623E8100E1173B /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0A12623E8100E1173B /* Picker.m */; };
+		690A3D1C1262453C00E1173B /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3D1B1262453C00E1173B /* bg.png */; };
+		690A3D921262466B00E1173B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D911262466B00E1173B /* CoreAudio.framework */; };
+		690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D971262467500E1173B /* AVFoundation.framework */; };
+		690A3DA01262468E00E1173B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D9F1262468E00E1173B /* AudioToolbox.framework */; };
 		690E50ED123417E600DC1CED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		690E510112341DB500DC1CED /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
 		690E510212341DB500DC1CED /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
@@ -67,6 +79,21 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* ChessMail_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMail_Prefix.pch; sourceTree = "<group>"; };
 		690A39ED125FEEFC00E1173B /* Settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Settings.plist; sourceTree = "<group>"; };
+		690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UIButtonBarPlay.png; sourceTree = "<group>"; };
+		690A3BEF1262164500E1173B /* UIButtonBarRevert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UIButtonBarRevert.png; sourceTree = "<group>"; };
+		690A3C801262310D00E1173B /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+		690A3CE2126239C900E1173B /* blackButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackButton.png; sourceTree = "<group>"; };
+		690A3CE412623A2E00E1173B /* clearButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clearButton.png; sourceTree = "<group>"; };
+		690A3D0312623E0000E1173B /* BrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrowserViewController.h; sourceTree = "<group>"; };
+		690A3D0412623E0000E1173B /* BrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrowserViewController.m; sourceTree = "<group>"; };
+		690A3D0512623E0000E1173B /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
+		690A3D0612623E0000E1173B /* TCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TCPServer.m; sourceTree = "<group>"; };
+		690A3D0912623E8100E1173B /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
+		690A3D0A12623E8100E1173B /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
+		690A3D1B1262453C00E1173B /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg.png; sourceTree = "<group>"; };
+		690A3D911262466B00E1173B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		690A3D971262467500E1173B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		690A3D9F1262468E00E1173B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		690E50EB123417E600DC1CED /* SquareLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SquareLayer.h; sourceTree = "<group>"; };
 		690E50EC123417E600DC1CED /* SquareLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SquareLayer.m; sourceTree = "<group>"; };
 		690E50F512341DB500DC1CED /* whiteRookImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteRookImage.png; sourceTree = "<group>"; };
@@ -131,6 +158,10 @@
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */,
 				69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */,
+				690A3C811262310D00E1173B /* GameKit.framework in Frameworks */,
+				690A3D921262466B00E1173B /* CoreAudio.framework in Frameworks */,
+				690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */,
+				690A3DA01262468E00E1173B /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +171,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				690A3D0212623DFF00E1173B /* GameKit Support */,
 				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
 				6942F9CF1220971B002E59B5 /* ChessBoard.h */,
@@ -216,8 +248,25 @@
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
 				69C483AE1218A87E00089898 /* QuartzCore.framework */,
 				69D353831257C6FF002E2FB9 /* MediaPlayer.framework */,
+				690A3C801262310D00E1173B /* GameKit.framework */,
+				690A3D911262466B00E1173B /* CoreAudio.framework */,
+				690A3D971262467500E1173B /* AVFoundation.framework */,
+				690A3D9F1262468E00E1173B /* AudioToolbox.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		690A3D0212623DFF00E1173B /* GameKit Support */ = {
+			isa = PBXGroup;
+			children = (
+				690A3D0912623E8100E1173B /* Picker.h */,
+				690A3D0A12623E8100E1173B /* Picker.m */,
+				690A3D0312623E0000E1173B /* BrowserViewController.h */,
+				690A3D0412623E0000E1173B /* BrowserViewController.m */,
+				690A3D0512623E0000E1173B /* TCPServer.h */,
+				690A3D0612623E0000E1173B /* TCPServer.m */,
+			);
+			name = "GameKit Support";
 			sourceTree = "<group>";
 		};
 		690E511D123420C900DC1CED /* User Agent */ = {
@@ -279,6 +328,11 @@
 		69C4839A1218A3EF00089898 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				690A3D1B1262453C00E1173B /* bg.png */,
+				690A3CE412623A2E00E1173B /* clearButton.png */,
+				690A3CE2126239C900E1173B /* blackButton.png */,
+				690A3BEF1262164500E1173B /* UIButtonBarRevert.png */,
+				690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */,
 				692653C31220565300D527C5 /* Checkers */,
 				692653C21220563000D527C5 /* Chess */,
 				69C4850A1218F8DE00089898 /* checkerboard.png */,
@@ -367,6 +421,11 @@
 				690E510B12341DB500DC1CED /* blackKingImage.png in Resources */,
 				690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */,
 				690A39EE125FEEFC00E1173B /* Settings.plist in Resources */,
+				690A3BE7126215CF00E1173B /* UIButtonBarPlay.png in Resources */,
+				690A3BF01262164500E1173B /* UIButtonBarRevert.png in Resources */,
+				690A3CE3126239C900E1173B /* blackButton.png in Resources */,
+				690A3CE512623A2E00E1173B /* clearButton.png in Resources */,
+				690A3D1C1262453C00E1173B /* bg.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +454,9 @@
 				691E5D7D125D4CFF002B41D6 /* ChessSettingsViewController.m in Sources */,
 				691E5D82125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m in Sources */,
 				691E5D87125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m in Sources */,
+				690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */,
+				690A3D0812623E0000E1173B /* TCPServer.m in Sources */,
+				690A3D0B12623E8100E1173B /* Picker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,7 +509,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.2;
+				SDKROOT = iphoneos4.1;
 			};
 			name = Debug;
 		};
@@ -461,7 +523,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.2;
+				SDKROOT = iphoneos4.1;
 			};
 			name = Release;
 		};

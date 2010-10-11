@@ -19,6 +19,27 @@
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
 
+#import "Picker.h"
+#import <AudioToolbox/AudioToolbox.h>
+#import <AVFoundation/AVAudioSession.h>
+
+// The Bonjour application protocol, which must:
+// 1) be no longer than 14 characters
+// 2) contain only lower-case letters, digits, and hyphens
+// 3) begin and end with lower-case letter or digit
+// It should also be descriptive and human-readable
+// See the following for more information:
+// http://developer.apple.com/networking/bonjour/faq.html
+#define kGameIdentifier		@"chessmail"
+
+#define	DEFAULT_VOICE_ID	(@"DefaultName")
+#define BONJOUR_DOMAIN		(@"local")
+#define MAX_VOICE_CHAT_PACKET_SIZE (1500)
+
+static void InterruptionListenerCallback (void	*inUserData, UInt32	interruptionState);
+static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt32 inDataSize, const void* inData);
+
+
 @interface ChessMailViewController(Private)
 - (void)addGameLayer;
 - (float)boardWidth;
@@ -27,11 +48,86 @@
 - (int)squareIndexForLayerLocation:(CGPoint)screenLoc;
 - (CGPoint)centerPointOfCellForBoardIndex:(CGPoint)boardPoint;
 - (void)updateBoardTransforms;
+- (void)updatePlayerLabels;
 - (void)switchSides;
+- (void)startNewGame;
+
+// game kit support
+-(void)setupBonjourConnections;
+-(void)endSession;
+
+// voice chat support
+- (void) setup;
+- (void) presentPicker:(NSString*)name;
+
+@end
+
+@interface ChessMailViewController(VoiceChatClient)
+
+#pragma mark Voice Chat convenience methods
+
+-(void) setupVoiceChat;
+-(void) voiceChatSend:(NSData *)data;
+-(void) stopVoiceChat;
+
+#pragma mark Voice Chat audio session methods
+
+-(void) setupAudioSession;
+-(void) resetAudioSessionProperties;
+-(void) handleAudioInterruption:(BOOL) isBeginInterrupt;
+
 @end
 
 @implementation ChessMailViewController
 @synthesize history, redoList, board, usePopoverController;
+
+#pragma mark Action Sheet delegate
+
+- (void) showNetworkAlert:(NSString*)title
+{
+	UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title
+                                                        message:@"Check your network settings"
+                                                       delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+	[alertView show];
+	[alertView release];
+}
+
+
+enum {
+    kIndexPlayOnline,
+    kIndexPlayComputer,
+    kIndexSwitchSides,
+    kIndexSetupBoard,
+    kNumActions
+} actionIndexes;
+
+-(void)actionSheetCancel:(UIActionSheet *)actionSheet {
+    
+}
+
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    switch (buttonIndex) {
+        case kIndexPlayOnline:
+            [self playOnline];
+            break;
+        case kIndexPlayComputer:
+            [self startNewGame];
+            if (![board.activePlayer isWhitePlayer] && boardDirection < 0) // computer is black
+            {
+                [self thinkAndMove];
+            }
+            break;
+        case kIndexSwitchSides:
+            [self switchSides];
+        case kIndexSetupBoard:
+            [self setupBoard];
+            break;
+        default:
+            NSLog(@"Unknown action index %d", buttonIndex);
+    }
+}
+
 
 #pragma mark initialize
 
@@ -48,7 +144,7 @@
     CGFloat boardRotation = boardDirection > 0 ? 0.0 : M_PI;
     
     boardTransform = CATransform3DMakeRotation(boardRotation, 0.0, 0.0, 1.0);
-//    boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
+    boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
     playerTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0);    
     
     boardLayer.transform = boardTransform;
@@ -62,8 +158,27 @@
         CATextLayer *labelLayer = [labels objectAtIndex:i];
         labelLayer.transform = playerTransform;
     }
+    
+    [self updatePlayerLabels];
 }
 
+-(void)updatePlayerLabels {
+    
+    BOOL localPlayerHasGameKitAlias = NO;   // todo: check if GKLocalPlayer is authenticated
+    BOOL remoteOpponentExists = NO;         // todo: check if remote session is established
+    
+    NSString *localPlayerLabel = localPlayerHasGameKitAlias ? @"alias" : NSUserName();
+    NSString *opponentLabel = remoteOpponentExists ? @"opponent" : @"Computer";
+
+    if (boardDirection > 0) {
+        blackPlayerLabel.text = opponentLabel;
+        whitePlayerLabel.text = localPlayerLabel;
+    }
+    else {
+        whitePlayerLabel.text = opponentLabel;
+        blackPlayerLabel.text = localPlayerLabel;
+    }
+}
 
 -(void)removeLabels {
     
@@ -404,7 +519,8 @@ static NSString *imageNames[12] = {
     [board.searchAgent startThinking];
 }
 
--(IBAction)newGame {
+
+-(void)startNewGame {
     
     if (!board) {
         ChessBoard *newBoard = [[ChessBoard alloc] init];
@@ -421,8 +537,20 @@ static NSString *imageNames[12] = {
     
     [undoButton setEnabled:NO];
     [redoButton setEnabled:NO];
-
+    
     [self validateGamePosition];
+}
+
+
+-(IBAction)newGame {
+    
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"New Game"
+                                                             delegate:self
+                                                    cancelButtonTitle:@"Cancel"
+                                               destructiveButtonTitle:nil
+                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Setup Board", nil];
+    
+    [actionSheet showFromBarButtonItem:newGameButton animated:YES];
 }
 
 
@@ -504,23 +632,223 @@ static NSString *imageNames[12] = {
     [self updateBoardTransforms];
 }
 
-//
-// TODO: bring up a list of settings
-//
--(IBAction)displaySettings {
+-(void)playOnline {
     
-    settingsController = [[ChessSettingsViewController alloc] initWithStyle:UITableViewStylePlain];
-    settingsNavigationController = [[UINavigationController alloc] initWithRootViewController:settingsController];
-    
-    if (usePopoverController) {
-        settingsPopoverController = [[UIPopoverController alloc] initWithContentViewController:settingsNavigationController];
-        [settingsPopoverController presentPopoverFromBarButtonItem:settingsButton
-                                          permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    if (session)
+    {
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Already connected"
+//                                                        message:@"You already have a session, do you want to start a new one?"
+//                                                       delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
+//        [alert show];
+        // TODO: add a delegate so we can cancel
+        [self endSession];
     }
-    else {
-        [settingsNavigationController presentModalViewController:settingsController animated:YES];
+    
+    GKPeerPickerController *peerPicker = [[GKPeerPickerController alloc] init];
+    peerPicker.connectionTypesMask = GKPeerPickerConnectionTypeNearby | GKPeerPickerConnectionTypeOnline;
+    peerPicker.delegate = self;
+    [peerPicker show];
+}
+
+- (void)peerPickerController:(GKPeerPickerController *)peerPicker didSelectConnectionType:(GKPeerPickerConnectionType)type {
+    
+    if(type == GKPeerPickerConnectionTypeOnline) {
+        [peerPicker dismiss];
+        [peerPicker autorelease];
+        
+        [self setupBonjourConnections];
     }
 }
+
+//
+// This method is "optional, but expected"
+//
+- (void)peerPickerControllerDidCancel:(GKPeerPickerController *)gkPicker {
+    
+    gkPicker.delegate = nil;
+    // The controller dismisses the dialog automatically.
+    [gkPicker autorelease];
+}
+
+//
+// create a new session or return a previously created session to the peer picker.
+// The session that your application returns to the peer picker must advertise itself as a peer (GKSessionModePeer).
+//
+- (GKSession *)peerPickerController:(GKPeerPickerController *)picker sessionForConnectionType:(GKPeerPickerConnectionType)type {
+    
+    session = [[GKSession alloc] initWithSessionID:kGameIdentifier displayName:nil sessionMode:GKSessionModePeer];
+    return session;
+}
+
+//
+// Tells the delegate that the controller connected a peer to the session. This method is optional but expected. (required)
+//
+- (void)peerPickerController:(GKPeerPickerController *)gkPicker didConnectPeer:(NSString *)peerID toSession:(GKSession *)theSession {
+    
+    // Assumes our object will also become the session's delegate.
+    session.delegate = self;
+    [session setDataReceiveHandler: self withContext:nil];
+    // Remove the picker.
+    gkPicker.delegate = nil;
+    [gkPicker dismiss];
+    [gkPicker autorelease];
+    
+    // Start your game.
+    [[GKVoiceChatService defaultVoiceChatService] startVoiceChatWithParticipantID:peerID error: nil];
+}
+
+-(void)setupBonjourConnections{
+    
+    [server release];
+    server = nil;
+    
+    [inStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [inStream release];
+    inStream = nil;
+    inReady = NO;
+    
+    [outStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [outStream release];
+    outStream = nil;
+    outReady = NO;
+    
+    [remoteInstanceName release];
+    remoteInstanceName = nil;
+    
+    server = [TCPServer new];
+    [server setDelegate:self];
+    NSError* error;
+    if(server == nil || ![server start:&error]) {
+        NSLog(@"Failed creating server: %@", error);
+        [self showNetworkAlert:@"Failed creating server"];
+        return;
+    }
+    
+    //Start advertising to clients, passing nil for the name to tell Bonjour to pick use default name
+    if(![server enableBonjourWithDomain:BONJOUR_DOMAIN applicationProtocol:[TCPServer bonjourTypeFromIdentifier:kGameIdentifier] name:nil]) {
+        [self showNetworkAlert:@"Failed advertising server"];
+        return;
+    }
+    
+    [self presentPicker:nil];
+    
+    //Create and advertise a new game and discover other available games
+    [self setupVoiceChat];
+}
+
+#pragma mark Peer Picker dialogs
+
+//
+// Make sure to let the user know what name is being used for Bonjour advertisement.
+// This way, other players can browse for and connect to this game.
+// Note that this may be called while the alert is already being displayed, as
+// Bonjour may detect a name conflict and rename dynamically.
+//
+- (void) presentPicker:(NSString*)name {
+	if (!picker) {
+		picker = [[Picker alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]
+                                          type:[TCPServer bonjourTypeFromIdentifier:kGameIdentifier]];
+		picker.delegate = self;
+	}
+	
+	picker.gameName = name;
+	
+	if (!picker.superview) {
+		[[self view].window addSubview:picker];
+	}
+}
+
+- (void) destroyPicker {
+	[picker removeFromSuperview];
+	[picker release];
+	picker = nil;
+}
+
+// If we display an error or an alert that the remote disconnected, handle dismissal and return to setup
+- (void) alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	[self playOnline];
+}
+
+//
+// TODO: Add encoded chess moves to packet header
+//
+- (void) send:(const uint8_t)message
+{
+	if (outStream && [outStream hasSpaceAvailable]){
+		VoiceMessageHeader msgHdr;
+		msgHdr.length = htons(sizeof(uint8_t));
+		msgHdr.type = kGamePacketType;
+		
+		if([outStream write:(const uint8_t *)&msgHdr maxLength:sizeof(VoiceMessageHeader)] == -1)
+		{
+			[self showNetworkAlert:@"Failed sending data to peer"];
+			return;
+		}
+		if([outStream write:(const uint8_t *)&message maxLength:sizeof(const uint8_t)] == -1)
+		{
+			[self showNetworkAlert:@"Failed sending data to peer"];
+			return;
+		}
+	}
+}
+
+- (void) openStreams
+{
+	inStream.delegate = self;
+	[inStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[inStream open];
+	outStream.delegate = self;
+	[outStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[outStream open];
+}
+
+- (void) browserViewController:(BrowserViewController*)bvc didResolveInstance:(NSNetService*)netService
+{
+	if (!netService) {
+		[self setup];
+		return;
+	}
+	
+	[remoteInstanceName release];
+	remoteInstanceName = [[NSString stringWithFormat:@"%@,%@,%@",
+                           [netService name], [netService type], [netService domain]] retain];
+	
+	if (![netService getInputStream:&inStream outputStream:&outStream]) {
+		[self showNetworkAlert:@"Failed connecting to server"];
+		return;
+	}
+	
+	[self openStreams];
+}
+
+#pragma mark VoiceChatClient required
+
+// voice chat client's participant ID
+- (NSString *)participantID
+{
+	return session.peerID;	
+}
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService sendData:(NSData *)data toParticipantID:(NSString *)participantID
+{	
+	//Notice the participantID is not used in the send method.  This is because our application only has 1 (!) connection.
+	//If we were connected to a server where there were N possible destinations for this message, the participantID would be used 
+	//to distinguish which of the N participants we intend to send the data to.
+//	[self performSelectorOnMainThread:@selector(voiceChatSend:) withObject:data waitUntilDone:NO];
+    
+    [session sendData: data toPeers:[NSArray arrayWithObject: participantID] withDataMode: GKSendDataReliable error: nil];
+}
+
+-(void)setupBoard {
+    
+}
+
+-(BOOL)isPlayerWhite {
+    
+    return boardDirection > 0;
+}
+
 
 #pragma mark Private
 
@@ -681,7 +1009,10 @@ static NSString *imageNames[12] = {
         
         if (destIndex >= 0) {
             destinationCell = [squares objectAtIndex:destIndex];
-            moveIsValid = [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare to:destinationCell.squarePosition];
+            moveIsValid = (([board.activePlayer isWhitePlayer] && boardDirection > 0) ||
+                           (![board.activePlayer isWhitePlayer] && boardDirection < 0));
+            moveIsValid = (moveIsValid && [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare
+                                                                           to:destinationCell.squarePosition]);
         }        
         
         // if the move is not valid, animate the piece back to its original position
@@ -708,14 +1039,14 @@ static NSString *imageNames[12] = {
 }
 
 // reposition the board in the center of the screen
+///
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
                                          duration:(NSTimeInterval)duration {
     
-    // board isn't big enough in landscape mode, scale down the board
+    // board isn't big enough in landscape mode, scale down the board (iPad only)
     if ((interfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
         (interfaceOrientation == UIInterfaceOrientationLandscapeRight)) {
         
-        // TODO: disallow landscape mode on iphone
         boardScale = 0.925;
     }
     else {
@@ -753,8 +1084,8 @@ static NSString *imageNames[12] = {
     CGRect bounds = CGRectMake(0, 0, width, width);
     boardLayer.bounds = bounds;
     boardLayer.geometryFlipped = YES;
-    boardLayer.borderColor = [UIColor magentaColor].CGColor;
-    boardLayer.borderWidth = 1.0;
+//    boardLayer.borderColor = [UIColor magentaColor].CGColor;
+//    boardLayer.borderWidth = 1.0;
     
     // position the board in the center of the parent view
     [boardLayer setPosition:(CGPointMake([self view].bounds.size.width/2, [self view].bounds.size.height/2))];
@@ -930,14 +1261,27 @@ static NSString *imageNames[12] = {
     [self addLabels];
 
     [self updateBoardTransforms];    
-    [self newGame];
+    [self startNewGame];
+    
+    // TODO: this should be cleaned up in viewDidUnload
+    currentMessageBuffer = [[NSMutableData alloc] initWithLength:0];
+    currentMessageHeader = NULL;    
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+}
 
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
-    return YES;
+    
+    if (usePopoverController)
+        return YES;
+    
+    else
+        return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -952,7 +1296,7 @@ static NSString *imageNames[12] = {
 
 
 - (void)dealloc {
-    [super dealloc];
+    
     [squares release];
     [labels release];
     
@@ -961,6 +1305,486 @@ static NSString *imageNames[12] = {
     }
     [redoList release]; redoList = nil;
     [history release]; history = nil;
+    
+    AudioSessionSetActive(NO);
+	
+	[inStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+	[inStream release];
+	
+	[outStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+	[outStream release];
+	
+	[server release];
+	[picker release];
+	
+	if(currentMessageHeader) free(currentMessageHeader);
+	[currentMessageBuffer release];
+    
+    [super dealloc];
 }
 
 @end
+
+@implementation ChessMailViewController (NSStreamDelegate)
+
+- (void) stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
+{
+	UIAlertView* alertView;
+	switch(eventCode) {
+		case NSStreamEventOpenCompleted:
+		{
+			[self destroyPicker];
+			
+			[server release];
+			server = nil;
+			
+			if (stream == inStream)
+				inReady = YES;
+			else
+				outReady = YES;
+			
+			if (inReady && outReady) {
+				alertView = [[UIAlertView alloc] initWithTitle:@"Game started!"
+                                                       message:nil delegate:nil cancelButtonTitle:nil
+                                             otherButtonTitles:@"Continue", nil];
+				[alertView show];
+				[alertView release];
+				
+				/*
+				 We usually only need to call start on one side, so we use the hasTCPServer to determine who should call start
+				 We also don't want to call startVoiceChat if we are already in the middle of a voice chat.
+				 */
+				if(!hasTCPServer && !didStartVoiceChat){
+					[self resetAudioSessionProperties];
+					
+					didStartVoiceChat = [vcService startVoiceChatWithParticipantID:remoteInstanceName error:nil];
+					remoteParticipantID = [remoteInstanceName copy];
+					
+					if(didStartVoiceChat){
+						//Do something with the UI
+					}else{
+						//Do something with the UI
+					}
+				}
+			}
+			break;
+		}
+			
+            //The bulk of the code in this case is written to remain a good, non-blocking citizen
+		case NSStreamEventHasBytesAvailable:
+		{
+			if (stream == inStream) {
+				uint16_t maxLength = 0;
+				uint8_t b;
+				NSInteger recvLen = 0;
+				unsigned char buffer[MAX_VOICE_CHAT_PACKET_SIZE];
+				
+				//STEP 1: Figure out how much more we need to pull
+				if(currentMessageHeader != NULL){
+					//if we are working on a message from a previous callback
+					maxLength = currentMessageHeader->length - [currentMessageBuffer length];
+				}else{
+					//or We should be retreiving our message header
+					maxLength = sizeof(VoiceMessageHeader) - [currentMessageBuffer length];
+				}	
+				
+				//Step 2: Pull what we need
+				recvLen = [inStream read:(uint8_t *)buffer  maxLength:maxLength];
+				
+				if(recvLen <= 0) {
+					
+					if ([stream streamStatus] != NSStreamStatusAtEnd)
+						[self showNetworkAlert:@"Failed reading data from peer"];
+					
+				} else {					
+					
+					//Step 3: save the received bytes into our working buffer
+					[currentMessageBuffer appendBytes:buffer length:recvLen];
+					
+					if(recvLen != maxLength) return;  //since we did not finish receiving the bytes for the message we should return
+					
+					//Step4: we have either finished reading the message header
+					if(NULL == currentMessageHeader){
+						
+						VoiceMessageHeader *witapMessageHeader = calloc(sizeof(VoiceMessageHeader), 1);
+						memcpy(witapMessageHeader, [currentMessageBuffer bytes], sizeof(VoiceMessageHeader));
+						
+						witapMessageHeader->length  = ntohs(witapMessageHeader->length);
+						currentMessageHeader = witapMessageHeader;
+						[currentMessageBuffer setLength:0];
+						
+						//now return to get the actual message in the next callback
+						return;
+						
+					} else{ // or we have finished reading the actual message					
+						
+						if(currentMessageHeader->type == kVoicePacketType)
+						{
+							[vcService receivedData:[NSData dataWithData:currentMessageBuffer] fromParticipantID:remoteInstanceName];
+                            
+						}else{ 							
+							
+							//We received a remote tap update, forward it to the appropriate view
+							[currentMessageBuffer getBytes:&b length:sizeof(uint8_t)];
+							
+//							if(b & 0x80)
+//								[(TapView*)[window viewWithTag:(uint8_t)b & 0x7f] touchDown:YES];
+//							else
+//								[(TapView*)[window viewWithTag:(uint8_t) b] touchUp:YES];
+						}
+					}
+					
+					//all done. clear the working buffer
+					if(currentMessageHeader) free(currentMessageHeader);
+					currentMessageHeader = NULL;
+					[currentMessageBuffer setLength:0];
+					
+				}
+			}
+			break;
+		}
+		case NSStreamEventEndEncountered:
+		{
+			UIAlertView*			alertView;
+			
+			NSLog(@"%s", _cmd);
+			
+			alertView = [[UIAlertView alloc] initWithTitle:@"Peer Disconnected!" message:nil delegate:self cancelButtonTitle:nil otherButtonTitles:@"Continue", nil];
+			[alertView show];
+			[alertView release];
+			[self stopVoiceChat];
+			hasTCPServer = NO;
+			break;
+		}
+	}
+}
+@end
+
+@implementation ChessMailViewController (TCPServerDelegate)
+
+- (void) serverDidEnableBonjour:(TCPServer*)server withName:(NSString*)string
+{
+	NSLog(@"serverDidEnableBonjour:%s", _cmd);
+	[self presentPicker:string];
+}
+
+- (void)didAcceptConnectionForServer:(TCPServer*)tcpServer inputStream:(NSInputStream *)istr outputStream:(NSOutputStream *)ostr
+{
+	
+	if (inStream || outStream || server != tcpServer)
+		return;
+	
+	[server release];
+	server = nil;
+	
+	inStream = istr;
+	[inStream retain];
+	outStream = ostr;
+	[outStream retain];
+	
+	[self openStreams];
+	
+	hasTCPServer = YES;
+}
+
+@end
+
+@implementation ChessMailViewController (VoiceChatClient)
+
+#pragma mark Voice Chat Client methods
+-(void) setupVoiceChat
+{
+	vcService = [GKVoiceChatService defaultVoiceChatService];
+	vcService.client = self;
+
+    // TODO: move chat client into a separate class
+//    MyChatClient *myClient = [[MyChatClient alloc] initWithSession: session];
+//    [GKVoiceChatService defaultVoiceChatService].client = myClient;
+	
+	hasTCPServer = NO; //use this ivar to differentiate which devices is initiating the chat
+	    
+    //set up the audio session
+#ifdef USE_BASIC_AVSESSION 
+	//most simple setup, not including routes, interruptions, or hardware sample rate preferences
+	NSError *error = nil;
+	AVAudioSession *audioSession = [AVAudioSession sharedInstance]; 
+	[audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error: &error]; 
+	[audioSession setActive: YES error: &error]; 
+	
+#else
+	
+	//more advanced path
+	didStartVoiceChat = NO;
+	interruptedVoiceChat = NO;
+	[self setupAudioSession];
+	
+#endif
+	
+}
+
+//convenience method that wrap the voice chat service stop voice chat.
+-(void) stopVoiceChat
+{
+	if(!remoteParticipantID) return;
+	
+	[vcService stopVoiceChatWithParticipantID:remoteParticipantID];
+	[remoteParticipantID release];
+	remoteParticipantID = nil;
+}
+
+//The important takeaway is that you need some way to unwrap and wrap your voice chat packets.
+-(void) voiceChatSend:(NSData *)data
+{
+	if(outStream && [outStream hasSpaceAvailable]){
+		
+		
+		VoiceMessageHeader messageHeader;
+		messageHeader.type = kVoicePacketType;
+		messageHeader.length = htons((uint16_t)[data length]);
+		
+		if(-1 == [outStream write:(const uint8_t *)&messageHeader maxLength:sizeof(VoiceMessageHeader)]){
+			[self stopVoiceChat];
+			[self showNetworkAlert:@"Failed sending data to peer"];
+			return;
+		}
+		
+		if(-1 == [outStream write:[data bytes] maxLength:[data length]]){
+			[self stopVoiceChat];
+			[self showNetworkAlert:@"Failed sending data to peer"];
+			return;
+		}
+		
+	}else{
+		
+		[self stopVoiceChat];
+	}
+}
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService didStartWithParticipantID:(NSString *)participantID
+{
+	NSLog(@"voiceChatService:didStartWithParticipantID:");
+	didStartVoiceChat = YES;
+	//Put some UI up indicating the voice chat started
+}
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService didNotStartWithParticipantID:(NSString *)participantID error:(NSError *)error
+{
+	NSLog(@"voiceChatService:didNotStartWithParticipantID: error = %@", error);
+	didStartVoiceChat = NO;
+	//Indicate in the UI that the voice chat did not start
+}
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService didStopWithParticipantID:(NSString *)participantID error:(NSError *)error
+{
+	NSLog(@"voiceChatService:didStopWithParticipantID: error = %@", error);
+	didStartVoiceChat = NO;
+	//Indicate in the UI that the voice chat stopped	
+}
+
+- (void)voiceChatService:(GKVoiceChatService *)voiceChatService didReceiveInvitationFromParticipantID:(NSString *)participantID callID:(NSInteger)callID
+{
+	NSLog(@"voiceChatService:didReceiveInvitationFromParticipantID:");
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Voice Chat Invitation"
+                                                    message:[NSString stringWithFormat:@"%@ requests permission to talk"]
+                                                   delegate:nil cancelButtonTitle:@"Deny" otherButtonTitles:@"Accept", nil];
+    [alert show];
+    
+    // TODO: set up alert delegate method - this class is getting a bit overloaded with delegate methods...
+	
+	//Normally we would probably want to bring up and alert and use that to drive accept or deny. Here we auto-accept
+	didStartVoiceChat = YES;
+	remoteParticipantID = [remoteInstanceName copy];
+	[self resetAudioSessionProperties];
+	[vcService acceptCallID:callID error:nil];
+	
+}
+
+#pragma mark Voice Chat audio session convenience methods
+
+/* sets up the audio session to handle interrupts and play the sound to the device we desire */
+-(void) setupAudioSession
+{
+	AudioSessionInitialize (
+							NULL,
+							NULL,
+							InterruptionListenerCallback,
+							self
+							);
+	
+	AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, RouteChangedListener, self);
+	[self resetAudioSessionProperties];
+}
+
+/* Sets the properties of the audio session and sets the session to active */
+-(void) resetAudioSessionProperties
+{
+	UInt32	dataSize,
+	sessionCategory;
+	CFStringRef currentRoute;
+	OSStatus result;
+	Float64 sampleRate;
+	
+	sessionCategory  = kAudioSessionCategory_PlayAndRecord;
+	result = AudioSessionSetProperty (
+									  kAudioSessionProperty_AudioCategory,
+									  sizeof (sessionCategory),
+									  &sessionCategory
+									  );	
+	sampleRate = 44100.0; //8000.0 if no other audio going to be played
+	dataSize = sizeof(sampleRate);
+	
+	result = AudioSessionSetProperty (
+									  kAudioSessionProperty_PreferredHardwareSampleRate,
+									  dataSize,
+									  &sampleRate
+									  );
+	
+	dataSize = sizeof(CFStringRef);
+	
+	currentRoute = NULL;
+	
+	result = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &dataSize, &currentRoute);
+	
+	if([(NSString *) currentRoute hasPrefix: @"Receiver"]){
+		
+		UInt32 route = kAudioSessionOverrideAudioRoute_Speaker;
+		dataSize = sizeof(route);
+		result = AudioSessionSetProperty (
+										  kAudioSessionProperty_OverrideAudioRoute,
+										  dataSize,
+										  &route
+										  );
+	}
+	
+	AudioSessionSetActive(YES);	
+}
+
+- (void) handleAudioInterruption:(BOOL) isBeginInterrupt
+{	
+	if(isBeginInterrupt){
+		
+		if(didStartVoiceChat){
+			interruptedVoiceChat = YES;
+			[vcService stopVoiceChatWithParticipantID:remoteParticipantID]; //don't call convenience stopVoiceChat, since we want to remember who we were talking to
+		}else{
+			interruptedVoiceChat = NO;
+		}		
+	}else{
+		if(interruptedVoiceChat){
+			
+			NSError *error = nil;
+			interruptedVoiceChat = NO;
+			
+			[self resetAudioSessionProperties]; //make sure our audio session is active again
+			
+			//if we are still connected to the last person we chatted with
+			if([remoteInstanceName isEqualToString:remoteParticipantID]){
+				didStartVoiceChat = [vcService startVoiceChatWithParticipantID:remoteParticipantID error:&error];
+			}else{
+				//else clear the remoteParticipantID
+				[remoteParticipantID release];
+				remoteParticipantID = nil;
+			}
+			
+			if(didStartVoiceChat){
+				//Do something with the UI
+			}else{
+				//Do something with the UI
+			}
+		}else{
+			[self resetAudioSessionProperties];
+			
+		}
+	}
+}
+@end
+
+#pragma mark Voice Chat audio session callback routines
+
+/*Make sure you implement the interruption listener, so that if your client gets a call, you can resume your audio later */
+static void InterruptionListenerCallback (void	*inUserData, UInt32	interruptionState) 
+{
+	ChessMailViewController *app  = (ChessMailViewController *) inUserData;
+	[app handleAudioInterruption:(interruptionState == kAudioSessionBeginInterruption)];
+}
+
+/* callback routine ensures that the loud speaker is used on the iPhone */
+static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt32 inDataSize, const void* inData)
+{ 
+	UInt32 dataSize;
+	CFStringRef currentRoute;
+	OSStatus result;
+	
+	currentRoute = NULL;
+	dataSize = sizeof(CFStringRef);
+	result = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &dataSize, &currentRoute);
+	
+	if([(NSString *) currentRoute hasPrefix: @"Receiver"]){
+		
+		UInt32 route = kAudioSessionOverrideAudioRoute_Speaker;
+		dataSize = sizeof(route);
+		result = AudioSessionSetProperty (
+										  kAudioSessionProperty_OverrideAudioRoute,
+										  dataSize,
+										  &route
+										  );
+	}		
+}
+
+@implementation ChessMailViewController(GKSessionDelegate)
+
+-(void)session:(GKSession *)session peer:(NSString *)peerID didChangeState:(GKPeerConnectionState)state {
+    
+    switch (state)
+    {
+        case GKPeerStateConnected:
+            // TODO: Record the peerID of the other peer.
+            // TODO: Inform your game that a peer has connected.
+            [self setupVoiceChat];
+            break;
+        case GKPeerStateConnecting:
+            // TODO: Inform your game that a peer is connecting.
+            break;
+        case GKPeerStateUnavailable:
+            // TODO: Inform your game that a peer is unavailable.
+            break;
+        case GKPeerStateAvailable:
+            // TODO: Inform your game that a peer is available.
+            break;
+        case GKPeerStateDisconnected:
+            // TODO: Inform your game that a peer has left.
+            [self endSession];
+            break;
+    }
+}
+
+-(void)mySendDataToPeers: (NSData *) data
+{
+    [session sendDataToAllPeers: data withDataMode: GKSendDataReliable error: nil];
+}
+
+//
+// Your application can either choose to process the data immediately, or retain it and process it
+// later within your application. Your application should avoid lengthy computations within this method.
+//
+-(void)receiveData:(NSData *)data fromPeer:(NSString *)peer inSession: (GKSession *)session context:(void *)context
+{
+    // Read the bytes in data and perform an application-specific action.
+     [[GKVoiceChatService defaultVoiceChatService] receivedData:data fromParticipantID:peer];
+}
+
+-(void)endSession {
+    // terminate voice session
+    [self stopVoiceChat];
+    
+    [session disconnectFromAllPeers];
+    session.available = NO;
+    [session setDataReceiveHandler: nil withContext: nil];
+    session.delegate = nil;
+    [session release];
+    session = nil;
+}
+
+@end
+
