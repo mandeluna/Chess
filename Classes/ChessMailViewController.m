@@ -113,7 +113,7 @@ enum {
             break;
         case kIndexPlayComputer:
             [self startNewGame];
-            if (![board.activePlayer isWhitePlayer] && boardDirection < 0) // computer is black
+            if ([board.activePlayer isWhitePlayer] && boardDirection < 0) // computer is black
             {
                 [self thinkAndMove];
             }
@@ -892,6 +892,11 @@ static NSString *imageNames[12] = {
     if ([board.searchAgent isThinking])
         return;
     
+    // if human player is black, don't show moves for white pieces, and vice-versa
+    if ((![board.activePlayer isWhitePlayer] && boardDirection > 0) ||
+        ([board.activePlayer isWhitePlayer] && boardDirection < 0))
+        return;
+    
     for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
         squareLayer.borderWidth = 0;
@@ -1197,6 +1202,8 @@ static NSString *imageNames[12] = {
     [playButton setEnabled:YES];
     
     ChessMove *move = board.searchAgent.myMove;
+    
+    NSLog(@"Stopped thinking: move = %@", move);
     
     if (!moveExpected) {
         

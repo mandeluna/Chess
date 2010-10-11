@@ -715,7 +715,7 @@
     double now = [[NSDate date] timeIntervalSince1970];
     
     if (now - startTime > [self timeToThink]) {
-        
+        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));
         stopThinking = YES;
     }
 }
@@ -757,6 +757,7 @@
     [transTable clear];
     
     startTime = [[NSDate date] timeIntervalSince1970];
+    NSLog(@"Started thinking");
     nodesVisited = ttHits = alphaBetaCuts = 0;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
@@ -774,6 +775,9 @@
         }
         
         if (!theMove || stopThinking) {
+            // the clock has run out. take the best move we have
+            // TODO: this may not be the best move we have
+            myMove = theMove;
             isThinking = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
             return;

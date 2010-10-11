@@ -21,7 +21,7 @@
 //
 -(void)clear {
     
-    if (1) {
+    if (0) {
         if ([array count] > 0) {
             NSLog(@"entries used:   %d (%2d%%)", [used count], ([used count] * 100 / [array count]));
             
