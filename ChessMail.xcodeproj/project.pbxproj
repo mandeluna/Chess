@@ -63,6 +63,7 @@
 		69C4847C1218BFC300089898 /* redplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4847A1218BFC300089898 /* redplayer.png */; };
 		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
 		69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D353831257C6FF002E2FB9 /* MediaPlayer.framework */; };
+		69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F9E016126BC41B0025491A /* WaitingAlertView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -145,6 +146,8 @@
 		69C4847A1218BFC300089898 /* redplayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redplayer.png; sourceTree = "<group>"; };
 		69C4850A1218F8DE00089898 /* checkerboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkerboard.png; sourceTree = "<group>"; };
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		69F9E015126BC41B0025491A /* WaitingAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAlertView.h; sourceTree = "<group>"; };
+		69F9E016126BC41B0025491A /* WaitingAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAlertView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* ChessMail-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ChessMail-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,6 +176,7 @@
 			children = (
 				690A3D0212623DFF00E1173B /* GameKit Support */,
 				69D353ED1257D190002E2FB9 /* Settings */,
+				690FC1CC1266BA3100CEE44C /* Game State */,
 				690E511D123420C900DC1CED /* User Agent */,
 				6942F9CF1220971B002E59B5 /* ChessBoard.h */,
 				6942F9D01220971B002E59B5 /* ChessBoard.m */,
@@ -285,8 +289,17 @@
 				28D7ACF60DDB3853001CB0EB /* ChessMailViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* ChessMailViewController.m */,
 				6942FA2B12209F36002E59B5 /* ChessUserAgent.h */,
+				69F9E015126BC41B0025491A /* WaitingAlertView.h */,
+				69F9E016126BC41B0025491A /* WaitingAlertView.m */,
 			);
 			name = "User Agent";
+			sourceTree = "<group>";
+		};
+		690FC1CC1266BA3100CEE44C /* Game State */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Game State";
 			sourceTree = "<group>";
 		};
 		692653C21220563000D527C5 /* Chess */ = {
@@ -457,6 +470,7 @@
 				690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */,
 				690A3D0812623E0000E1173B /* TCPServer.m in Sources */,
 				690A3D0B12623E8100E1173B /* Picker.m in Sources */,
+				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

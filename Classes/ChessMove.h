@@ -9,13 +9,14 @@
 #import <Foundation/Foundation.h>
 
 enum {
-    kMoveNormal = 1,
+    kMoveNormal = 0,
     kMoveDoublePush,
     kMoveCaptureEnPassant,
     kMoveCastlingKingSide,
     kMoveCastlingQueenSide,
     kMoveResign,
-    kMoveStaleMate
+    kMoveStaleMate,
+    kMoveNeededHint
 };
 
 #define kBasicMoveMask  15

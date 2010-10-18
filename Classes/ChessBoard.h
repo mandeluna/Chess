@@ -48,7 +48,7 @@
 -(void)updateHash:(int)piece at:(int)square from:(ChessPlayer *)player;
 
 // moving
--(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
+-(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 -(void)nextMove:(ChessMove *)aMove;
 -(void)nullMove;
 -(void)undoMove:(ChessMove *)aMove;

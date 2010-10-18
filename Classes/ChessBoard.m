@@ -135,22 +135,27 @@ static int HashLocks[12][64];
 
 #pragma mark Moving
 
--(void)movePieceFrom:(int)sourceSquare to:(int)destSquare {
+-(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare {
     
     if ([searchAgent isThinking]) {
-        return;
+        return nil;
     }
+    
+    ChessMove *theMove = nil;
     
     NSArray *moves = [activePlayer findPossibleMovesAt:sourceSquare];
     
     for (ChessMove *move in moves) {
         if (destSquare == [move destinationSquare]) {
             [self nextMove:move];
+            theMove = move;
             break;
         }
     }
     
     [searchAgent setActivePlayer:activePlayer];
+    
+    return theMove;
 }
 
 -(void)nextMove:(ChessMove *)aMove {

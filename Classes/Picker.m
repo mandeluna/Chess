@@ -75,7 +75,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		UIImageView* img = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
 		[self addSubview:img];
 		[img release];
-		
+
 		CGFloat runningY = kOffset;
 		CGFloat width = self.bounds.size.width - 2 * kOffset;
 		
@@ -128,8 +128,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		
 		[self.bvc.view setFrame:CGRectMake(0, runningY, self.bounds.size.width, self.bounds.size.height - runningY)];
 		[self addSubview:self.bvc.view];
-		
-	}
+    }
 
 	return self;
 }

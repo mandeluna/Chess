@@ -156,8 +156,8 @@ static ChessMove *NullMove = nil;
 
 -(void)moveEncoded:(int)intValue {
     
-    self.destinationSquare = intValue & 255;
-    self.sourceSquare = (intValue >> 8) & 255;
+    self.destinationSquare = intValue & 255;        // setter checks for a value between 0 and 63
+    self.sourceSquare = (intValue >> 8) & 255;      // setter checks for a value between 0 and 63
     movingPiece = (intValue >> 16) & 255;
     capturedPiece = (intValue >> 24) & 255;
     type = kMoveNormal;

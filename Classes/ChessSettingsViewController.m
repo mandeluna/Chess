@@ -91,8 +91,8 @@
     }
     
     NSDictionary *rowDictionary = [settingsArray objectAtIndex:indexPath.row];
-    NSString *command = [rowDictionary objectForKey:@"command"];
-    SEL selector = NSSelectorFromString(command);
+//    NSString *command = [rowDictionary objectForKey:@"command"];
+//    SEL selector = NSSelectorFromString(command);
 
     cell.textLabel.text = [rowDictionary objectForKey:@"name"];
     
