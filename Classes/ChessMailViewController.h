@@ -96,7 +96,8 @@ typedef struct {
 } GameMessage;
 
 
-@interface ChessMailViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate, BrowserViewControllerDelegate, TCPServerDelegate, GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate> {
+@interface ChessMailViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate, BrowserViewControllerDelegate, TCPServerDelegate, NSStreamDelegate,
+														GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate> {
     
     CALayer *boardLayer;
     NSMutableArray *squares;

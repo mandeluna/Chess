@@ -555,7 +555,7 @@ static NSString *imageNames[12] = {
                                                            message:@"There is a game already underway. Do you want to resign and start over?"
                                                           delegate:self
                                                  cancelButtonTitle:@"Keep playing"
-                                                  otherButtonTitles:@"New Game"];
+                                                  otherButtonTitles:@"New Game", nil];
         [startNewGameAlertView show];
         return;
     }
@@ -685,8 +685,12 @@ static NSString *imageNames[12] = {
 //
 -(void)gameStarted {
     
+	// make sure the two devices don't generate the same random number
+	srand(CACurrentMediaTime());
+
     // only one button, we need the delay to ensure both peers are set up, now send a random number
-    playerRandomChoice = random();
+    playerRandomChoice = rand();
+	NSLog(@"generated playerRandomChoice=%d", playerRandomChoice);
     
     GameEvent gameEvent;
     gameEvent.eventType = kSelectSideRequest;
@@ -706,11 +710,15 @@ static NSString *imageNames[12] = {
         if (boardDirection > 0)
             [self switchSides];
     }
-    else {
+    else if (opponentRandomChoice < playerRandomChoice) {
         message = @"You will play as white";
         if (boardDirection < 0)
             [self switchSides];
     }
+	else {
+        message = [NSString stringWithFormat:@"Coin flip was a tie. You got %d and opponent got %d - imagine that! Trying again...", playerRandomChoice, opponentRandomChoice];
+		[self gameStarted];
+	}
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Game started"
                                                         message:message
                                                        delegate:nil cancelButtonTitle:nil
@@ -769,14 +777,8 @@ static NSString *imageNames[12] = {
         }
         case kSelectSideRequest:
         {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Received select side message"
-                                                                message:@"random number recieved"
-                                                               delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
-            [alertView show];
-            [alertView release];
-            
             opponentRandomChoice = gameEvent.encodedMove;
-            
+			
             // TODO: we may be receiving opponent's encoded value before we sent ours...
             // there is a race condition here
             if (playerRandomChoice != 0)
@@ -814,7 +816,7 @@ static NSString *imageNames[12] = {
             NSString *colorString = [NSString stringWithFormat:@"%@ wins", [self myColorLabel]];
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:colorString
                                                                 message:message delegate:nil
-                                                      cancelButtonTitle:nil otherButtonTitles:@"OK"];
+                                                      cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
             [alertView show];
             [alertView release];
             break;
@@ -838,7 +840,7 @@ static NSString *imageNames[12] = {
     if (outStream || session)      // playing against nearby peer
     {
         // ask permission before undoing the move
-        undoMoveWaitAlertView = [[UIAlertView alloc] initWithTitle:@"Please wait..."
+        undoMoveWaitAlertView = [[WaitingAlertView alloc] initWithTitle:@"Please wait..."
                                                            message:@"Your opponent is considering your request"
                                                           delegate:nil
                                                  cancelButtonTitle:nil
@@ -1758,7 +1760,7 @@ static NSString *imageNames[12] = {
 		{
 			UIAlertView*			alertView;
 			
-			NSLog(@"%s", _cmd);
+			NSLog(@"%s", (char *)_cmd);
 			
 			alertView = [[UIAlertView alloc] initWithTitle:@"Peer Disconnected!"
                                                    message:nil delegate:nil cancelButtonTitle:nil
@@ -1769,6 +1771,8 @@ static NSString *imageNames[12] = {
 			hasTCPServer = NO;
 			break;
 		}
+		default:
+			NSLog(@"Received unhandled eventCode %d", eventCode);
 	}
 }
 @end

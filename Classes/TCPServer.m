@@ -208,6 +208,7 @@ static void TCPServerAcceptCallBack(CFSocketRef socket, CFSocketCallBackType typ
 
 - (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary *)errorDict
 {
+	/* this seems dodgy - does NSObject respond to this selector? */
 	[super netServiceDidPublish:sender];
 	if(self.delegate && [self.delegate respondsToSelector:@selector(server:didNotEnableBonjour:)])
 		[self.delegate server:self didNotEnableBonjour:errorDict];
@@ -224,7 +225,7 @@ static void TCPServerAcceptCallBack(CFSocketRef socket, CFSocketCallBackType typ
 
 - (NSString*) description
 {
-	return [NSString stringWithFormat:@"<%@ = 0x%08X | port %d | netService = %@>", [self class], (long)self, self.port, self.netService];
+	return [NSString stringWithFormat:@"<%@ = 0x%08X | port %d | netService = %@>", [self class], (unsigned int)self, self.port, self.netService];
 }
 
 + (NSString*) bonjourTypeFromIdentifier:(NSString*)identifier {

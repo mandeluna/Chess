@@ -44,6 +44,13 @@
 		691E5D7D125D4CFF002B41D6 /* ChessSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D7C125D4CFF002B41D6 /* ChessSettingsViewController.m */; };
 		691E5D82125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D81125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m */; };
 		691E5D87125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = 691E5D86125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m */; };
+		69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69357758164715F600BEE7BC /* Default-568h@2x.png */; };
+		6935776416472D8000BEE7BC /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775E16472D7F00BEE7BC /* icon@2x.png */; };
+		6935776516472D8000BEE7BC /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775F16472D7F00BEE7BC /* icon-72.png */; };
+		6935776616472D8000BEE7BC /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776016472D7F00BEE7BC /* icon-small@2x.png */; };
+		6935776716472D8000BEE7BC /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776116472D7F00BEE7BC /* icon.png */; };
+		6935776816472D8000BEE7BC /* icon-small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776216472D7F00BEE7BC /* icon-small-50.png */; };
+		6935776916472D8000BEE7BC /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776316472D8000BEE7BC /* icon-small.png */; };
 		6942F9D11220971B002E59B5 /* ChessBoard.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D01220971B002E59B5 /* ChessBoard.m */; };
 		6942F9D412209736002E59B5 /* ChessMoveGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D312209736002E59B5 /* ChessMoveGenerator.m */; };
 		6942F9D712209743002E59B5 /* ChessPlayerAI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D612209743002E59B5 /* ChessPlayerAI.m */; };
@@ -71,7 +78,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* ChessMailAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMailAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* ChessMailAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailAppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* ChessMail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChessMail.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* Chess Friends.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Chess Friends.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChessMailViewController.xib; sourceTree = "<group>"; };
@@ -116,6 +123,13 @@
 		691E5D81125D4D1A002B41D6 /* ChessMailAppDelegate_ipad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailAppDelegate_ipad.m; sourceTree = "<group>"; };
 		691E5D85125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMailAppDelegate_iphone.h; sourceTree = "<group>"; };
 		691E5D86125D4D2B002B41D6 /* ChessMailAppDelegate_iphone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMailAppDelegate_iphone.m; sourceTree = "<group>"; };
+		69357758164715F600BEE7BC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		6935775E16472D7F00BEE7BC /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
+		6935775F16472D7F00BEE7BC /* icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72.png"; sourceTree = "<group>"; };
+		6935776016472D7F00BEE7BC /* icon-small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small@2x.png"; sourceTree = "<group>"; };
+		6935776116472D7F00BEE7BC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		6935776216472D7F00BEE7BC /* icon-small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small-50.png"; sourceTree = "<group>"; };
+		6935776316472D8000BEE7BC /* icon-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small.png"; sourceTree = "<group>"; };
 		6942F9CF1220971B002E59B5 /* ChessBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessBoard.h; sourceTree = "<group>"; };
 		6942F9D01220971B002E59B5 /* ChessBoard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessBoard.m; sourceTree = "<group>"; };
 		6942F9D212209736002E59B5 /* ChessMoveGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMoveGenerator.h; sourceTree = "<group>"; };
@@ -206,7 +220,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* ChessMail.app */,
+				1D6058910D05DD3D006BFB54 /* Chess Friends.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -214,13 +228,13 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				69357758164715F600BEE7BC /* Default-568h@2x.png */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				69C4838D12189F2400089898 /* Resources-iPad */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -239,6 +253,7 @@
 			children = (
 				69C4839A1218A3EF00089898 /* images */,
 				2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */,
+				6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* ChessMail-Info.plist */,
 				69C484271218B0DD00089898 /* players.plist */,
@@ -336,6 +351,12 @@
 		69C4839A1218A3EF00089898 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				6935775E16472D7F00BEE7BC /* icon@2x.png */,
+				6935775F16472D7F00BEE7BC /* icon-72.png */,
+				6935776016472D7F00BEE7BC /* icon-small@2x.png */,
+				6935776116472D7F00BEE7BC /* icon.png */,
+				6935776216472D7F00BEE7BC /* icon-small-50.png */,
+				6935776316472D8000BEE7BC /* icon-small.png */,
 				690A3D1B1262453C00E1173B /* bg.png */,
 				690A3CE412623A2E00E1173B /* clearButton.png */,
 				690A3CE2126239C900E1173B /* blackButton.png */,
@@ -376,7 +397,7 @@
 			);
 			name = ChessMail;
 			productName = ChessMail;
-			productReference = 1D6058910D05DD3D006BFB54 /* ChessMail.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* Chess Friends.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -438,6 +459,13 @@
 				690A3CE512623A2E00E1173B /* clearButton.png in Resources */,
 				690A3D1C1262453C00E1173B /* bg.png in Resources */,
 				6957BDB1127114A6001630F6 /* ChessMailViewController-iPad.xib in Resources */,
+				69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */,
+				6935776416472D8000BEE7BC /* icon@2x.png in Resources */,
+				6935776516472D8000BEE7BC /* icon-72.png in Resources */,
+				6935776616472D8000BEE7BC /* icon-small@2x.png in Resources */,
+				6935776716472D8000BEE7BC /* icon.png in Resources */,
+				6935776816472D8000BEE7BC /* icon-small-50.png in Resources */,
+				6935776916472D8000BEE7BC /* icon-small.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,7 +517,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ChessMail-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				PRODUCT_NAME = ChessMail;
+				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -506,7 +534,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "ChessMail-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				PRODUCT_NAME = ChessMail;
+				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
