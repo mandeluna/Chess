@@ -94,6 +94,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 @end
 
+#pragma mark ===
 @implementation ChessMailViewController
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
 
@@ -190,10 +191,9 @@ enum {
 -(void)updatePlayerLabels {
     
     BOOL localPlayerHasGameKitAlias = NO;   // todo: check if GKLocalPlayer is authenticated
-    BOOL remoteOpponentExists = (session || outStream);
     
     NSString *localPlayerLabel = localPlayerHasGameKitAlias ? @"alias" : NSUserName();
-    NSString *opponentLabel = remoteOpponentExists ? remoteParticipantID : @"Computer";
+    NSString *opponentLabel = remoteParticipantID ? remoteParticipantID : @"Computer";
 
     if (boardDirection > 0) {
         blackPlayerLabel.text = opponentLabel;
@@ -329,6 +329,7 @@ static NSString *imageNames[12] = {
     return m;
 }
 
+#pragma mark ===
 #pragma mark ChessUserAgent protocol
 
 -(void)gameReset {
@@ -516,8 +517,8 @@ static NSString *imageNames[12] = {
     }
 }
 
+#pragma mark ===
 #pragma mark playing
-
 
 -(IBAction)autoPlay {
     
@@ -672,27 +673,26 @@ static NSString *imageNames[12] = {
     
     moveExpected = YES;
     [board.searchAgent startThinking];
-}  
+}
 
 -(NSString *)myColorLabel {
     return (boardDirection > 0) ? @"White" : @"Black";
 }
 
+
+//
+// we are ready for I/O but our opponent might not be (in fact, one of us is going to get here before the other is ready)
+//
 -(void)gameStarted {
+    
+    // only one button, we need the delay to ensure both peers are set up, now send a random number
     playerRandomChoice = random();
     
     GameEvent gameEvent;
     gameEvent.eventType = kSelectSideRequest;
     gameEvent.encodedMove = playerRandomChoice;
     [self send:gameEvent];
-    
-    // check to see if we've received the opponent's response before we've sent ours
-    if (opponentRandomChoice != 0)
-    {
-        [self resolvePlayerSides];
-    }
-    
-    [self startVoiceChat];
+    [self startVoiceChat];        
 }
 
 -(void)resolvePlayerSides {
@@ -769,6 +769,12 @@ static NSString *imageNames[12] = {
         }
         case kSelectSideRequest:
         {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Received select side message"
+                                                                message:@"random number recieved"
+                                                               delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+            [alertView show];
+            [alertView release];
+            
             opponentRandomChoice = gameEvent.encodedMove;
             
             // TODO: we may be receiving opponent's encoded value before we sent ours...
@@ -1667,6 +1673,7 @@ static NSString *imageNames[12] = {
 				inReady = YES;
 			else
 				outReady = YES;
+            
 			
 			if (inReady && outReady) {
                 [self gameStarted];
@@ -1828,8 +1835,6 @@ static NSString *imageNames[12] = {
 }
 
 -(void)startVoiceChat {
-    
-    // TODO: enable for bluetooth
     
     /*
      We usually only need to call start on one side, so we use the hasTCPServer to determine who should call start
@@ -2072,7 +2077,8 @@ static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt3
     switch (state)
     {
         case GKPeerStateConnected:
-            [self gameStarted];
+            // TODO: Inform your game that a peer is connected.
+            self.remoteInstanceName = peerID;
             break;
         case GKPeerStateConnecting:
             // TODO: Inform your game that a peer is connecting.

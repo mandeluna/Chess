@@ -113,8 +113,9 @@
 //                                                           
 -(void)initializeTranspositionTable {
     
-//    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 1 << 16 entries
-    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 1 << 18 entries   [256k entries improve utilization on ipad]
+    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 1 << 16 entries
+    //    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 1 << 18 entries
+    // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
 }
 
 #pragma mark searching
@@ -732,7 +733,9 @@
     }
     
     if (!transTable) {
+        // [NSThread detachNewThreadSelector:@selector(initializeTranspositionTable) toTarget:self withObject:nil];
         [self initializeTranspositionTable];
+        // TODO: wait for above to complete then return and start thinking
     }
     
     [self setActivePlayer:board.activePlayer];
@@ -774,10 +777,8 @@
             theMove = [self mtdfSearch:board score:score depth:depth];
         }
         
-        if (!theMove || stopThinking) {
+        if (!theMove /* || stopThinking */) {
             // the clock has run out. take the best move we have
-            // TODO: this may not be the best move we have
-            myMove = theMove;
             isThinking = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
             return;
@@ -802,7 +803,6 @@
 // return the number of seconds to process each move
 //
 -(long)timeToThink {
-    
     return 5.0;
 }
 

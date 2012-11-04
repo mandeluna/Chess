@@ -170,6 +170,17 @@ typedef struct {
     int gameState;
     int playerRandomChoice;
     int opponentRandomChoice;
+    
+    IBOutlet UILabel    *gameStatusLabel;
+    IBOutlet UILabel    *whiteGameClockLabel;
+    IBOutlet UILabel    *blackGameClockLabel;
+    IBOutlet UILabel    *moveListLabel;
+    IBOutlet UIButton   *whitePlayerOnlineButton;
+    IBOutlet UIButton   *blackPlayerOnlineButton;
+    IBOutlet UIButton   *whitePlayerChatStatusButton;
+    IBOutlet UIButton   *blackPlayerChatStatusButton;
+    IBOutlet UIView     *whitePlayerChatVolumeView;
+    IBOutlet UIView     *blackPlayerChatVolumeView;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
