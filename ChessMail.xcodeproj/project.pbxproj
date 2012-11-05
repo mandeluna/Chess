@@ -58,7 +58,6 @@
 		6942FA2412209E99002E59B5 /* ChessHistoryTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA2312209E99002E59B5 /* ChessHistoryTable.m */; };
 		6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
 		6942FA7E1220A629002E59B5 /* ChessMove.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA7D1220A629002E59B5 /* ChessMove.m */; };
-		6942FB501220CBC2002E59B5 /* ChessConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FB4F1220CBC2002E59B5 /* ChessConstants.m */; };
 		6942FDE51221E574002E59B5 /* ChessMoveList.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FDE41221E574002E59B5 /* ChessMoveList.m */; };
 		6957BDB1127114A6001630F6 /* ChessMailViewController-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */; };
 		699CF5581229BA430054F0B2 /* ChessTranspositionTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 699CF5571229BA430054F0B2 /* ChessTranspositionTable.m */; };
@@ -145,8 +144,6 @@
 		6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPieceLayer.m; sourceTree = "<group>"; };
 		6942FA7C1220A629002E59B5 /* ChessMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMove.h; sourceTree = "<group>"; };
 		6942FA7D1220A629002E59B5 /* ChessMove.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMove.m; sourceTree = "<group>"; };
-		6942FB4E1220CBC2002E59B5 /* ChessConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
-		6942FB4F1220CBC2002E59B5 /* ChessConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessConstants.m; sourceTree = "<group>"; };
 		6942FDE31221E574002E59B5 /* ChessMoveList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMoveList.h; sourceTree = "<group>"; };
 		6942FDE41221E574002E59B5 /* ChessMoveList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMoveList.m; sourceTree = "<group>"; };
 		6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "ChessMailViewController-iPad.xib"; path = "Resources-iPad/ChessMailViewController-iPad.xib"; sourceTree = "<group>"; };
@@ -205,8 +202,6 @@
 				6942FA2312209E99002E59B5 /* ChessHistoryTable.m */,
 				6942FA7C1220A629002E59B5 /* ChessMove.h */,
 				6942FA7D1220A629002E59B5 /* ChessMove.m */,
-				6942FB4E1220CBC2002E59B5 /* ChessConstants.h */,
-				6942FB4F1220CBC2002E59B5 /* ChessConstants.m */,
 				6942FDE31221E574002E59B5 /* ChessMoveList.h */,
 				6942FDE41221E574002E59B5 /* ChessMoveList.m */,
 				699CF5561229BA430054F0B2 /* ChessTranspositionTable.h */,
@@ -486,7 +481,6 @@
 				6942FA2412209E99002E59B5 /* ChessHistoryTable.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
 				6942FA7E1220A629002E59B5 /* ChessMove.m in Sources */,
-				6942FB501220CBC2002E59B5 /* ChessConstants.m in Sources */,
 				6942FDE51221E574002E59B5 /* ChessMoveList.m in Sources */,
 				699CF5581229BA430054F0B2 /* ChessTranspositionTable.m in Sources */,
 				699CF60E1229D0790054F0B2 /* ChessTTEntry.m in Sources */,

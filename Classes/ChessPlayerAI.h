@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ChessConstants.h"
 
 #define VARIATIONS_SIZE  11
 

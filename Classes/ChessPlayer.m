@@ -7,7 +7,6 @@
 //
 
 #import "ChessPlayer.h"
-#import "ChessConstants.h"
 #import "ChessBoard.h"
 #import "ChessMove.h"
 #import "ChessMoveGenerator.h"

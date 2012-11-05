@@ -7,11 +7,34 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ChessConstants.h"
 
 @class ChessPlayer;
 @class ChessMove;
 @class ChessMoveList;
+
+#define NUM_PLIES   100                 // size of streamList array
+#define NUM_MOVES   30 * NUM_PLIES      // size of moveList array
+
+// piece constants
+
+enum {
+    kEmptySquare = 0,
+    kPawn,
+    kKnight,
+    kBishop,
+    kRook,
+    kQueen,
+    kKing
+};
+
+// castling constants
+
+#define kCastlingDone                   1
+#define kCastlingDisableKingSide        2
+#define kCastlingDisableQueenSide       4
+#define kCastlingDisableAll             (kCastlingDisableQueenSide | kCastlingDisableKingSide)
+#define kCastlingEnableKingSide         (kCastlingDone | kCastlingDisableKingSide)
+#define kCastlingEnableQueenSide        (kCastlingDone | kCastlingDisableQueenSide)
 
 typedef struct {
     

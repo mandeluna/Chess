@@ -13,7 +13,6 @@
 #import "ChessPlayer.h"
 #import "ChessPieceLayer.h"
 #import "SquareLayer.h"
-#import "ChessConstants.h"
 #import "ChessPlayerAI.h"
 #import "ChessMove.h"
 #import "ChessMoveList.h"
@@ -126,12 +125,13 @@ enum {
 -(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
     switch (buttonIndex) {
+			// TODO - game is not prompting to resign game in progress
+			// TODO - maybe you can have multiple games in progress
         case kIndexPlayOnline:
+			[self startNewGame];
             if (session || outStream)
-                [self startNewGame];
-            else {
-                [self playOnline];
-            }
+                [self terminateNetworkConnections];
+			[self playOnline];
             break;
         case kIndexPlayComputer:
             [self startNewGame];
@@ -203,6 +203,36 @@ enum {
         whitePlayerLabel.text = opponentLabel;
         blackPlayerLabel.text = localPlayerLabel;
     }
+}
+
+//
+// the argument is the color of the last player to move
+//
+-(void)updateBoardLabels:(BOOL)white {
+	
+	NSString *message = white ? @"Black to move" : @"White to move";
+	/*
+	NSArray *moves;
+	
+	if (white) {
+		moves = [board.blackPlayer findValidMoves];
+	}
+	else {
+		moves = [board.whitePlayer findValidMoves];
+	}
+	
+	if (board.generator.kingAttack && ([moves count] == 0)) {
+		message = [message stringByAppendingString:@" (checkmate)"];
+	}
+	else if (board.generator.kingAttack) {
+		message = [message stringByAppendingString:@" (check)"];
+	}
+	else if ([moves count] == 0) {
+		message = [message stringByAppendingString:@" (stalemate)"];
+	}
+	 */
+	
+	gameStatusLabel.text = message;
 }
 
 -(void)removeLabels {
@@ -368,6 +398,8 @@ static NSString *imageNames[12] = {
     [undoButton setEnabled:YES];
 
     [self validateGamePosition];
+	
+	[self updateBoardLabels:aBool];
 }
 
 -(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
@@ -1493,6 +1525,7 @@ static NSString *imageNames[12] = {
     }
     else if (alertView == undoMoveRequestAlertView)
     {
+		NSLog(@"Undo move request alert view");
         GameEvent gameEvent;
         gameEvent.eventType = kUndoMoveResponse;
         gameEvent.encodedMove = buttonIndex;        // let the receiver decipher the button index
@@ -1500,6 +1533,10 @@ static NSString *imageNames[12] = {
         {
             [self applyUndoMove];
         }
+		else
+		{
+			NSLog(@"Request declined");
+		}
         [undoMoveRequestAlertView release];
         undoMoveRequestAlertView = nil;
     }
@@ -1565,9 +1602,6 @@ static NSString *imageNames[12] = {
 
     animateMove = NO;
     autoPlay = NO;
-    
-    // needed because the class actually needs to be sent a message to invoke initialization
-    [[ChessConstants class] initialize];
     
     // initial view with white at the bottom of the board
     boardDirection = 1.0;
