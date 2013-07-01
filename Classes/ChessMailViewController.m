@@ -113,6 +113,7 @@ enum {
     kIndexPlayComputer,
     kIndexSwitchSides,
     kIndexSetupBoard,
+	kAutoPlay,
     kNumActions
 } actionIndexes;
 
@@ -145,6 +146,9 @@ enum {
             [self switchSides];
         case kIndexSetupBoard:
             [self setupBoard];
+            break;
+        case kAutoPlay:
+            [self autoPlay];
             break;
         default:
             NSLog(@"Unknown action index %d", buttonIndex);
@@ -211,7 +215,6 @@ enum {
 -(void)updateBoardLabels:(BOOL)white {
 	
 	NSString *message = white ? @"Black to move" : @"White to move";
-	/*
 	NSArray *moves;
 	
 	if (white) {
@@ -221,16 +224,12 @@ enum {
 		moves = [board.whitePlayer findValidMoves];
 	}
 	
-	if (board.generator.kingAttack && ([moves count] == 0)) {
-		message = [message stringByAppendingString:@" (checkmate)"];
-	}
-	else if (board.generator.kingAttack) {
-		message = [message stringByAppendingString:@" (check)"];
+	if (moves == nil) {
+		message = @"Checkmate";
 	}
 	else if ([moves count] == 0) {
-		message = [message stringByAppendingString:@" (stalemate)"];
+		message = @"Stalemate";
 	}
-	 */
 	
 	gameStatusLabel.text = message;
 }
@@ -640,7 +639,7 @@ static NSString *imageNames[12] = {
                                                              delegate:self
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Setup Board", nil];
+                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Setup Board", @"Auto Play", nil];
     
     [gameSelectionActionSheet showFromBarButtonItem:newGameButton animated:YES];
 }
