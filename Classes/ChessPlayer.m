@@ -81,7 +81,7 @@ static int PieceCenterScores[7][64] = {
 -(id)init {
     if (self = [super init]) {
         //    bzero(pieces, 64 * sizeof(char));
-        pieces = calloc(64, sizeof(char));
+        pieces = calloc(64, sizeof(unsigned char));
         
         if (!pieces) {
             NSLog(@"memory allocation failed");
@@ -479,7 +479,7 @@ static int PieceCenterScores[7][64] = {
 #pragma mark copying
 
 -(void)postCopy {
-    unsigned char *piecesCopy = calloc(64, sizeof(char));
+    unsigned char *piecesCopy = calloc(64, sizeof(unsigned char));
     
     if (!piecesCopy) {
         NSLog(@"memory allocation error");

@@ -16,23 +16,17 @@
 
 @interface ChessBoard : NSObject <NSCopying> {
 
-    int hashKey;
-    int hashLock;
-    
-    ChessMoveGenerator *generator;
-    ChessPlayer *whitePlayer;
-    ChessPlayer *blackPlayer;
-    ChessPlayer *activePlayer;
-    ChessPlayerAI *searchAgent;
-    id<ChessUserAgent> userAgent;
 }
 
-@property(nonatomic, assign) ChessPlayer *whitePlayer;
-@property(nonatomic, assign) ChessPlayer *blackPlayer;
+@property(nonatomic, retain) ChessPlayer *whitePlayer;
+@property(nonatomic, retain) ChessPlayer *blackPlayer;
 @property(nonatomic, assign) ChessPlayer *activePlayer;
 @property(nonatomic, assign) id<ChessUserAgent> userAgent;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, assign) ChessPlayerAI *searchAgent;
+@property(nonatomic, assign) int hashKey;
+@property(nonatomic, assign) int hashLock;
+
 
 // initialize
 -(void)resetGame;

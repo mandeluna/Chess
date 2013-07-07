@@ -66,7 +66,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (id)initWithFrame:(CGRect)frame type:(NSString*)type {
 	if ((self = [super initWithFrame:frame])) {
-		self.bvc = [[BrowserViewController alloc] initWithTitle:nil showDisclosureIndicators:NO showCancelButton:NO];
+		_bvc = [[BrowserViewController alloc] initWithTitle:nil showDisclosureIndicators:NO showCancelButton:NO];
 		[self.bvc searchForServicesOfType:type inDomain:@"local"];
 		
 		self.opaque = YES;
@@ -79,23 +79,23 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		CGFloat runningY = kOffset;
 		CGFloat width = self.bounds.size.width - 2 * kOffset;
 		
-		UILabel* label = [[UILabel alloc] initWithFrame:CGRectZero];
-		[label setTextAlignment:UITextAlignmentCenter];
-		[label setFont:[UIFont boldSystemFontOfSize:15.0]];
-		[label setTextColor:[UIColor whiteColor]];
-		[label setShadowColor:[UIColor colorWithWhite:0.0 alpha:0.75]];
-		[label setShadowOffset:CGSizeMake(1,1)];
-		[label setBackgroundColor:[UIColor clearColor]];
-		label.text = @"Waiting for another player to join game:";
-		label.numberOfLines = 1;
-		[label sizeToFit];
-		label.frame = CGRectMake(kOffset, runningY, width, label.frame.size.height);
-		[self addSubview:label];
+		UILabel* label1 = [[UILabel alloc] initWithFrame:CGRectZero];
+		[label1 setTextAlignment:UITextAlignmentCenter];
+		[label1 setFont:[UIFont boldSystemFontOfSize:15.0]];
+		[label1 setTextColor:[UIColor whiteColor]];
+		[label1 setShadowColor:[UIColor colorWithWhite:0.0 alpha:0.75]];
+		[label1 setShadowOffset:CGSizeMake(1,1)];
+		[label1 setBackgroundColor:[UIColor clearColor]];
+		label1.text = @"Waiting for another player to join game:";
+		label1.numberOfLines = 1;
+		[label1 sizeToFit];
+		label1.frame = CGRectMake(kOffset, runningY, width, label1.frame.size.height);
+		[self addSubview:label1];
 		
-		runningY += label.bounds.size.height;
-		[label release];
+		runningY += label1.bounds.size.height;
+		[label1 release];
 		
-		self.gameNameLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+		_gameNameLabel = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
 		[self.gameNameLabel setTextAlignment:UITextAlignmentCenter];
 		[self.gameNameLabel setFont:[UIFont boldSystemFontOfSize:24.0]];
 		[self.gameNameLabel setLineBreakMode:UILineBreakModeTailTruncation];
@@ -111,20 +111,20 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		
 		runningY += self.gameNameLabel.bounds.size.height + kOffset * 2;
 		
-		label = [[UILabel alloc] initWithFrame:CGRectZero];
-		[label setTextAlignment:UITextAlignmentCenter];
-		[label setFont:[UIFont boldSystemFontOfSize:15.0]];
-		[label setTextColor:[UIColor whiteColor]];
-		[label setShadowColor:[UIColor colorWithWhite:0.0 alpha:0.75]];
-		[label setShadowOffset:CGSizeMake(1,1)];
-		[label setBackgroundColor:[UIColor clearColor]];
-		label.text = @"Or, join a different game:";
-		label.numberOfLines = 1;
-		[label sizeToFit];
-		label.frame = CGRectMake(kOffset, runningY, width, label.frame.size.height);
-		[self addSubview:label];
+		UILabel *label2 = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
+		[label2 setTextAlignment:UITextAlignmentCenter];
+		[label2 setFont:[UIFont boldSystemFontOfSize:15.0]];
+		[label2 setTextColor:[UIColor whiteColor]];
+		[label2 setShadowColor:[UIColor colorWithWhite:0.0 alpha:0.75]];
+		[label2 setShadowOffset:CGSizeMake(1,1)];
+		[label2 setBackgroundColor:[UIColor clearColor]];
+		label2.text = @"Or, join a different game:";
+		label2.numberOfLines = 1;
+		[label2 sizeToFit];
+		label2.frame = CGRectMake(kOffset, runningY, width, label2.frame.size.height);
+		[self addSubview:label2];
 		
-		runningY += label.bounds.size.height + 2;
+		runningY += label2.bounds.size.height + 2;
 		
 		[self.bvc.view setFrame:CGRectMake(0, runningY, self.bounds.size.width, self.bounds.size.height - runningY)];
 		[self addSubview:self.bvc.view];
@@ -136,8 +136,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)dealloc {
 	// Cleanup any running resolve and free memory
-	[self.bvc release];
-	[self.gameNameLabel release];
+	[_bvc release];
+	[_gameNameLabel release];
 	
 	[super dealloc];
 }

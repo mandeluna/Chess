@@ -20,7 +20,6 @@
 @end
 
 @implementation ChessBoard
-@synthesize whitePlayer, blackPlayer, activePlayer, generator, searchAgent, userAgent;
 
 #pragma mark Class Methods
 
@@ -47,62 +46,62 @@ static int HashLocks[12][64];
 #pragma mark Initialize
 
 -(void)resetGame {
-    hashKey = hashLock = 0;
-    self.whitePlayer = [[ChessPlayer alloc] init];
-    self.blackPlayer = [[ChessPlayer alloc] init];
-    whitePlayer.opponent = blackPlayer;
-    whitePlayer.board = self;
-    blackPlayer.opponent = whitePlayer;
-    blackPlayer.board = self;
-    activePlayer = whitePlayer;
-    [searchAgent reset:self];
-    if (userAgent) {
-        [userAgent gameReset];
+    _hashKey = _hashLock = 0;
+    self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
+    self.blackPlayer = [[[ChessPlayer alloc] init] autorelease];
+    _whitePlayer.opponent = _blackPlayer;
+    _whitePlayer.board = self;
+    _blackPlayer.opponent = _whitePlayer;
+    _blackPlayer.board = self;
+    _activePlayer = _whitePlayer;
+    [_searchAgent reset:self];
+    if (_userAgent) {
+        [_userAgent gameReset];
     }
 }
 
 -(void)initializeNewBoard {
     [self resetGame];
-    [whitePlayer addWhitePieces];
-    [blackPlayer addBlackPieces];
+    [_whitePlayer addWhitePieces];
+    [_blackPlayer addBlackPieces];
 }
 
 -(void)dealloc {
-    [whitePlayer release];
-    [blackPlayer release];
+    [_whitePlayer release];
+    [_blackPlayer release];
     [super dealloc];
 }
 
 #pragma mark Copying
 
 -(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard {
-    [whitePlayer copyPlayer:aBoard.whitePlayer];
-    [blackPlayer copyPlayer:aBoard.blackPlayer];
-    activePlayer = [aBoard.activePlayer isWhitePlayer] ? whitePlayer : blackPlayer;
-    hashKey = [aBoard hashKey];
-    hashLock = [aBoard hashLock];
-    userAgent = nil;
+    [_whitePlayer copyPlayer:aBoard.whitePlayer];
+    [_blackPlayer copyPlayer:aBoard.blackPlayer];
+    _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
+    _hashKey = [aBoard hashKey];
+    _hashLock = [aBoard hashLock];
+    _userAgent = nil;
     
     return self;
 }
 
 -(void)postCopy {
     
-    if (activePlayer == whitePlayer) {
-        whitePlayer = [whitePlayer copy];
-        blackPlayer = [blackPlayer copy];        
-        activePlayer = whitePlayer;
+    if (_activePlayer == _whitePlayer) {
+        _whitePlayer = [_whitePlayer copy];
+        _blackPlayer = [_blackPlayer copy];
+        _activePlayer = _whitePlayer;
     }
     else {
-        whitePlayer = [whitePlayer copy];
-        blackPlayer = [blackPlayer copy];        
-        activePlayer = blackPlayer;
+        _whitePlayer = [_whitePlayer copy];
+        _blackPlayer = [_blackPlayer copy];
+        _activePlayer = _blackPlayer;
     }
     
-    whitePlayer.opponent = blackPlayer;
-    blackPlayer.opponent = whitePlayer;
-    whitePlayer.board = self;
-    blackPlayer.board = self;
+    _whitePlayer.opponent = _blackPlayer;
+    _blackPlayer.opponent = _whitePlayer;
+    _whitePlayer.board = self;
+    _blackPlayer.board = self;
     self.userAgent = nil;
 }
 
@@ -120,30 +119,30 @@ static int HashLocks[12][64];
 #pragma mark Hashing
 
 -(int)hashKey {
-    return hashKey;
+    return _hashKey;
 }
 
 -(int)hashLock {
-    return hashLock;
+    return _hashLock;
 }
 
 -(void)updateHash:(int)piece at:(int)square from:(ChessPlayer *)player {
-    int index = (player == whitePlayer) ? piece : piece + 6;
-    hashKey = hashKey ^ HashKeys[index][square];
-    hashLock = hashLock ^ HashLocks[index][square];
+    int index = (player == _whitePlayer) ? piece : piece + 6;
+    _hashKey = _hashKey ^ HashKeys[index][square];
+    _hashLock = _hashLock ^ HashLocks[index][square];
 }
 
 #pragma mark Moving
 
 -(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare {
     
-    if ([searchAgent isThinking]) {
+    if ([_searchAgent isThinking]) {
         return nil;
     }
     
     ChessMove *theMove = nil;
     
-    NSArray *moves = [activePlayer findPossibleMovesAt:sourceSquare];
+    NSArray *moves = [_activePlayer findPossibleMovesAt:sourceSquare];
     
     for (ChessMove *move in moves) {
         if (destSquare == [move destinationSquare]) {
@@ -153,36 +152,36 @@ static int HashLocks[12][64];
         }
     }
     
-    [searchAgent setActivePlayer:activePlayer];
+    [_searchAgent setActivePlayer:_activePlayer];
     
     return theMove;
 }
 
 -(void)nextMove:(ChessMove *)aMove {
     
-    [activePlayer applyMove:aMove];
+    [_activePlayer applyMove:aMove];
     
-    if (userAgent) {
-        [userAgent completedMove:aMove white:[activePlayer isWhitePlayer]];
+    if (_userAgent) {
+        [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
     }
     
-    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
-    [activePlayer prepareNextMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer prepareNextMove];
 }
 
 -(void)nullMove {
     
-    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
-    [activePlayer prepareNextMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer prepareNextMove];
 }
 
 -(void)undoMove:(ChessMove *)aMove {
     
-    activePlayer = (whitePlayer == activePlayer) ? blackPlayer : whitePlayer;
-    [activePlayer undoMove:aMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer undoMove:aMove];
     
-    if (userAgent) {
-        [userAgent undoMove:aMove white:activePlayer.isWhitePlayer];
+    if (_userAgent) {
+        [_userAgent undoMove:aMove white:_activePlayer.isWhitePlayer];
     }
 }
 
@@ -190,7 +189,7 @@ static int HashLocks[12][64];
 
 -(NSString *)description {
     
-    return [NSString stringWithFormat:@"%@ (%d %d)", [super description], hashKey, hashLock];
+    return [NSString stringWithFormat:@"%@ (%d %d)", [super description], _hashKey, _hashLock];
 }
 
 
@@ -200,7 +199,7 @@ static int HashLocks[12][64];
         if (0 == (i % 8)) {
             printf("\n");
         }
-        printf("%2d", whitePlayer.pieces[i]);
+        printf("%2d", _whitePlayer.pieces[i]);
     }
     printf("\n ===============\n");
 }
@@ -211,14 +210,14 @@ static int HashLocks[12][64];
         if (0 == (i % 8)) {
             printf("\n");
         }
-        printf("%2d", blackPlayer.pieces[i]);
+        printf("%2d", _blackPlayer.pieces[i]);
     }
     printf("\n ===============\n");
 }
 
 -(void)printPieces {
     
-    printf("\n board: %d %d", hashKey, hashLock);
+    printf("\n board: %d %d", _hashKey, _hashLock);
     [self printWhitePieces];
     [self printBlackPieces];
 }

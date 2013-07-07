@@ -765,7 +765,6 @@
     bestVariation[0] = 0;
     activeVariation[0] = 0;
 
-    // TODO: increasing this to 200,000 seemed to worsen problem where it sometimes just doesn't make a move
     while (nodesVisited < 50000) {
         
         ChessMove *theMove = nil;

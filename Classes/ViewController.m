@@ -1,13 +1,13 @@
 //
-//  ChessMailViewController.m
-//  ChessMail
+//  ViewController.m
+//  
 //
 //  Created by Steve Wart on 10-08-15.
 //  Copyright Steven Wart 2010. All rights reserved.
 //
 
-#import "ChessMailViewController.h"
-#import "ChessSettingsViewController.h"
+#import "ViewController.h"
+#import "ViewController.h"
 
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
@@ -38,6 +38,7 @@
 
 static void InterruptionListenerCallback (void	*inUserData, UInt32	interruptionState);
 static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt32 inDataSize, const void* inData);
+static void CheckError(OSStatus result, NSString *message);
 
 const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
 const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
@@ -45,7 +46,7 @@ const int kMovingPieceMask = 0x070000;          // lower three bits of third byt
 const int kCapturedPieceMask = 0x07000000;      // lower three bits of most significant byte is captured piece (0-6)
 const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most significant byte is move type (0-15)
 
-@interface ChessMailViewController(Private)
+@interface ViewController(Private)
 - (void)addGameLayer;
 - (float)boardWidth;
 - (float)cellWidth;
@@ -77,7 +78,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 @end
 
-@interface ChessMailViewController(VoiceChatClient)
+@interface ViewController(VoiceChatClient)
 
 #pragma mark Voice Chat convenience methods
 
@@ -94,7 +95,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 @end
 
 #pragma mark ===
-@implementation ChessMailViewController
+@implementation ViewController
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
 
 #pragma mark Action Sheet delegate
@@ -381,7 +382,7 @@ static NSString *imageNames[12] = {
 
 -(void)addedPiece:(int)piece at:(int)square white:(BOOL)isWhite {
     
-    ChessPieceLayer *m = [self newPiece:piece white:isWhite];
+    ChessPieceLayer *m = [[self newPiece:piece white:isWhite] autorelease];
     m.chessBoard = self;
     SquareLayer *s = [squares objectAtIndex:square];
     m.position = s.position;
@@ -660,7 +661,7 @@ static NSString *imageNames[12] = {
     if ((outStream) ||  // playing against wifi peer
         (session))      // playing against nearby peer
     {
-        GameEvent gameEvent;
+        GameEvent gameEvent = {};
         gameEvent.eventType = kNormalMoveRequest;
         gameEvent.encodedMove = [theMove encodedMove];
         [self send:gameEvent];
@@ -723,7 +724,7 @@ static NSString *imageNames[12] = {
     playerRandomChoice = rand();
 	NSLog(@"generated playerRandomChoice=%d", playerRandomChoice);
     
-    GameEvent gameEvent;
+    GameEvent gameEvent = {};
     gameEvent.eventType = kSelectSideRequest;
     gameEvent.encodedMove = playerRandomChoice;
     [self send:gameEvent];
@@ -878,7 +879,7 @@ static NSString *imageNames[12] = {
                                                  otherButtonTitles:nil];
         [undoMoveWaitAlertView show];
         
-        GameEvent gameEvent;
+        GameEvent gameEvent = {};
         gameEvent.eventType = kUndoMoveRequest;
         [self send:gameEvent];
     }
@@ -990,7 +991,7 @@ static NSString *imageNames[12] = {
     
     server = [TCPServer new];
     [server setDelegate:self];
-    NSError* error;
+    NSError* error = nil;
     if(server == nil || ![server start:&error]) {
         NSLog(@"Failed creating server: %@", error);
         [self showNetworkAlert:@"Failed creating server"];
@@ -1105,13 +1106,13 @@ static NSString *imageNames[12] = {
 		return;
 	}
 	
-	self.remoteInstanceName = [[NSString stringWithFormat:@"%@,%@,%@",
-                           [netService name], [netService type], [netService domain]] retain];
-	
 	if (![netService getInputStream:&inStream outputStream:&outStream]) {
 		[self showNetworkAlert:@"Failed connecting to server"];
 		return;
 	}
+	
+	self.remoteInstanceName = [NSString stringWithFormat:@"%@,%@,%@",
+								[netService name], [netService type], [netService domain]];
 	
 	[self openStreams];
 }
@@ -1489,7 +1490,7 @@ static NSString *imageNames[12] = {
             [board movePieceFrom:moveHint.sourceSquare to:moveHint.destinationSquare];
             if (outStream || session)      // playing against nearby peer
             {
-                GameEvent gameEvent;
+                GameEvent gameEvent = {};
                 gameEvent.eventType = kNormalMoveRequest;
                 gameEvent.encodedMove = [moveHint encodedMove];
                 [self send:gameEvent];
@@ -1514,7 +1515,7 @@ static NSString *imageNames[12] = {
     {
         if (buttonIndex == 1)
         {
-            GameEvent gameEvent;
+            GameEvent gameEvent = {};
             gameEvent.eventType = kResignRequest;   // player is ending game already underway
             [self send:gameEvent];
             [self applyStartNewGame];
@@ -1525,7 +1526,7 @@ static NSString *imageNames[12] = {
     else if (alertView == undoMoveRequestAlertView)
     {
 		NSLog(@"Undo move request alert view");
-        GameEvent gameEvent;
+        GameEvent gameEvent = {};
         gameEvent.eventType = kUndoMoveResponse;
         gameEvent.encodedMove = buttonIndex;        // let the receiver decipher the button index
         if (buttonIndex == 1)                       // allow
@@ -1680,6 +1681,8 @@ static NSString *imageNames[12] = {
     [labels release];
     
     if (board) {
+		[board.searchAgent release];
+		[board.generator release];
         [board release];
     }
     [redoList release]; redoList = nil;
@@ -1692,7 +1695,7 @@ static NSString *imageNames[12] = {
 
 @end
 
-@implementation ChessMailViewController (NSStreamDelegate)
+@implementation ViewController (NSStreamDelegate)
 
 - (void) stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
 {
@@ -1721,7 +1724,7 @@ static NSString *imageNames[12] = {
 		{
 			if (stream == inStream) {
 				uint16_t maxLength = 0;
-				GameEvent gameEvent;
+				GameEvent gameEvent = {};
 				NSInteger recvLen = 0;
 				unsigned char buffer[MAX_VOICE_CHAT_PACKET_SIZE];
                 bzero(buffer, MAX_VOICE_CHAT_PACKET_SIZE);
@@ -1793,7 +1796,7 @@ static NSString *imageNames[12] = {
 		{
 			UIAlertView*			alertView;
 			
-			NSLog(@"%s", (char *)_cmd);
+			NSLog(@"%s", sel_getName(_cmd));
 			
 			alertView = [[UIAlertView alloc] initWithTitle:@"Peer Disconnected!"
                                                    message:nil delegate:nil cancelButtonTitle:nil
@@ -1810,11 +1813,11 @@ static NSString *imageNames[12] = {
 }
 @end
 
-@implementation ChessMailViewController (TCPServerDelegate)
+@implementation ViewController (TCPServerDelegate)
 
 - (void) serverDidEnableBonjour:(TCPServer*)server withName:(NSString*)string
 {
-	NSLog(@"serverDidEnableBonjour:%s", _cmd);
+	NSLog(@"serverDidEnableBonjour:%s", sel_getName(_cmd));
 	[self presentPicker:string];
 }
 
@@ -1839,7 +1842,7 @@ static NSString *imageNames[12] = {
 
 @end
 
-@implementation ChessMailViewController (VoiceChatClient)
+@implementation ViewController (VoiceChatClient)
 
 #pragma mark Voice Chat Client methods
 -(void) setupVoiceChat {
@@ -1991,6 +1994,10 @@ static NSString *imageNames[12] = {
 	[self resetAudioSessionProperties];
 }
 
+-(void) checkError:(OSStatus) result message:(NSString *)message {
+	CheckError(result, message);
+}
+
 /* Sets the properties of the audio session and sets the session to active */
 -(void) resetAudioSessionProperties
 {
@@ -2005,7 +2012,8 @@ static NSString *imageNames[12] = {
 									  kAudioSessionProperty_AudioCategory,
 									  sizeof (sessionCategory),
 									  &sessionCategory
-									  );	
+									  );
+	[self checkError: result message: @"set audio session category property"];
 	sampleRate = 44100.0; //8000.0 if no other audio going to be played
 	dataSize = sizeof(sampleRate);
 	
@@ -2015,12 +2023,15 @@ static NSString *imageNames[12] = {
 									  &sampleRate
 									  );
 	
+	[self checkError: result message: @"set audio session sample rate property"];
 	dataSize = sizeof(CFStringRef);
 	
 	currentRoute = NULL;
 	
 	result = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &dataSize, &currentRoute);
 	
+	[self checkError: result message: @"get audio session route property"];
+
 	if([(NSString *) currentRoute hasPrefix: @"Receiver"]){
 		
 		UInt32 route = kAudioSessionOverrideAudioRoute_Speaker;
@@ -2030,6 +2041,7 @@ static NSString *imageNames[12] = {
 										  dataSize,
 										  &route
 										  );
+		[self checkError: result message: @"set audio session override route property"];
 	}
 	
 	AudioSessionSetActive(YES);	
@@ -2080,7 +2092,7 @@ static NSString *imageNames[12] = {
 /*Make sure you implement the interruption listener, so that if your client gets a call, you can resume your audio later */
 static void InterruptionListenerCallback (void	*inUserData, UInt32	interruptionState) 
 {
-	ChessMailViewController *app  = (ChessMailViewController *) inUserData;
+	ViewController *app  = (ViewController *) inUserData;
 	[app handleAudioInterruption:(interruptionState == kAudioSessionBeginInterruption)];
 }
 
@@ -2095,6 +2107,8 @@ static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt3
 	dataSize = sizeof(CFStringRef);
 	result = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &dataSize, &currentRoute);
 	
+	CheckError(result, @"audio session get route property");
+	
 	if([(NSString *) currentRoute hasPrefix: @"Receiver"]){
 		
 		UInt32 route = kAudioSessionOverrideAudioRoute_Speaker;
@@ -2104,10 +2118,20 @@ static void RouteChangedListener(void* _self, AudioSessionPropertyID inID, UInt3
 										  dataSize,
 										  &route
 										  );
-	}		
+		CheckError(result, @"audio session set route override property");
+	}
 }
 
-@implementation ChessMailViewController(GKSessionDelegate)
+void CheckError(OSStatus result, NSString *message) {
+	if (result != kAudioSessionNoError) {
+		NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain
+											 code:result
+										 userInfo:nil];
+		NSLog(@"Failed to %@ with error: %@", message, [error description]);
+	}
+}
+
+@implementation ViewController(GKSessionDelegate)
 
 -(void)session:(GKSession *)session peer:(NSString *)peerID didChangeState:(GKPeerConnectionState)state {
     

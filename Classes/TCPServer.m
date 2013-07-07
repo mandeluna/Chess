@@ -182,7 +182,7 @@ static void TCPServerAcceptCallBack(CFSocketRef socket, CFSocketCallBackType typ
 		return NO;
 	
 
-	self.netService = [[NSNetService alloc] initWithDomain:domain type:protocol name:name port:self.port];
+	self.netService = [[[NSNetService alloc] initWithDomain:domain type:protocol name:name port:self.port] autorelease];
 	if(self.netService == nil)
 		return NO;
 	
@@ -209,7 +209,7 @@ static void TCPServerAcceptCallBack(CFSocketRef socket, CFSocketCallBackType typ
 - (void)netService:(NSNetService *)sender didNotPublish:(NSDictionary *)errorDict
 {
 	/* this seems dodgy - does NSObject respond to this selector? */
-	[super netServiceDidPublish:sender];
+	// [super netServiceDidPublish:sender];
 	if(self.delegate && [self.delegate respondsToSelector:@selector(server:didNotEnableBonjour:)])
 		[self.delegate server:self didNotEnableBonjour:errorDict];
 }

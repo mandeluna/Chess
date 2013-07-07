@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="g6y-yE-O4w">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="HsK-de-GZi">
+            <objects>
+                <viewController id="g6y-yE-O4w" customClass="ViewController" sceneMemberID="viewController">
+                    <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="qdF-hi-qsS">
+                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="cJK-s0-L7d">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="dA7-P9-QYa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tj0-ZK-ac9">
+                                <items>
+                                    <barButtonItem style="plain" systemItem="add" id="Mr0-Es-Zno">
+                                        <connections>
+                                            <action selector="newGame" destination="g6y-yE-O4w" id="gZW-7q-Dc5"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="yOl-OK-33H"/>
+                                    <barButtonItem image="UIButtonBarRevert.png" style="plain" id="Gnk-oc-5Z8">
+                                        <connections>
+                                            <action selector="undoMove" destination="g6y-yE-O4w" id="n2e-JX-JpC"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem image="UIButtonBarPlay.png" style="plain" id="4Vi-C9-OnQ">
+                                        <connections>
+                                            <action selector="redoMove" destination="g6y-yE-O4w" id="x4r-a7-Rcb"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="4So-Ew-x19"/>
+                                    <barButtonItem title="?" style="plain" id="6qD-kF-fxK">
+                                        <connections>
+                                            <action selector="findBestMove" destination="g6y-yE-O4w" id="n0T-RI-QHw"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="right" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="Iy0-sZ-kI9">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="FcA-Bo-5BZ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="AZY-sm-1dq">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="yY6-Yl-9Jv"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="blackButton.png" translatesAutoresizingMaskIntoConstraints="NO" id="zFb-eo-Auv"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="clearButton.png" translatesAutoresizingMaskIntoConstraints="NO" id="eXH-8r-nIB">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="Zsb-0N-eFA"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="10:00" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="zDJ-Is-xNT">
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="10:00" textAlignment="right" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="yzV-J4-8WI">
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sa8-8q-Img">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="273" id="Any-zF-WF9"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="AZY-sm-1dq" firstAttribute="leading" secondItem="eXH-8r-nIB" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="28D-ff-bO3"/>
+                            <constraint firstItem="AZY-sm-1dq" firstAttribute="trailing" secondItem="zDJ-Is-xNT" secondAttribute="trailing" type="default" id="2Zr-vU-H5P"/>
+                            <constraint firstAttribute="trailing" secondItem="zFb-eo-Auv" secondAttribute="trailing" constant="17" id="5gB-uB-4Qp"/>
+                            <constraint firstItem="eXH-8r-nIB" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leading" constant="17" id="5rK-Kh-gSQ"/>
+                            <constraint firstItem="yzV-J4-8WI" firstAttribute="leading" secondItem="Iy0-sZ-kI9" secondAttribute="leading" type="default" id="8ju-z1-MM6"/>
+                            <constraint firstItem="Iy0-sZ-kI9" firstAttribute="bottom" secondItem="zFb-eo-Auv" secondAttribute="bottom" type="default" id="DeK-EI-IR2"/>
+                            <constraint firstAttribute="trailing" secondItem="cJK-s0-L7d" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="EwU-3M-Z5n"/>
+                            <constraint firstItem="Sa8-8q-Img" firstAttribute="top" secondItem="qdF-hi-qsS" secondAttribute="top" constant="15" id="H52-Ax-Vsc"/>
+                            <constraint firstItem="zDJ-Is-xNT" firstAttribute="top" secondItem="AZY-sm-1dq" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="I1m-Zh-wnf"/>
+                            <constraint firstItem="zDJ-Is-xNT" firstAttribute="baseline" secondItem="yzV-J4-8WI" secondAttribute="baseline" type="default" id="IQq-3v-OXM"/>
+                            <constraint firstItem="AZY-sm-1dq" firstAttribute="leading" secondItem="zDJ-Is-xNT" secondAttribute="leading" type="default" id="IRO-DA-86Z"/>
+                            <constraint firstItem="zFb-eo-Auv" firstAttribute="leading" secondItem="Iy0-sZ-kI9" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="K9R-SI-0Qu"/>
+                            <constraint firstItem="AZY-sm-1dq" firstAttribute="bottom" secondItem="eXH-8r-nIB" secondAttribute="bottom" type="default" id="Kk0-O0-QHb"/>
+                            <constraint firstItem="AZY-sm-1dq" firstAttribute="top" secondItem="qdF-hi-qsS" secondAttribute="top" constant="20" symbolic="YES" type="default" id="MDR-Nb-etP"/>
+                            <constraint firstItem="zFb-eo-Auv" firstAttribute="top" secondItem="eXH-8r-nIB" secondAttribute="top" type="default" id="OxI-hf-aAv"/>
+                            <constraint firstItem="cJK-s0-L7d" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="SOe-gz-eag"/>
+                            <constraint firstItem="Iy0-sZ-kI9" firstAttribute="baseline" secondItem="AZY-sm-1dq" secondAttribute="baseline" type="default" id="Vkj-bZ-sbU"/>
+                            <constraint firstItem="tj0-ZK-ac9" firstAttribute="trailing" secondItem="qdF-hi-qsS" secondAttribute="trailing" type="default" id="X4e-gm-eT7"/>
+                            <constraint firstItem="tj0-ZK-ac9" firstAttribute="top" secondItem="cJK-s0-L7d" secondAttribute="bottom" type="default" id="d7c-vy-PSK"/>
+                            <constraint firstItem="tj0-ZK-ac9" firstAttribute="bottom" secondItem="qdF-hi-qsS" secondAttribute="bottom" type="default" id="deD-xZ-bOZ"/>
+                            <constraint firstItem="Iy0-sZ-kI9" firstAttribute="trailing" secondItem="yzV-J4-8WI" secondAttribute="trailing" type="default" id="iET-eO-8gD"/>
+                            <constraint firstItem="Sa8-8q-Img" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leading" constant="248" id="qp8-va-VUs"/>
+                            <constraint firstItem="tj0-ZK-ac9" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leading" type="default" id="rMg-Yn-jx0"/>
+                        </constraints>
+                        <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+                    </view>
+                    <connections>
+                        <outlet property="blackGameClockLabel" destination="yzV-J4-8WI" id="dOu-hd-f1s"/>
+                        <outlet property="blackPlayerLabel" destination="Iy0-sZ-kI9" id="rG4-tR-uG7"/>
+                        <outlet property="hintButton" destination="6qD-kF-fxK" id="Hpe-P3-lxN"/>
+                        <outlet property="label" destination="cJK-s0-L7d" id="bVC-uN-cmz"/>
+                        <outlet property="newGameButton" destination="Mr0-Es-Zno" id="4uV-sX-Jrj"/>
+                        <outlet property="redoButton" destination="4Vi-C9-OnQ" id="ZFD-dc-bxg"/>
+                        <outlet property="undoButton" destination="Gnk-oc-5Z8" id="7mq-HM-PQ8"/>
+                        <outlet property="whiteGameClockLabel" destination="zDJ-Is-xNT" id="VN3-mk-Nca"/>
+                        <outlet property="whitePlayerLabel" destination="AZY-sm-1dq" id="SAM-iJ-0JT"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rAQ-fT-Vfe" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-388" y="-241"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="UIButtonBarPlay.png" width="15" height="18"/>
+        <image name="UIButtonBarRevert.png" width="15" height="18"/>
+        <image name="blackButton.png" width="20" height="20"/>
+        <image name="clearButton.png" width="18" height="18"/>
+    </resources>
+    <classes>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+        <class className="ViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="autoPlay"/>
+                <relationship kind="action" name="findBestMove"/>
+                <relationship kind="action" name="newGame"/>
+                <relationship kind="action" name="play"/>
+                <relationship kind="action" name="redoMove"/>
+                <relationship kind="action" name="thinkAndMove"/>
+                <relationship kind="action" name="undoMove"/>
+                <relationship kind="outlet" name="blackGameClockLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="blackPlayerChatStatusButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="blackPlayerChatVolumeView" candidateClass="UIView"/>
+                <relationship kind="outlet" name="blackPlayerLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="blackPlayerOnlineButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="gameStatusLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="hintButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="moveListLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="newGameButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="playButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="redoButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="undoButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="whiteGameClockLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="whitePlayerChatStatusButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="whitePlayerChatVolumeView" candidateClass="UIView"/>
+                <relationship kind="outlet" name="whitePlayerLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="whitePlayerOnlineButton" candidateClass="UIButton"/>
+            </relationships>
+        </class>
+    </classes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>
