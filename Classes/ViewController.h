@@ -31,7 +31,6 @@ enum {
 // TODO: provide option for timed game play
 // TODO: add move lists
 // TODO: show captured pieces
-// TODO: show "White to play" or "Black to play" or "Checkmate" or "Stalemate - White/Black unable to play" game status
 // TODO: show labels for online opponents
 // TODO: status icon to indicate opponent is online
 // TODO: status icon to indicate opponent has voice chat enabled

@@ -715,10 +715,10 @@
     
     double now = [[NSDate date] timeIntervalSince1970];
     
-    if (now - startTime > [self timeToThink]) {
-        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));
-        stopThinking = YES;
-    }
+//    if (now - startTime > [self timeToThink]) {
+//        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));
+//        stopThinking = YES;
+//    }
 }
 
 -(BOOL)isThinking {
@@ -830,8 +830,11 @@
     }
     
     for (int i=1; i<count+1; i++) {
-        NSString *moveString = [[ChessMove decodeFrom:av[i]] moveString];
-        resultString = [resultString stringByAppendingFormat:@"%@ ", moveString];
+        int encodedMove = av[i];
+        if (encodedMove) {
+            NSString *moveString = [[ChessMove decodeFrom:encodedMove] moveString];
+            resultString = [resultString stringByAppendingFormat:@"%@ ", moveString];
+        }
     }
     
     resultString = [resultString stringByAppendingFormat:@"[%d]", nodesVisited];
