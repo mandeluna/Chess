@@ -27,6 +27,12 @@
                                             <action selector="newGame" destination="K20-VQ-fbd" id="NCO-Mn-crg"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem image="timer20x20.png" style="plain" id="IEw-mv-TrY">
+                                        <inset key="imageInsets" minX="2" minY="2" maxX="-2" maxY="-2"/>
+                                        <connections>
+                                            <action selector="showTimerSettings:" destination="K20-VQ-fbd" id="CSh-Rt-5wa"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="RfI-aG-6eG"/>
                                     <barButtonItem image="UIButtonBarRevert.png" style="plain" id="g8i-h4-K9b">
                                         <connections>
@@ -126,11 +132,142 @@
                         <outlet property="undoButton" destination="g8i-h4-K9b" id="MIg-5R-56F"/>
                         <outlet property="whiteGameClockLabel" destination="wZJ-rY-KmI" id="faJ-Dc-7V2"/>
                         <outlet property="whitePlayerLabel" destination="9oH-ga-BkC" id="mHB-hn-BUb"/>
+                        <segue destination="T91-H0-3Pd" kind="popover" identifier="TimerSettings" popoverAnchorBarButtonItem="IEw-mv-TrY" id="quo-QH-xYM">
+                            <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                        </segue>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hRt-fj-Lte" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-810" y="-772"/>
+        </scene>
+        <!--Table View Controller - Timer Settings-->
+        <scene sceneID="TKi-3z-TKA">
+            <objects>
+                <tableViewController title="Timer Settings" id="T91-H0-3Pd" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="dhs-Yk-IRB">
+                        <rect key="frame" x="0.0" y="20" width="768" height="1004"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <sections>
+                            <tableViewSection id="LYs-OH-naR">
+                                <cells>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="IE5-iB-LRL">
+                                        <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Game timer" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JTz-Hf-eMa">
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="93" id="Lsw-Dq-36V"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Qx-wp-37w"/>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="5Qx-wp-37w" secondAttribute="trailing" constant="20" type="default" id="0jv-8L-FOc"/>
+                                            <constraint firstItem="JTz-Hf-eMa" firstAttribute="leading" secondItem="IE5-iB-LRL" secondAttribute="leading" constant="20" type="default" id="1ua-fU-1Gp"/>
+                                            <constraint firstItem="5Qx-wp-37w" firstAttribute="centerY" secondItem="JTz-Hf-eMa" secondAttribute="centerY" type="default" id="EZU-Qy-Crm"/>
+                                            <constraint firstItem="5Qx-wp-37w" firstAttribute="top" secondItem="IE5-iB-LRL" secondAttribute="top" constant="8" id="rkb-0f-fFW"/>
+                                        </constraints>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="checkmark" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="46" id="BOB-H2-2Sx">
+                                        <rect key="frame" x="0.0" y="44" width="768" height="46"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="748" height="45"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="G/30" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lW4-eh-LeF">
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="43" id="FXA-1h-Sya"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </label>
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" text="Players have 30 minutes each" translatesAutoresizingMaskIntoConstraints="NO" id="xr7-Hy-XTZ">
+                                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="35" id="vTo-Nu-jEm"/>
+                                                        <constraint firstAttribute="width" constant="391" id="xc3-4m-QFI"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                </textView>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstItem="xr7-Hy-XTZ" firstAttribute="leading" secondItem="lW4-eh-LeF" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="MbE-au-cj6"/>
+                                            <constraint firstItem="lW4-eh-LeF" firstAttribute="leading" secondItem="BOB-H2-2Sx" secondAttribute="leading" constant="20" type="default" id="btk-Ki-QMh"/>
+                                            <constraint firstItem="lW4-eh-LeF" firstAttribute="top" secondItem="BOB-H2-2Sx" secondAttribute="top" constant="11" id="cwa-hi-Zi6"/>
+                                            <constraint firstItem="xr7-Hy-XTZ" firstAttribute="top" secondItem="BOB-H2-2Sx" secondAttribute="top" constant="5" id="kKj-wf-D2m"/>
+                                        </constraints>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="46" id="KDD-pI-HzN">
+                                        <rect key="frame" x="0.0" y="90" width="768" height="46"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="45"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="G/60" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9qT-bc-Ziz">
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="43" id="DfN-2y-twp"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </label>
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" text="Players have 60 minutes each" translatesAutoresizingMaskIntoConstraints="NO" id="5bA-pU-hW4">
+                                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="35" id="JYe-IQ-Ni9"/>
+                                                        <constraint firstAttribute="width" constant="391" id="ZPA-Iw-Ox6"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                </textView>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstItem="9qT-bc-Ziz" firstAttribute="top" secondItem="KDD-pI-HzN" secondAttribute="top" constant="11" id="iYb-FR-ENm"/>
+                                            <constraint firstItem="5bA-pU-hW4" firstAttribute="leading" secondItem="9qT-bc-Ziz" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="wxf-fG-U72"/>
+                                            <constraint firstItem="9qT-bc-Ziz" firstAttribute="leading" secondItem="KDD-pI-HzN" secondAttribute="leading" constant="20" type="default" id="x6G-os-Ncz"/>
+                                            <constraint firstItem="5bA-pU-hW4" firstAttribute="top" secondItem="KDD-pI-HzN" secondAttribute="top" constant="5" id="z1w-kU-qJj"/>
+                                        </constraints>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="mma-9T-BRg">
+                                        <rect key="frame" x="0.0" y="136" width="768" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="768" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        </view>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                        </sections>
+                        <connections>
+                            <outlet property="dataSource" destination="T91-H0-3Pd" id="eRC-Aw-OAI"/>
+                            <outlet property="delegate" destination="T91-H0-3Pd" id="tkE-ZN-Liv"/>
+                        </connections>
+                    </tableView>
+                    <value key="contentSizeForViewInPopover" type="size" width="320" height="480"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="onC-c0-GYJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="269" y="-384"/>
         </scene>
     </scenes>
     <resources>
@@ -138,6 +275,7 @@
         <image name="UIButtonBarRevert.png" width="15" height="18"/>
         <image name="blackButton.png" width="20" height="20"/>
         <image name="clearButton.png" width="18" height="18"/>
+        <image name="timer20x20.png" width="18" height="20"/>
     </resources>
     <classes>
         <class className="NSLayoutConstraint" superclassName="NSObject">
@@ -151,6 +289,7 @@
                 <relationship kind="action" name="newGame"/>
                 <relationship kind="action" name="play"/>
                 <relationship kind="action" name="redoMove"/>
+                <relationship kind="action" name="showTimerSettings:"/>
                 <relationship kind="action" name="thinkAndMove"/>
                 <relationship kind="action" name="undoMove"/>
                 <relationship kind="outlet" name="blackGameClockLabel" candidateClass="UILabel"/>

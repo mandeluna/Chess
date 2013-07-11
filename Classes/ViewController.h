@@ -95,9 +95,11 @@ typedef struct {
 } GameMessage;
 
 
-@interface ViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate, BrowserViewControllerDelegate, TCPServerDelegate, NSStreamDelegate,
-														GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate> {
-    
+@interface ViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate,
+	UIPopoverControllerDelegate,
+	BrowserViewControllerDelegate, TCPServerDelegate, NSStreamDelegate,
+														GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate>
+{
     CALayer *boardLayer;
     NSMutableArray *squares;
     NSMutableArray *labels;
@@ -159,7 +161,7 @@ typedef struct {
     UIActionSheet       *gameSelectionActionSheet;
     
     UIViewController    *pickerModalViewController;
-    
+															
     // this class is the delegate for several different alert views, so we need to keep track of them in the callback
     UIAlertView         *suggestedMoveAlertView;
     UIAlertView         *voiceChatInvitationAlertView;
