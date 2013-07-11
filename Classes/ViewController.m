@@ -116,7 +116,6 @@ enum {
     kIndexPlayOnline,
     kIndexPlayComputer,
     kIndexSwitchSides,
-    kIndexSetupBoard,
 	kAutoPlay,
     kNumActions
 } actionIndexes;
@@ -148,9 +147,6 @@ enum {
             break;
         case kIndexSwitchSides:
             [self switchSides];
-        case kIndexSetupBoard:
-            [self setupBoard];
-            break;
         case kAutoPlay:
             [self autoPlay];
             break;
@@ -601,8 +597,6 @@ static NSString *imageNames[12] = {
     
     if (!board) {
         ChessBoard *newBoard = [[ChessBoard alloc] init];
-        newBoard.generator = [[ChessMoveGenerator alloc] init];
-        newBoard.searchAgent = [[ChessPlayerAI alloc] init];
         [newBoard resetGame];
         self.board = newBoard;
         [newBoard release];
@@ -643,7 +637,7 @@ static NSString *imageNames[12] = {
                                                              delegate:self
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Setup Board", @"Auto Play", nil];
+                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Auto Play", nil];
     
     [gameSelectionActionSheet showFromBarButtonItem:newGameButton animated:YES];
 }
@@ -1166,12 +1160,8 @@ static NSString *imageNames[12] = {
     [session sendData: data toPeers:[NSArray arrayWithObject: participantID] withDataMode: GKSendDataReliable error: nil];
 }
 
--(void)setupBoard {
-    
-}
-
 -(BOOL)isPlayerWhite {
-    
+
     return boardDirection > 0;
 }
 
@@ -1710,12 +1700,8 @@ static NSString *imageNames[12] = {
     
     [squares release];
     [labels release];
+    [board release];
     
-    if (board) {
-		[board.searchAgent release];
-		[board.generator release];
-        [board release];
-    }
     [redoList release]; redoList = nil;
     [history release]; history = nil;
     
