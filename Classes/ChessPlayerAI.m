@@ -713,7 +713,7 @@
 
 -(void)checkClock {
     
-    double now = [[NSDate date] timeIntervalSince1970];
+//    double now = [[NSDate date] timeIntervalSince1970];
     
 //    if (now - startTime > [self timeToThink]) {
 //        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));

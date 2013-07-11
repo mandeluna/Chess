@@ -231,7 +231,6 @@ typedef enum {
 -(IBAction)undoMove;
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
--(void)setupBoard;
 
 -(BOOL)isPlayerWhite;
 
