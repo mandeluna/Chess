@@ -95,7 +95,10 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 @end
 
 #pragma mark ===
-@implementation ViewController
+@implementation ViewController {	
+	__weak UIPopoverController *timerSettingsController;
+}
+
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
 
 #pragma mark Action Sheet delegate
@@ -912,6 +915,34 @@ static NSString *imageNames[12] = {
     
     [self updateBoardTransforms];
 }
+
+#pragma mark Timer Settings
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+	if ([segue.identifier isEqualToString:@"TimerSettings"]) {
+		timerSettingsController = [(UIStoryboardPopoverSegue *)segue popoverController];
+		timerSettingsController.delegate = self;
+	}
+}
+
+-(IBAction)showTimerSettings:(id)sender {
+	if (timerSettingsController) {
+		[timerSettingsController dismissPopoverAnimated:YES];
+		timerSettingsController = nil;
+	}
+	else {
+		[self performSegueWithIdentifier:@"TimerSettings" sender:sender];
+	}
+}
+
+// not needed with ARC
+-(void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController {
+	if (popoverController == timerSettingsController) {
+		timerSettingsController = nil;
+	}
+}
+
+#pragma mark Online Play
 
 -(void)playOnline {
     if (session || outStream)
