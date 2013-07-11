@@ -113,7 +113,6 @@ enum {
     kIndexPlayOnline,
     kIndexPlayComputer,
     kIndexSwitchSides,
-    kIndexSetupBoard,
 	kAutoPlay,
     kNumActions
 } actionIndexes;
@@ -145,9 +144,6 @@ enum {
             break;
         case kIndexSwitchSides:
             [self switchSides];
-        case kIndexSetupBoard:
-            [self setupBoard];
-            break;
         case kAutoPlay:
             [self autoPlay];
             break;
@@ -640,7 +636,7 @@ static NSString *imageNames[12] = {
                                                              delegate:self
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Setup Board", @"Auto Play", nil];
+                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Auto Play", nil];
     
     [gameSelectionActionSheet showFromBarButtonItem:newGameButton animated:YES];
 }
@@ -1135,12 +1131,8 @@ static NSString *imageNames[12] = {
     [session sendData: data toPeers:[NSArray arrayWithObject: participantID] withDataMode: GKSendDataReliable error: nil];
 }
 
--(void)setupBoard {
-    
-}
-
 -(BOOL)isPlayerWhite {
-    
+
     return boardDirection > 0;
 }
 
