@@ -597,8 +597,6 @@ static NSString *imageNames[12] = {
     
     if (!board) {
         ChessBoard *newBoard = [[ChessBoard alloc] init];
-        newBoard.generator = [[ChessMoveGenerator alloc] init];
-        newBoard.searchAgent = [[ChessPlayerAI alloc] init];
         [newBoard resetGame];
         self.board = newBoard;
         [newBoard release];
@@ -1702,12 +1700,8 @@ static NSString *imageNames[12] = {
     
     [squares release];
     [labels release];
+    [board release];
     
-    if (board) {
-		[board.searchAgent release];
-		[board.generator release];
-        [board release];
-    }
     [redoList release]; redoList = nil;
     [history release]; history = nil;
     

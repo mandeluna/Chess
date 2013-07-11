@@ -66,9 +66,19 @@ static int HashLocks[12][64];
     [_blackPlayer addBlackPieces];
 }
 
+-(id)init {
+    if (self = [super init]) {
+        _generator = [[ChessMoveGenerator alloc] init];
+        _searchAgent = [[ChessPlayerAI alloc] init];
+    }
+    return self;
+}
+
 -(void)dealloc {
     [_whitePlayer release];
     [_blackPlayer release];
+    [_generator release];
+    [_searchAgent release];
     [super dealloc];
 }
 
