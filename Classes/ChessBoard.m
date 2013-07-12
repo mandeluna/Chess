@@ -91,6 +91,8 @@ static int HashLocks[12][64];
     _hashKey = [aBoard hashKey];
     _hashLock = [aBoard hashLock];
     _userAgent = nil;
+    _searchAgent = [aBoard.searchAgent retain];
+    _generator = [aBoard.generator retain];
     
     return self;
 }

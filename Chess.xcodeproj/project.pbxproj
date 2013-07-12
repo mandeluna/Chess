@@ -72,6 +72,8 @@
 		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
 		69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D353831257C6FF002E2FB9 /* MediaPlayer.framework */; };
 		69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F9E016126BC41B0025491A /* WaitingAlertView.m */; };
+		AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C1178F89BE00A54608 /* TimerSettingsController.m */; };
+		AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C4178F8B2700A54608 /* TimerModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -161,6 +163,10 @@
 		69F9E015126BC41B0025491A /* WaitingAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAlertView.h; sourceTree = "<group>"; };
 		69F9E016126BC41B0025491A /* WaitingAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAlertView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		AADF04C0178F89BE00A54608 /* TimerSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerSettingsController.h; sourceTree = "<group>"; };
+		AADF04C1178F89BE00A54608 /* TimerSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerSettingsController.m; sourceTree = "<group>"; };
+		AADF04C3178F8B2700A54608 /* TimerModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerModel.h; sourceTree = "<group>"; };
+		AADF04C4178F8B2700A54608 /* TimerModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +213,8 @@
 				699CF5571229BA430054F0B2 /* ChessTranspositionTable.m */,
 				699CF60C1229D0790054F0B2 /* ChessTTEntry.h */,
 				699CF60D1229D0790054F0B2 /* ChessTTEntry.m */,
+				AADF04C3178F8B2700A54608 /* TimerModel.h */,
+				AADF04C4178F8B2700A54608 /* TimerModel.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -368,6 +376,8 @@
 			isa = PBXGroup;
 			children = (
 				690A39ED125FEEFC00E1173B /* Settings.plist */,
+				AADF04C0178F89BE00A54608 /* TimerSettingsController.h */,
+				AADF04C1178F89BE00A54608 /* TimerSettingsController.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -490,6 +500,8 @@
 				690A3D0812623E0000E1173B /* TCPServer.m in Sources */,
 				690A3D0B12623E8100E1173B /* Picker.m in Sources */,
 				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
+				AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */,
+				AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
