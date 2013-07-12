@@ -110,6 +110,8 @@ static int HashLocks[12][64];
         _activePlayer = _blackPlayer;
     }
     
+    [_searchAgent retain];
+    [_generator retain];
     _whitePlayer.opponent = _blackPlayer;
     _blackPlayer.opponent = _whitePlayer;
     _whitePlayer.board = self;

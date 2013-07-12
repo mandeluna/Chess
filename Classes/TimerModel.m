@@ -11,7 +11,9 @@
 static NSArray *timerTypes;
 static NSArray *availableModels;
 
-@implementation TimerModel
+@implementation TimerModel {
+	NSString *_shortDescription;
+}
 
 #pragma mark Class Methods
 
@@ -24,11 +26,6 @@ static NSArray *availableModels;
     return [[TimerModel alloc] initWithType:kTimerTypeTraditional fromString:@"40/2, 20/1"];
 }
  
-// Return a sudden death G/10 timer: each player has 10 minutes to complete the game
-+ (TimerModel *)suddenDeathG10 {
-    return [[TimerModel alloc] initWithType:kTimerTypeSuddenDeath fromString:@"G/10"];
-}
-
 // Return a sudden death G/30 timer: each player has 30 minutes to complete the game
 + (TimerModel *)suddenDeathG30 {
     return [[TimerModel alloc] initWithType:kTimerTypeSuddenDeath fromString:@"G/30"];
@@ -57,7 +54,6 @@ static NSArray *availableModels;
 + (void)initializeAvailableModels {
     availableModels = @[
         [TimerModel traditional4020],
-        [TimerModel suddenDeathG10],
         [TimerModel suddenDeathG30],
         [TimerModel mixed402G1],
         [TimerModel handicapB10W30],
@@ -88,13 +84,13 @@ static NSArray *availableModels;
     if (self = [super init]) {
         [self parseTypeString:typeString];
         self.timerType = timerType;
-        self.typeString = typeString;
+        _shortDescription = [typeString copy];
     }
     return self;
 }
 
 - (void)dealloc {
-    [_typeString release];
+    [_shortDescription release];
     [super dealloc];
 }
 
@@ -108,6 +104,14 @@ static NSArray *availableModels;
 - (NSString *)longDescription {
     return [NSString stringWithFormat:@"%@ timer: %d/%d, %d/%d",
             self.typeString, _primaryMoveLimit, _primaryTimeLimit, _secondaryMoveLimit, _secondaryTimeLimit];
+}
+
+- (NSString *)shortDescription {
+	return _shortDescription;
+}
+
+- (NSString *)typeString {
+	return [timerTypes objectAtIndex:_timerType];
 }
 
 @end

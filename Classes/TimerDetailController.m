@@ -7,6 +7,7 @@
 //
 
 #import "TimerDetailController.h"
+#import "TimerModel.h"
 
 @interface TimerDetailController ()
 
@@ -27,11 +28,19 @@
 {
     [super viewDidLoad];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+	typeLabel.text = _model.typeString;
+	shortDescriptionLabel.text = _model.shortDescription;
+	longDescriptionTextView.text = _model.longDescription;
+	
+	primaryTimeField.text = [NSString stringWithFormat:@"%d", _model.primaryTimeLimit];
+	primaryTimeStepper.value = _model.primaryTimeLimit;
+	primaryValueField.text = [NSString stringWithFormat:@"%d", _model.primaryMoveLimit];
+	primaryValueStepper.value = _model.primaryMoveLimit;
+
+	secondaryTimeField.text = [NSString stringWithFormat:@"%d", _model.secondaryTimeLimit];
+	secondaryTimeStepper.value = _model.secondaryTimeLimit;
+	secondaryValueField.text = [NSString stringWithFormat:@"%d", _model.secondaryMoveLimit];
+	secondaryValueStepper.value = _model.secondaryMoveLimit;
 }
 
 - (void)didReceiveMemoryWarning

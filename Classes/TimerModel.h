@@ -24,12 +24,14 @@ typedef enum TimerType {
 @property(nonatomic, assign) int secondaryMoveLimit;    // -1 if sudden death, or moves for secondary time limit
 @property(nonatomic, assign) int secondaryTimeLimit;    // same as primary time limit
 @property(nonatomic, assign) TimerType timerType;
-@property(nonatomic, retain) NSString *typeString;
+
+- (NSString *)longDescription;
+- (NSString *)shortDescription;
+- (NSString *)typeString;
 
 + (NSArray *)availableModels;
 + (void)initialize;
 
-- (NSString *)longDescription;
 - (id)initWithType:(TimerType)timerType fromString:(NSString *)typeString;
 
 @end
