@@ -80,11 +80,11 @@ static NSArray *availableModels;
     [self initializeAvailableModels];
 }
 
-- (id)initWithType:(TimerType)timerType fromString:(NSString *)typeString {
+- (id)initWithType:(TimerType)timerType fromString:(NSString *)descriptionString {
     if (self = [super init]) {
-        [self parseTypeString:typeString];
         self.timerType = timerType;
-        _shortDescription = [typeString copy];
+        [self parseDescription:descriptionString];
+        _shortDescription = [descriptionString copy];
     }
     return self;
 }
@@ -96,8 +96,58 @@ static NSArray *availableModels;
 
 #pragma mark description methods
 
-- (void)parseTypeString:(NSString *)typeString {
+- (void)parseDescription:(NSString *)descriptionString {
+    NSScanner *scanner = [[NSScanner alloc] initWithString:descriptionString];
+    NSCharacterSet *skipChars = [NSCharacterSet characterSetWithCharactersInString:@",/ "];
+    NSCharacterSet *labelChars = [NSCharacterSet characterSetWithCharactersInString:@"GTBW"];
+    NSString *parsedChar = @" ";
+    int intValue;
     
+    if ((_timerType == kTimerTypeRapidTransit) ||
+        (_timerType == kTimerTypeSuddenDeath)) {
+        [scanner scanCharactersFromSet:labelChars intoString:&parsedChar];
+        if ([parsedChar isEqualToString:@"G"]) {
+            _primaryMoveLimit = -1;
+        }
+    }
+    else {
+        [scanner scanInt:&_primaryMoveLimit];
+    }
+                                                  
+    [scanner scanCharactersFromSet:skipChars intoString:NULL];
+    [scanner scanInt:&intValue];
+    if (intValue < 10) {
+        intValue *= 60;
+    }
+    _primaryTimeLimit = intValue;
+    
+    // Rapid transit and sudden death do now have secondary values
+    if ((_timerType == kTimerTypeRapidTransit) ||
+        (_timerType == kTimerTypeSuddenDeath)) {
+        return;
+    }
+    
+    [scanner scanCharactersFromSet:skipChars intoString:NULL];
+
+    if ((_timerType == kTimerTypeRapidTransit) ||
+        (_timerType == kTimerTypeSuddenDeath) ||
+        (_timerType == kTimerTypeMixed)) {
+        [scanner scanCharactersFromSet:labelChars intoString:&parsedChar];
+        if ([parsedChar isEqualToString:@"G"]) {
+            _secondaryMoveLimit = -1;
+        }
+    }
+    else {
+        [scanner scanInt:&_secondaryMoveLimit];
+    }
+    
+    [scanner scanCharactersFromSet:skipChars intoString:NULL];
+    [scanner scanCharactersFromSet:skipChars intoString:NULL];
+    [scanner scanInt:&intValue];
+    if (intValue < 10) {
+        intValue *= 60;
+    }
+    _secondaryTimeLimit = intValue;
 }
 
 // TODO generate different descriptions based on timer type

@@ -1583,7 +1583,8 @@ static NSString *imageNames[12] = {
                                                         message:[move description]
                                                        delegate:self
                                               cancelButtonTitle:@"No thanks" otherButtonTitles:@"Accept", nil];
-        [suggestedMoveAlertView show];
+        
+        [suggestedMoveAlertView performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
         
         moveExpected = YES;
     }
