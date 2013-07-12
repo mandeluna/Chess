@@ -10,7 +10,9 @@
 
 @class TimerModel;
 
-@interface TimerSettingsController : UITableViewController
+@interface TimerSettingsController : UITableViewController {
+    IBOutlet UISwitch *timerToggleSwitch;
+}
 
 @property(nonatomic, retain) TimerModel *selectedTimer;
 

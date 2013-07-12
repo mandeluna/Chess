@@ -72,6 +72,9 @@
 		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
 		69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D353831257C6FF002E2FB9 /* MediaPlayer.framework */; };
 		69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F9E016126BC41B0025491A /* WaitingAlertView.m */; };
+		AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359C179053C40059A4EA /* checkmark20x14.png */; };
+		AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359D179053C40059A4EA /* checkmark40x28.png */; };
+		AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6D35A117906A110059A4EA /* TimerDetailController.m */; };
 		AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C1178F89BE00A54608 /* TimerSettingsController.m */; };
 		AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C4178F8B2700A54608 /* TimerModel.m */; };
 /* End PBXBuildFile section */
@@ -163,6 +166,10 @@
 		69F9E015126BC41B0025491A /* WaitingAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAlertView.h; sourceTree = "<group>"; };
 		69F9E016126BC41B0025491A /* WaitingAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAlertView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		AA6D359C179053C40059A4EA /* checkmark20x14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark20x14.png; sourceTree = "<group>"; };
+		AA6D359D179053C40059A4EA /* checkmark40x28.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark40x28.png; sourceTree = "<group>"; };
+		AA6D35A017906A110059A4EA /* TimerDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerDetailController.h; sourceTree = "<group>"; };
+		AA6D35A117906A110059A4EA /* TimerDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerDetailController.m; sourceTree = "<group>"; };
 		AADF04C0178F89BE00A54608 /* TimerSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerSettingsController.h; sourceTree = "<group>"; };
 		AADF04C1178F89BE00A54608 /* TimerSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerSettingsController.m; sourceTree = "<group>"; };
 		AADF04C3178F8B2700A54608 /* TimerModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerModel.h; sourceTree = "<group>"; };
@@ -355,6 +362,8 @@
 		69C4839A1218A3EF00089898 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				AA6D359C179053C40059A4EA /* checkmark20x14.png */,
+				AA6D359D179053C40059A4EA /* checkmark40x28.png */,
 				693018E0178E6A3B0089CDB4 /* timer20x20.png */,
 				693018E1178E6A3B0089CDB4 /* timer40x40.png */,
 				6935775E16472D7F00BEE7BC /* icon@2x.png */,
@@ -378,6 +387,8 @@
 				690A39ED125FEEFC00E1173B /* Settings.plist */,
 				AADF04C0178F89BE00A54608 /* TimerSettingsController.h */,
 				AADF04C1178F89BE00A54608 /* TimerSettingsController.m */,
+				AA6D35A017906A110059A4EA /* TimerDetailController.h */,
+				AA6D35A117906A110059A4EA /* TimerDetailController.m */,
 			);
 			name = Settings;
 			sourceTree = "<group>";
@@ -472,6 +483,8 @@
 				69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */,
 				693018E2178E6A3B0089CDB4 /* timer20x20.png in Resources */,
 				693018E3178E6A3B0089CDB4 /* timer40x40.png in Resources */,
+				AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */,
+				AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -502,6 +515,7 @@
 				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
 				AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */,
 				AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */,
+				AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
