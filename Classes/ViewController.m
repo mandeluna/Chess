@@ -96,7 +96,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 #pragma mark ===
 @implementation ViewController {	
-	__weak UIPopoverController *timerSettingsController;
+	UIPopoverController *timerSettingsController;
 }
 
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
@@ -397,8 +397,9 @@ static NSString *imageNames[12] = {
     [undoButton setEnabled:YES];
 
     [self validateGamePosition];
-	
+
 	[self updateBoardLabels:aBool];
+//  [self performSelectorOnMainThread:(@selector(updateBoardLabels:)) withObject:(aBool) waitUntilDone:(false)];
 }
 
 -(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare {

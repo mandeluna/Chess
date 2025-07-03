@@ -176,7 +176,8 @@ static int HashLocks[12][64];
     [_activePlayer applyMove:aMove];
     
     if (_userAgent) {
-        [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
+//      [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
+//      [_userAgent performSelectorOnMainThread:@selector(completedMove:) withObject:aMove waitUntilDone:false];
     }
     
     _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
