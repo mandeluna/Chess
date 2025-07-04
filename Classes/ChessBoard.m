@@ -11,7 +11,6 @@
 #import "ChessPlayerAI.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"
-#import "ChessUserAgent.h"
 
 #pragma mark Initialize
 
@@ -55,9 +54,6 @@ static int HashLocks[12][64];
     _blackPlayer.board = self;
     _activePlayer = _whitePlayer;
     [_searchAgent reset:self];
-    if (_userAgent) {
-        [_userAgent gameReset];
-    }
 }
 
 -(void)initializeNewBoard {
@@ -176,7 +172,7 @@ static int HashLocks[12][64];
     [_activePlayer applyMove:aMove];
     
     if (_userAgent) {
-//      [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
+      [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
 //      [_userAgent performSelectorOnMainThread:@selector(completedMove:) withObject:aMove waitUntilDone:false];
     }
     
@@ -203,7 +199,6 @@ static int HashLocks[12][64];
 #pragma mark Printing
 
 -(NSString *)description {
-    
     return [NSString stringWithFormat:@"%@ (%d %d)", [super description], _hashKey, _hashLock];
 }
 
