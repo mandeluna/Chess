@@ -82,7 +82,7 @@
     if (!boardList) {
       NSMutableArray *boards = [NSMutableArray arrayWithCapacity:NUM_MOVES];
       for (int i=0; i<NUM_MOVES; i++) {
-        ChessBoard *newBoard = [ChessBoard initializeWithBoard:aBoard];
+        ChessBoard *newBoard = [aBoard copy];
         [boards addObject:newBoard];
       }
       boardListIndex = 0;
@@ -191,7 +191,7 @@
     if (nil == moveList)
         return nil;
     
-//    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
+    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
@@ -715,7 +715,7 @@
 }
 
 -(void)thinkThread {
-    
+  @autoreleasepool {
     isThinking = YES;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"StartedThinking" object:nil];
     
@@ -762,6 +762,7 @@
     }
     isThinking = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
+  }
 }
 
 //

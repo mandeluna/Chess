@@ -3,3 +3,4 @@
 //
 
 #import "ChessBoard.h"
+#import "ChessPlayerAI.h"

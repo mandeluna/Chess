@@ -29,8 +29,9 @@ enum {
 
 #define kNullMove    0
 
-@interface ChessMove : NSObject {
-    int movingPiece;
+@interface ChessMove : NSObject <NSCopying> {
+
+  int movingPiece;
     int capturedPiece;
     int sourceSquare;
     int destinationSquare;
@@ -39,13 +40,16 @@ enum {
     int bestMove;
 }
 
-@property(nonatomic, readonly) int bestMove;
+@property(nonatomic, assign) int bestMove;
 @property(nonatomic, assign) int capturedPiece;
 @property(nonatomic, assign) int destinationSquare;
 @property(nonatomic, assign) int moveType;
 @property(nonatomic, assign) int movingPiece;
 @property(nonatomic, assign) int sourceSquare;
 @property(nonatomic, assign) int value;
+
+// ARC support
+-(ChessMove *)initializeWithMove:(ChessMove *)move;
 
 // class methods
 
@@ -68,10 +72,6 @@ enum {
 
 -(int)encodedMove;
 -(int)promotion;
-
-// copying
-
--(id)copyWithZone:(NSZone *)zone;
 
 // comparing
 

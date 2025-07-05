@@ -50,6 +50,9 @@ func run(_ source: String) {
       if ("show".elementsEqual(token.lexeme)) {
         print(board)
       }
+      else if ("go".elementsEqual(token.lexeme)) {
+        board.searchAgent.startThinking()
+      }
     default:
       // do not print anything for unrecognized tokens
       break

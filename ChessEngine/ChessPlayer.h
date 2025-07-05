@@ -35,6 +35,9 @@
 @property(nonatomic, readonly) int positionalValue;
 @property(nonatomic, readonly) int numPawns;
 
+// instance creation
+-(ChessPlayer *)initializeWithPlayer:(ChessPlayer *)player;
+
 // initialize
 
 -(void)prepareNextMove;
@@ -76,7 +79,6 @@
 
 // copying
 
--(id)copyWithZone:(NSZone *)zone;
 -(void)copyPlayer:(ChessPlayer *)anotherPlayer;
 
 // evaluation

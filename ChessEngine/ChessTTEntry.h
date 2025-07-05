@@ -24,6 +24,7 @@
 @property(nonatomic, assign) int hashLock;
 @property(nonatomic, assign) int timeStamp;
 
+-(ChessTTEntry *)initializeWithEntry:(ChessTTEntry *)entry;
 -(void)clear;
 
 @end

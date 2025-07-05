@@ -98,9 +98,20 @@ static int PieceCenterScores[7][64] = {
     return self;
 }
 
--(void)dealloc {
-    free(pieces);
-    pieces = nil;
+-(ChessPlayer *)initializeWithPlayer:(ChessPlayer *)player {
+  [self init];
+  
+  memcpy(pieces, player.pieces, 64 * sizeof(unsigned char));
+  opponent = player.opponent;
+  board = player.board;
+  materialValue = player.materialValue;
+  positionalValue = player.positionalValue;
+  numPawns = player.numPawns;
+  enpassantSquare = player.enpassantSquare;
+  castlingRookSquare = player.castlingRookSquare;
+  castlingStatus = player.castlingStatus;
+  
+  return self;
 }
 
 //
@@ -435,6 +446,24 @@ static int PieceCenterScores[7][64] = {
 -(BOOL)isWhitePlayer {
     
     return ([board whitePlayer] == self);
+}
+
+#pragma mark copying
+
+-(void)postCopy {
+    unsigned char *piecesCopy = calloc(64, sizeof(unsigned char));
+    
+    memcpy(piecesCopy, pieces, 64 * sizeof(char));
+    pieces = piecesCopy;
+}
+
+// shallow copy
+-(id)copyWithZone:(NSZone *)zone {
+    
+  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
+  [copy postCopy];
+  
+  return copy;
 }
 
 //

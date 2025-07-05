@@ -41,11 +41,6 @@ static int HashLocks[12][64];
     [self initializeHashKeys];
 }
 
-+(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
-  ChessBoard *newBoard = [[ChessBoard alloc] initializeWithBoard: aBoard];
-  return newBoard;
-}
-
 -(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
   ChessBoard *board = [self init];
   
@@ -100,6 +95,31 @@ static int HashLocks[12][64];
     _generator = aBoard.generator;
     
     return self;
+}
+
+-(void)postCopy {
+  if (_activePlayer == _whitePlayer) {
+    _whitePlayer = [_whitePlayer copy];
+    _blackPlayer = [_blackPlayer copy];
+    _activePlayer = _whitePlayer;
+  }
+  else {
+    _whitePlayer = [_whitePlayer copy];
+    _blackPlayer = [_blackPlayer copy];
+    _activePlayer = _blackPlayer;
+  }
+  
+  _whitePlayer.opponent = _blackPlayer;
+  _blackPlayer.opponent = _whitePlayer;
+  _whitePlayer.board = self;
+  _blackPlayer.board = self;
+}
+
+// deep copy
+-(id)copyWithZone:(NSZone *)zone {
+  ChessBoard *copy = [[ChessBoard alloc] initializeWithBoard:self];
+  [copy postCopy];
+  return copy;
 }
 
 #pragma mark Hashing

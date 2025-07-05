@@ -13,6 +13,20 @@
 
 @synthesize bestMove, capturedPiece, destinationSquare, moveType=type, movingPiece, sourceSquare, value;
 
+-(ChessMove *)initializeWithMove:(ChessMove *)move {
+  ChessMove *newMove = [self init];
+  
+  newMove.bestMove = move.bestMove;
+  newMove.capturedPiece = move.capturedPiece;
+  newMove.destinationSquare = move.destinationSquare;
+  newMove.moveType = move.moveType;
+  newMove.movingPiece = move.movingPiece;
+  newMove.sourceSquare = move.sourceSquare;
+  newMove.value = move.value;
+  
+  return newMove;
+}
+
 #pragma mark (Class) Accessing
 
 +(ChessMove *)decodeFrom:(int)encodedMove {
@@ -182,6 +196,13 @@ static ChessMove *NullMove = nil;
     destinationSquare = 0;
     type = kMoveStaleMate;
     capturedPiece = 0;
+}
+
+#pragma mark copying
+
+// shallow copy
+-(id)copyWithZone:(NSZone *)zone {
+  return [[ChessMove alloc] initializeWithMove:self];
 }
 
 #pragma mark Comparing
