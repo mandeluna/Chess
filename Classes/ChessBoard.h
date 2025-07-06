@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ChessUserAgent.h"
 
 @class ChessMoveGenerator;
 @class ChessPlayer;
@@ -21,11 +20,11 @@
 @property(nonatomic, retain) ChessPlayer *whitePlayer;
 @property(nonatomic, retain) ChessPlayer *blackPlayer;
 @property(nonatomic, assign) ChessPlayer *activePlayer;
-@property(nonatomic, assign) id<ChessUserAgent> userAgent;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, assign) ChessPlayerAI *searchAgent;
 @property(nonatomic, assign) int hashKey;
 @property(nonatomic, assign) int hashLock;
+@property(nonatomic, assign) BOOL hasUserAgent;
 
 
 // initialize

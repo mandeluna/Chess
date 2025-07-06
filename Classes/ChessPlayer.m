@@ -11,6 +11,7 @@
 #import "ChessMove.h"
 #import "ChessMoveGenerator.h"
 #import "ChessMoveList.h"
+#import "NSNotificationCenter+MainThread.h"
 
 // piece values
 
@@ -138,19 +139,21 @@ static int PieceCenterScores[7][64] = {
 
 -(void)addPiece:(int)piece at:(int)square {
     
-    pieces[square] = piece;
-    materialValue += PieceValues[piece];
-    positionalValue += PieceCenterScores[piece][square];
-    
-    if (kPawn == piece) {
-        numPawns++;
-    }
-    
-    [board updateHash:piece at:square from:self];
-    
-    if ([self userAgent]) {
-        [[self userAgent] addedPiece:piece at:square white:[self isWhitePlayer]];
-    }
+  pieces[square] = piece;
+  materialValue += PieceValues[piece];
+  positionalValue += PieceCenterScores[piece][square];
+  
+  if (kPawn == piece) {
+      numPawns++;
+  }
+  
+  [board updateHash:piece at:square from:self];
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:self.isWhitePlayer] };
+    NSString *notificationName = self.isWhitePlayer ? @"AddedPiece" : @"AddedPiece";
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:notificationName object:description];
+  }
 }
 
 -(void)addWhitePieces {
@@ -171,18 +174,19 @@ static int PieceCenterScores[7][64] = {
 
 -(void)movePiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
     
-    int *score = PieceCenterScores[piece];
-    positionalValue -= score[sourceSquare];
-    positionalValue += score[destSquare];
-    pieces[sourceSquare] = 0;
-    pieces[destSquare] = piece;
+  int *score = PieceCenterScores[piece];
+  positionalValue -= score[sourceSquare];
+  positionalValue += score[destSquare];
+  pieces[sourceSquare] = 0;
+  pieces[destSquare] = piece;
+  
+  [board updateHash:piece at:sourceSquare from:self];
+  [board updateHash:piece at:destSquare from:self];
     
-    [board updateHash:piece at:sourceSquare from:self];
-    [board updateHash:piece at:destSquare from:self];
-    
-    if ([self userAgent]) {
-        [[self userAgent] movedPiece:piece from:sourceSquare to:destSquare];
-    }
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece" : [NSNumber numberWithInt:piece], @"from": [NSNumber numberWithInt:sourceSquare], @"to" : [NSNumber numberWithInt:destSquare] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"MovedPiece" object:description];
+  }
 }
 
 -(void)removePiece:(int)piece at:(int)square {
@@ -193,16 +197,17 @@ static int PieceCenterScores[7][64] = {
     
     if (kPawn == piece) {
         numPawns--;
-        if (board.userAgent) {
-            NSLog(@"black has %d pawns, white has %d pawns", board.blackPlayer->numPawns, board.whitePlayer->numPawns);
+        if (board.hasUserAgent) {
+          NSLog(@"black has %d pawns, white has %d pawns", board.blackPlayer->numPawns, board.whitePlayer->numPawns);
         }
     }
     
     [board updateHash:piece at:square from:self];
     
-    if ([self userAgent]) {
-        [[self userAgent] removedPiece:piece at:square];
-    }
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"RemovedPiece" object:description];
+  }
 }
 
 -(void)replacePiece:(int)oldPiece with:(int)newPiece at:(int)square {
@@ -223,9 +228,10 @@ static int PieceCenterScores[7][64] = {
     [board updateHash:oldPiece at:square from:self];
     [board updateHash:newPiece at:square from:self];
     
-    if ([self userAgent]) {
-        [[self userAgent] replacedPiece:oldPiece with:newPiece at:square white:[self isWhitePlayer]];
-    }
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"old": [NSNumber numberWithInt:oldPiece], @"new" : [NSNumber numberWithInt:newPiece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:[self isWhitePlayer]] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"ReplacedPiece" object:description];
+  }
 }
 
 #pragma mark moving
@@ -269,13 +275,6 @@ static int PieceCenterScores[7][64] = {
     
     int type = [move moveType] & kBasicMoveMask;
     
-    if (board.userAgent) {
-        NSLog(@"applying move %@ type=%d", move, type);
-        if (type == 4) {
-            NSLog(@"castling");
-        }
-    }
-    
     switch(type) {
         case kMoveNormal:
             [self applyNormalMove:move];
@@ -315,9 +314,6 @@ static int PieceCenterScores[7][64] = {
     int piece = [move capturedPiece];
     
     if (kEmptySquare != piece) {
-        if (board.userAgent) {
-            NSLog(@"removing piece");
-        }
         [opponent removePiece:piece at:[move destinationSquare]];
     }
     
@@ -335,25 +331,24 @@ static int PieceCenterScores[7][64] = {
 
 -(void)applyResign:(ChessMove *)move {
     
-    if ([self userAgent]) {
-        [[self userAgent] finishedGame:![self isWhitePlayer]];
-    }
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"white": [NSNumber numberWithBool:[self isWhitePlayer]] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"FinishedGame" object:description];
+  }
 }
 
 -(void)applyStaleMate:(ChessMove *)move {
     
-    if ([self userAgent]) {
-        [[self userAgent] finishedGame:0.5];
-    }
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"stalemate": @YES };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"FinishedGame" object:description];
+  }
 }
 
 -(void)updateCastlingStatus:(ChessMove *)move {
     
     // cannot castle when king has moved
     if (kKing == [move movingPiece]) {
-        if (board.userAgent) {
-            NSLog(@"moving the king");
-        }
         castlingStatus |= kCastlingDisableAll;
         return;
     }
@@ -383,9 +378,8 @@ static int PieceCenterScores[7][64] = {
 
 #pragma mark accessing
 
--(id<ChessUserAgent>) userAgent {
-    
-    return [board userAgent];
+-(BOOL) hasUserAgent {
+  return [board hasUserAgent];
 }
 
 -(int)pieceAt:(int)square {

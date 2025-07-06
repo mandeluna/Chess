@@ -13,8 +13,6 @@
 #import "Picker.h"
 #import "TCPServer.h"
 
-#import "ChessUserAgent.h"
-
 @class ChessBoard;
 @class ChessPieceLayer;
 @class SquareLayer;
@@ -95,7 +93,7 @@ typedef struct {
 } GameMessage;
 
 
-@interface ViewController : UIViewController <ChessUserAgent, UIActionSheetDelegate,
+@interface ViewController : UIViewController <UIActionSheetDelegate,
 	UIPopoverControllerDelegate,
 	BrowserViewControllerDelegate, TCPServerDelegate, NSStreamDelegate,
 														GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate>
@@ -207,13 +205,14 @@ typedef enum {
 
 // chess user agent
 
+-(void)finishedGame:(NSNotification *)notification;
+
 -(void)gameReset;
 -(void)addedPiece:(int)piece at:(int)square white:(BOOL)isWhitePlayer;
 -(void)completedMove:(ChessMove *)move white:(BOOL)aBool;
 -(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare;
 -(void)removedPiece:(int)piece at:(int)square;
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer;
--(void)finishedGame:(BOOL)result;
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
 -(void)validateGamePosition;
 

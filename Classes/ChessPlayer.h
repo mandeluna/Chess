@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ChessUserAgent.h"
 
 @class ChessBoard;
 @class ChessMove;
@@ -64,7 +63,6 @@
 
 // accessing
 
--(id<ChessUserAgent>) userAgent;
 -(int)pieceAt:(int)square;
 -(unsigned char *)pieces;
 
@@ -75,6 +73,7 @@
 -(BOOL)isValidMove:(ChessMove *)move;
 -(BOOL)isValidMoveFrom:(int)sourceSquare to:(int)destSquare;
 -(BOOL)isWhitePlayer;
+-(BOOL)hasUserAgent;
 
 // copying
 

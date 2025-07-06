@@ -86,7 +86,7 @@ static int HashLocks[12][64];
     _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
     _hashKey = [aBoard hashKey];
     _hashLock = [aBoard hashLock];
-    _userAgent = nil;
+    _hasUserAgent = NO;
     _searchAgent = [aBoard.searchAgent retain];
     _generator = [aBoard.generator retain];
     
@@ -112,7 +112,7 @@ static int HashLocks[12][64];
     _blackPlayer.opponent = _whitePlayer;
     _whitePlayer.board = self;
     _blackPlayer.board = self;
-    self.userAgent = nil;
+    self.hasUserAgent = NO;
 }
 
 -(id)copyWithZone:(NSZone *)zone {
@@ -169,13 +169,14 @@ static int HashLocks[12][64];
 
 -(void)nextMove:(ChessMove *)aMove {
     
-    [_activePlayer applyMove:aMove];
-    
-    if (_userAgent) {
-      [_userAgent completedMove:aMove white:[_activePlayer isWhitePlayer]];
-//      [_userAgent performSelectorOnMainThread:@selector(completedMove:) withObject:aMove waitUntilDone:false];
-    }
-    
+  [_activePlayer applyMove:aMove];
+
+  if (self.hasUserAgent) {
+    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+    NSNotification *notification = [NSNotification notificationWithName:@"CompletedMove" object:description];
+    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+  }
+  
     _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
     [_activePlayer prepareNextMove];
 }
@@ -188,12 +189,14 @@ static int HashLocks[12][64];
 
 -(void)undoMove:(ChessMove *)aMove {
     
-    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-    [_activePlayer undoMove:aMove];
-    
-    if (_userAgent) {
-        [_userAgent undoMove:aMove white:_activePlayer.isWhitePlayer];
-    }
+  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+  [_activePlayer undoMove:aMove];
+
+  if (self.hasUserAgent) {
+    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+    NSNotification *notification = [NSNotification notificationWithName:@"UndoMove" object:description];
+    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+  }
 }
 
 #pragma mark Printing
@@ -201,7 +204,6 @@ static int HashLocks[12][64];
 -(NSString *)description {
     return [NSString stringWithFormat:@"%@ (%d %d)", [super description], _hashKey, _hashLock];
 }
-
 
 -(void)printWhitePieces {
     printf("\n ==== white ====");

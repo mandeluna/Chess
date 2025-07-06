@@ -379,6 +379,14 @@ static NSString *imageNames[12] = {
     [CATransaction commit];
 }
 
+-(void)addedPiece:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  NSNumber *piece = [description objectForKey:@"piece"];
+  NSNumber *square = [description objectForKey:@"square"];
+  NSNumber *white = [description objectForKey:@"white"];
+  [self addedPiece:[piece intValue] at:[square intValue] white:[white boolValue]];
+}
+
 -(void)addedPiece:(int)piece at:(int)square white:(BOOL)isWhite {
     
     ChessPieceLayer *m = [[self newPiece:piece white:isWhite] autorelease];
@@ -388,18 +396,31 @@ static NSString *imageNames[12] = {
     s.pieceLayer = m;
 }
 
+-(void)completedMove:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  ChessMove *move = [description objectForKey:@"move"];
+  NSNumber *white = [description objectForKey:@"white"];
+  [self completedMove:move white:[white boolValue]];
+}
+
 -(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
     
-    if (!board)
-        return;
-    
-    [history addObject:move];
-    [undoButton setEnabled:YES];
+  if (!board)
+      return;
+  
+  [history addObject:move];
+  [undoButton setEnabled:YES];
 
-    [self validateGamePosition];
-
+  [self validateGamePosition];
 	[self updateBoardLabels:aBool];
-//  [self performSelectorOnMainThread:(@selector(updateBoardLabels:)) withObject:(aBool) waitUntilDone:(false)];
+}
+
+-(void)movedPiece:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  NSNumber *piece = [description objectForKey:@"piece"];
+  NSNumber *from = [description objectForKey:@"from"];
+  NSNumber *to = [description objectForKey:@"to"];
+  [self movedPiece:[piece intValue] from:[from intValue] to:[to intValue]];
 }
 
 -(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
@@ -413,12 +434,28 @@ static NSString *imageNames[12] = {
     destSquareLayer.pieceLayer = sourceLayer;
 }
 
+-(void)removedPiece:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  NSNumber *piece = [description objectForKey:@"piece"];
+  NSNumber *square = [description objectForKey:@"square"];
+  [self removedPiece:[piece intValue] at:[square intValue]];
+}
+
 -(void)removedPiece:(int)piece at:(int)square {
     
     SquareLayer *squareLayer = [squares objectAtIndex:square];
     [squareLayer.pieceLayer removeFromSuperlayer];
     [squareLayer setNeedsDisplay];
     squareLayer.pieceLayer = nil;
+}
+
+-(void)replacedPiece:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  NSNumber *old = [description objectForKey:@"old"];
+  NSNumber *new = [description objectForKey:@"new"];
+  NSNumber *square = [description objectForKey:@"square"];
+  NSNumber *white = [description objectForKey:@"white"];
+  [self replacedPiece:[old intValue] with:[new intValue] at:[square intValue] white:[white boolValue]];
 }
 
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer {
@@ -432,9 +469,19 @@ static NSString *imageNames[12] = {
 // result == 0.5 : draw
 // result == 1   : white won
 //
--(void)finishedGame:(BOOL)result {
-    
-    self.board = nil;
+-(void)finishedGame:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  NSNumber *white = [description objectForKey:@"white"];
+  NSNumber *stalemate = [description objectForKey:@"stalemate"];
+
+  self.board = nil;
+}
+
+-(void)undoMove:(NSNotification *)notification {
+  NSDictionary *description = notification.object;
+  ChessMove *move = [description objectForKey:@"move"];
+  NSNumber *white = [description objectForKey:@"white"];
+  [self undoMove:move white:[white boolValue]];
 }
 
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer {
@@ -596,24 +643,24 @@ static NSString *imageNames[12] = {
 
 -(void)applyStartNewGame {
     
-    if (!board) {
-        ChessBoard *newBoard = [[ChessBoard alloc] init];
-        [newBoard resetGame];
-        self.board = newBoard;
-        [newBoard release];
-    }
-    board.userAgent = self;
-    [board initializeNewBoard];
-    self.history = [NSMutableArray array];
-    self.redoList = [NSMutableArray array];
-    
-    playerRandomChoice = 0;
-    opponentRandomChoice = 0;
-    
-    [undoButton setEnabled:NO];
-    [redoButton setEnabled:NO];
-    
-    [self validateGamePosition];
+  if (!board) {
+    ChessBoard *newBoard = [[ChessBoard alloc] init];
+    [newBoard resetGame];
+    newBoard.hasUserAgent = YES;
+    self.board = newBoard;
+    [newBoard release];
+  }
+  [board initializeNewBoard];
+  self.history = [NSMutableArray array];
+  self.redoList = [NSMutableArray array];
+  
+  playerRandomChoice = 0;
+  opponentRandomChoice = 0;
+  
+  [undoButton setEnabled:NO];
+  [redoButton setEnabled:NO];
+  
+  [self validateGamePosition];
 }
 
 -(IBAction)newGame {
@@ -1615,33 +1662,39 @@ static NSString *imageNames[12] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
-    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startedThinking)
-                                                 name:@"StartedThinking" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(stoppedThinking)
-                                                 name:@"StoppedThinking" object:nil];
+  CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
+  [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
-    animateMove = NO;
-    autoPlay = NO;
-    
-    // initial view with white at the bottom of the board
-    boardDirection = 1.0;
-    gameScale = 1.0;
-    boardScale = 0.925;
-    gameState = kGameStateNotStarted;
-    
-    [self addBoardLayer];
-    [self addSquares];
-    [self addLabels];
+  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+  
+  [notificationCenter addObserver:self selector:@selector(startedThinking) name:@"StartedThinking" object:nil];
+  [notificationCenter addObserver:self selector:@selector(stoppedThinking) name:@"StoppedThinking" object:nil];
 
-    [self updateBoardTransforms];
-    [self startNewGame];
-    
-    // TODO: this should be cleaned up in viewDidUnload
-    currentMessageBuffer = [[NSMutableData alloc] initWithLength:0];
-    currentMessageHeader = NULL;    
+  [notificationCenter addObserver:self selector:@selector(gameReset) name:@"GameReset" object:nil];
+  [notificationCenter addObserver:self selector:@selector(addedPiece:) name:@"AddedPiece" object:nil];
+  [notificationCenter addObserver:self selector:@selector(completedMove:) name:@"CompletedMove" object:nil];
+  [notificationCenter addObserver:self selector:@selector(movedPiece:) name:@"MovedPiece" object:nil];
+  [notificationCenter addObserver:self selector:@selector(removedPiece:) name:@"RemovedPiece" object:nil];
+  [notificationCenter addObserver:self selector:@selector(replacedPiece:) name:@"ReplacedPiece" object:nil];
+  [notificationCenter addObserver:self selector:@selector(finishedGame:) name:@"FinishedGame" object:nil];
+  [notificationCenter addObserver:self selector:@selector(undoMove:) name:@"UndoMove" object:nil];
+  [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
+  
+  boardDirection = 1.0;
+  gameScale = 1.0;
+  boardScale = 0.925;
+  gameState = kGameStateNotStarted;
+  
+  [self addBoardLayer];
+  [self addSquares];
+  [self addLabels];
+
+  [self updateBoardTransforms];
+  [self startNewGame];
+  
+  // TODO: this should be cleaned up in viewDidUnload
+  currentMessageBuffer = [[NSMutableData alloc] initWithLength:0];
+  currentMessageHeader = NULL;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

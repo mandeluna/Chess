@@ -75,6 +75,7 @@
 		AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359C179053C40059A4EA /* checkmark20x14.png */; };
 		AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359D179053C40059A4EA /* checkmark40x28.png */; };
 		AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6D35A117906A110059A4EA /* TimerDetailController.m */; };
+		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C1178F89BE00A54608 /* TimerSettingsController.m */; };
 		AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C4178F8B2700A54608 /* TimerModel.m */; };
 /* End PBXBuildFile section */
@@ -162,7 +163,6 @@
 		6942F9DF122097EA002E59B5 /* ChessPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPlayer.m; sourceTree = "<group>"; };
 		6942FA2212209E99002E59B5 /* ChessHistoryTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessHistoryTable.h; sourceTree = "<group>"; };
 		6942FA2312209E99002E59B5 /* ChessHistoryTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessHistoryTable.m; sourceTree = "<group>"; };
-		6942FA2B12209F36002E59B5 /* ChessUserAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessUserAgent.h; sourceTree = "<group>"; };
 		6942FA6A1220A569002E59B5 /* ChessPieceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessPieceLayer.h; sourceTree = "<group>"; };
 		6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPieceLayer.m; sourceTree = "<group>"; };
 		6942FA7C1220A629002E59B5 /* ChessMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMove.h; sourceTree = "<group>"; };
@@ -192,6 +192,8 @@
 		AA6D359D179053C40059A4EA /* checkmark40x28.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark40x28.png; sourceTree = "<group>"; };
 		AA6D35A017906A110059A4EA /* TimerDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerDetailController.h; sourceTree = "<group>"; };
 		AA6D35A117906A110059A4EA /* TimerDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerDetailController.m; sourceTree = "<group>"; };
+		AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+MainThread.h"; sourceTree = "<group>"; };
+		AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+MainThread.m"; sourceTree = "<group>"; };
 		AADF04C0178F89BE00A54608 /* TimerSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerSettingsController.h; sourceTree = "<group>"; };
 		AADF04C1178F89BE00A54608 /* TimerSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerSettingsController.m; sourceTree = "<group>"; };
 		AADF04C3178F8B2700A54608 /* TimerModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerModel.h; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				AA887B8B2E1B12A2002AA7A4 /* Extensions */,
 				690A3D0212623DFF00E1173B /* GameKit Support */,
 				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
@@ -360,7 +363,6 @@
 				690E50EC123417E600DC1CED /* SquareLayer.m */,
 				28D7ACF60DDB3853001CB0EB /* ViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* ViewController.m */,
-				6942FA2B12209F36002E59B5 /* ChessUserAgent.h */,
 				69F9E015126BC41B0025491A /* WaitingAlertView.h */,
 				69F9E016126BC41B0025491A /* WaitingAlertView.m */,
 			);
@@ -435,6 +437,15 @@
 				AA6D35A117906A110059A4EA /* TimerDetailController.m */,
 			);
 			name = Settings;
+			sourceTree = "<group>";
+		};
+		AA887B8B2E1B12A2002AA7A4 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */,
+				AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -612,6 +623,7 @@
 				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
 				AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */,
 				AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */,
+				AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */,
 				AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

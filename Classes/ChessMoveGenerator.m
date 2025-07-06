@@ -1268,10 +1268,6 @@ static PossibleMoveList KnightMoves[64];
             ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
             [move move:piece from:square to:destSquare capture:capture];
             
-//            if ([myPlayer.board userAgent] && (piece == kQueen)) {
-//                NSLog(@"queen move: %@", move);
-//            }
-            
             if (kKing == capture) {
                 kingAttack = [moveList objectAtIndex:lastMoveIndex];
             }

@@ -15,6 +15,7 @@
 #import "ChessMoveGenerator.h"
 #import "ChessTTEntry.h"
 #import "ChessTranspositionTable.h"
+#import "NSNotificationCenter+MainThread.h"
 
 #define kAlphaBetaGiveUp        (-29990)
 #define kAlphaBetaIllegal       (-31000)
@@ -85,7 +86,6 @@
         NSMutableArray *boards = [NSMutableArray arrayWithCapacity:NUM_MOVES];
         for (int i=0; i<NUM_MOVES; i++) {
             ChessBoard *newBoard = [aBoard copy];
-            [newBoard setUserAgent:nil];
             [boards addObject:newBoard];
             [newBoard release];
         }
@@ -746,56 +746,56 @@
 
 -(void)thinkThread {
     
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-    isThinking = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"StartedThinking" object:nil];
-    
-    stopThinking = NO;
-    int score = [board.activePlayer evaluate];
-    int depth = 1;
-    stamp++;
-    ply = 0;
-    [historyTable clear];
-    [transTable clear];
-    
-    startTime = [[NSDate date] timeIntervalSince1970];
-    NSLog(@"Started thinking");
-    nodesVisited = ttHits = alphaBetaCuts = 0;
-    bestVariation[0] = 0;
-    activeVariation[0] = 0;
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  
+  isThinking = YES;
+  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+  
+  stopThinking = NO;
+  int score = [board.activePlayer evaluate];
+  int depth = 1;
+  stamp++;
+  ply = 0;
+  [historyTable clear];
+  [transTable clear];
+  
+  startTime = [[NSDate date] timeIntervalSince1970];
+  NSLog(@"Started thinking");
+  nodesVisited = ttHits = alphaBetaCuts = 0;
+  bestVariation[0] = 0;
+  activeVariation[0] = 0;
 
-    while (nodesVisited < 50000) {
-        
-        ChessMove *theMove = nil;
-        
-        if (useNegaScout) {
-            theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
-        }
-        else {
-            theMove = [self mtdfSearch:board score:score depth:depth];
-        }
-        
-        if (!theMove /* || stopThinking */) {
-            // the clock has run out. take the best move we have
-            isThinking = NO;
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
-            return;
-        }
-        
-        myMove = theMove;
-        // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
-        for (int i=0; i<VARIATIONS_SIZE; i++) {
-            bestVariation[i] = activeVariation[i];
-        }
-        
-        score = theMove.value;
-        depth++;
-    }
-    isThinking = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
+  while (nodesVisited < 50000) {
+      
+    ChessMove *theMove = nil;
     
-    [pool release];
+    if (useNegaScout) {
+      theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+    }
+    else {
+      theMove = [self mtdfSearch:board score:score depth:depth];
+    }
+    
+    if (!theMove /* || stopThinking */) {
+      // the clock has run out. take the best move we have
+      isThinking = NO;
+      [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+      return;
+    }
+    
+    myMove = theMove;
+    // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
+    for (int i=0; i<VARIATIONS_SIZE; i++) {
+      bestVariation[i] = activeVariation[i];
+    }
+    
+    score = theMove.value;
+    depth++;
+  }
+  isThinking = NO;
+  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+    
+  [pool release];
 }
 
 //
