@@ -1,9 +1,5 @@
 //
-<<<<<<< HEAD
-//  NSNotificationCenter.m
-=======
 //  NSNotificationCenter+MainThread.m
->>>>>>> c2bb170 (Resolved issues with UI updates from background thread)
 //  Chess
 //
 //  Created by Steve Wart on 2025-07-06.
@@ -31,8 +27,4 @@
 	[self postNotificationOnMainThread:notification];
 }
  
-<<<<<<< HEAD
 @end
-=======
-@end
->>>>>>> c2bb170 (Resolved issues with UI updates from background thread)
