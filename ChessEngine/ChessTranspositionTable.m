@@ -31,14 +31,25 @@
 -(id)initWithBits:(int)nBits {
     if (self = [super init]) {
         int capacity = 1<<nBits;
-        
+
         array = [NSMutableArray arrayWithCapacity:capacity];
         used = [NSMutableArray arrayWithCapacity:50000];
+#if !__has_feature(objc_arc)
+    [array retain];
+    [used retain];
+#endif
         ChessTTEntry *entry = [[ChessTTEntry alloc] init];
         [entry clear];
         for (int i=0; i<capacity; i++) {
-            [array addObject:[entry copy]];
+            ChessTTEntry *copy = [entry copy];
+            #if !__has_feature(objc_arc)
+                [copy autorelease];
+            #endif
+            [array addObject:copy];
         }
+        #if !__has_feature(objc_arc)
+        [entry release];
+        #endif
         collisions = 0;
     }
     return self;
@@ -47,7 +58,7 @@
 -(void)storeBoard:(ChessBoard *)aBoard value:(int)value type:(int)valueType depth:(int)depth stamp:(int)timeStamp {
     int key = [aBoard hashKey] & ([array count] - 1);
     ChessTTEntry *entry = [array objectAtIndex:key];
-    
+
     if (-1 == entry.valueType) {
         [used addObject:entry];
     }
@@ -56,16 +67,16 @@
             collisions++;
         }
     }
-    
-//    (entry valueType = -1 
+
+//    (entry valueType = -1
 //     or:[entry depth <= depth
 //         or:[entry timeStamp < timeStamp]]) ifFalse:[^self].
-    
+
     if (entry.valueType != -1) return;
     if (entry.depth > depth) return;
     if (entry.timeStamp >= timeStamp) return;
-    
-    
+
+
     entry.hashLock = aBoard.hashLock;
     entry.value = value;
     entry.valueType = valueType;
@@ -73,22 +84,31 @@
     entry.timeStamp = timeStamp;
 }
 
+#if !__has_feature(objc_arc)
+-(void)dealloc {
+
+    [super dealloc];
+    [array release];
+    [used release];
+}
+#endif
+
 #pragma mark lookup
 
 -(ChessTTEntry *)lookupBoard:(ChessBoard *)aBoard {
-    
+
     int key = [aBoard hashKey] & ([array count] - 1);
     ChessTTEntry *entry = [array objectAtIndex:key];
-    
+
     if (nil == entry)
         return nil;
-    
+
     if (-1 == entry.valueType)
         return nil;
-    
+
     if (entry.hashLock != aBoard.hashLock)
         return nil;
-    
+
     return entry;
 }
 

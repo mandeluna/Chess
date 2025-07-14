@@ -26,8 +26,8 @@
     int castlingStatus;
 }
 
-@property(nonatomic, retain) ChessPlayer *opponent;
-@property(nonatomic, retain) ChessBoard *board;
+@property(nonatomic, assign) ChessPlayer *opponent;
+@property(nonatomic, assign) ChessBoard *board;
 @property(nonatomic, readonly) int castlingRookSquare;
 @property(nonatomic, readonly) int castlingStatus;
 @property(nonatomic, readonly) int enpassantSquare;

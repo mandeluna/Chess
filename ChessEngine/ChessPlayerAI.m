@@ -15,6 +15,7 @@
 #import "ChessMoveGenerator.h"
 #import "ChessTTEntry.h"
 #import "ChessTranspositionTable.h"
+#import "NSNotificationCenter+MainThread.h"
 
 #define kAlphaBetaGiveUp        (-29990)
 #define kAlphaBetaIllegal       (-31000)
@@ -39,57 +40,73 @@
 #pragma mark initialize
 
 + (void)initialize{
-    
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSDictionary *appDefaults = [NSDictionary
                                  dictionaryWithObject:[NSNumber numberWithBool:YES]
                                  forKey:@"UseNegaScout"];
-    
+
     [defaults registerDefaults:appDefaults];
 }
 
 -(id)init {
-    
+
     if (self = [super init]) {
         historyTable = [[ChessHistoryTable alloc] init];
         nodesVisited = ttHits = alphaBetaCuts = stamp = 0;
         useNegaScout = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseNegaScout"];
         [self reset];
     }
-    
+
     return self;
 }
 
 -(void)setActivePlayer:(ChessPlayer *)aPlayer {
-    
+
     self.player = aPlayer;
     self.board = aPlayer.board;
     self.generator = board.generator;
-    
+
     [self reset];
 }
 
 -(void)reset {
-    
+
     if (transTable)
-    [transTable clear];
+        [transTable clear];
+
     [historyTable clear];
 }
 
 -(void)reset:(ChessBoard *)aBoard {
+
     [self reset];
-    
+
     if (!boardList) {
-      NSMutableArray *boards = [NSMutableArray arrayWithCapacity:NUM_MOVES];
-      for (int i=0; i<NUM_MOVES; i++) {
-        ChessBoard *newBoard = [aBoard copy];
-        [boards addObject:newBoard];
-      }
-      boardListIndex = 0;
-      boardList = [NSArray arrayWithArray:boards];
+        NSMutableArray *boards = [NSMutableArray arrayWithCapacity:NUM_MOVES];
+        for (int i=0; i<NUM_MOVES; i++) {
+            ChessBoard *newBoard = [aBoard copy];
+            [boards addObject:newBoard];
+#if !__has_feature(objc_arc)
+          [newBoard release];
+#endif
+        }
+        boardListIndex = 0;
+        boardList = [NSArray arrayWithArray:boards];
+#if !__has_feature(objc_arc)
+          [boardList retain];
+#endif
     }
     self.board = aBoard;
 }
+
+#if !__has_feature(objc_arc)
+-(void)dealloc {
+    [boardList release];
+    [super dealloc];
+}
+#endif
+
 
 #pragma mark private
 
@@ -99,9 +116,9 @@
 // but right now 256k entries cost us roughly 10MB of space. So we use only 64k entries (2.5MB of space).
 // If you have doubts about the size of the transition table (e.g., if you think it's too small or too big) then modify the value
 // below and have a look at ChessTranspositionTable>>clear which can print out some valuable statistics.
-//                                                           
+//
 -(void)initializeTranspositionTable {
-    
+
     transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 1 << 16 entries
     //    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 1 << 18 entries
     // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
@@ -110,10 +127,10 @@
 #pragma mark searching
 
 -(void)copyVariation:(ChessMove *)move {
-    
+
     int count = 0;
     int *av = variations[ply];
-    
+
     if (ply < 9) {
         int *mv = variations[ply+1];
         count = mv[0];
@@ -131,23 +148,23 @@
 // http://www.cs.vu.nl/~aske/mtdf.html
 //
 -(ChessMove *)mtdfSearch:(ChessBoard *)theBoard score:(int)estimate depth:(int)depth {
-    
+
     int value = estimate;
     int low = kAlphaBetaMinVal;
     int high = kAlphaBetaMaxVal;
     ChessMove *goodMove = nil;
-    
+
     while (low < high) {
         int beta = (value == low) ? value + 1 : value;
         ChessMove *move = [self searchMove:theBoard depth:depth alpha:beta-1 beta:beta];
         if (stopThinking)
             return move;
-        
+
         if (nil == move)
             return move;
-        
+
         value = [move value];
-        
+
         if (value < beta) {
             high = value;
         }
@@ -173,9 +190,9 @@
 // Modified version to return the move rather than the score
 //
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
-    
+
     assert(initialAlpha < initialBeta);
-    
+
     if (ply < 10) {
         variations[ply][0] = 0;
     }
@@ -184,63 +201,73 @@
     int beta = initialBeta;
     int bestScore = kAlphaBetaMinVal;
     ChessMove *goodMove = nil;
-    
+
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
-    
+
     if (nil == moveList)
         return nil;
-    
+
     NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
     }
-    
+
     // sort move list according to history heuristics
     [moveList sortUsing:historyTable];
-    
+
     // and search
     int a = alpha;
     int b = beta;
     BOOL notFirst = NO;
-    
+
     ChessMove *move = [moveList next];
     int count = 0;
-    
+
     while (nil != move) {
-        
+
         count++;
-        
+
+        // retain the move so it doesn't get deallocated while we recurse
+#if !__has_feature(objc_arc)
+        [move retain];
+#endif
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
-        
+
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
-        
+
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
         }
-        
+
         notFirst = YES;
         ply--;
-        
+
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
             return move;
         }
-        
+
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
                     [self copyVariation:move];
                 }
                 goodMove = [move copy];
+#if !__has_feature(objc_arc)
+          [goodMove autorelease];
+#endif
                 goodMove.value = score;
-                
+
                 // activeVariation replaceFrom:1 to:activeVariation size with:variations first startingAt:1
                 for (int i=0; i<VARIATIONS_SIZE; i++) {
                     activeVariation[i] = variations[0][i];
@@ -255,17 +282,25 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
                     return goodMove;
                 }
             }
             b = a + 1;
         }
-        
+
+        // undo the previous retain
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
+
         move = [moveList next];
     }
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
-    
+
     return goodMove;
 }
 
@@ -273,23 +308,23 @@
 // A basic alpha-beta algorithm, based on negaMax rather than from the textbooks
 //
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
-    
+
     assert(initialAlpha < initialBeta);
-    
+
     if (ply < 10) {
         variations[ply][0] = 0;
     }
-    
+
     if (0 == depth) {
         return [self quiesce:theBoard alpha:initialAlpha beta:initialBeta];
     }
     nodesVisited++;
-    
+
     // if there's already something in the transposition table, skip the entire search
     ChessTTEntry *entry = [transTable lookupBoard:theBoard];
     int alpha = initialAlpha;
     int beta = initialBeta;
-    
+
     if (entry && (entry.depth >= depth)) {
         ttHits++;
         if ((entry.valueType & 1) == (ply & 1)) {
@@ -304,44 +339,51 @@
             return alpha;
     }
     int bestScore = kAlphaBetaMinVal;
-    
+
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     if (nil == moveList)
         return -kAlphaBetaIllegal;
-    
+
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
-    
+
     // and search
     int a = alpha;
     int b = beta;
     BOOL notFirst = NO;
-    
+
     ChessMove *move = [moveList next];
     while (move) {
-        
+
+#if !__has_feature(objc_arc)
+          [move retain];
+#endif
+
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
-        
+
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
         }
         notFirst = YES;
         ply--;
-        
+
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
             return score;
         }
-        
+
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
@@ -356,18 +398,25 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
                     return score;
                 }
             }
             b = a + 1;
         }
-                
+
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
+
         move = [moveList next];
     }
-    
+
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
-    
+
     return bestScore;
 }
 
@@ -376,21 +425,21 @@
 // e.g. one that is unlikely to change heavily in the very near future.
 //
 -(int)quiesce:(ChessBoard *)theBoard alpha:(int)initialAlpha beta:(int)initialBeta {
-    
+
     assert(initialAlpha < initialBeta);
-    
+
     if (ply < 10) {
         variations[ply][0] = 0;
     }
     nodesVisited++;
-    
+
     // see if there's already something in the transposition table
     ChessTTEntry *entry = [transTable lookupBoard:theBoard];
     int alpha = initialAlpha;
     int beta = initialBeta;
-    
+
     ChessMoveList *moveList = nil;
-    
+
     if (entry) {
         ttHits++;
         if ((entry.valueType & 1) == (ply & 1)) {
@@ -404,21 +453,21 @@
         if (alpha >= initialBeta)
             return alpha;
     }
-    
+
     // Always generate moves if ply < 2 so that we don't miss a move that
     // would bring the king under attack (e.g., make an invalid move).
     if (ply < 2) {
-        
+
         moveList = [generator findQuiescenceMovesFor:theBoard.activePlayer];
         if (!moveList) {
             return -kAlphaBetaIllegal;
         }
     }
-    
+
     // Evaluate the current position, assuming that we have a non-capturing move.
     int bestScore = [theBoard.activePlayer evaluate];
-    
-    
+
+
     // TODO: What follows is clearly not the Right Thing to do. The score we just evaluated doesn't
     // take into account that we may be under attack at this point. I've seen it happening various times that
     // the static evaluation triggered a cut-off which was plain wrong in the position at hand.
@@ -443,19 +492,19 @@
             return bestScore;
         }
     }
-    
+
     // generate new moves
     if (!moveList) {
         moveList = [generator findQuiescenceMovesFor:theBoard.activePlayer];
         if (!moveList)
             return -kAlphaBetaIllegal;
     }
-    
+
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
-    
+
     // sort move list according to history heuristics
     [moveList sortUsing:historyTable];
 
@@ -463,31 +512,38 @@
     ChessMove *move = [moveList next];
     int counter = 0;
     while (move) {
-        
+
         counter++;
-        
+
+#if !__has_feature(objc_arc)
+          [move retain];
+#endif
+
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard duplicateBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
-        
+
         if (stopThinking) {
             [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
             return score;
         }
         ply--;
-        
+
         if (kAlphaBetaIllegal != score) {
-            if (score > bestScore) {                
+            if (score > bestScore) {
                 if (ply < 10) {
                     [self copyVariation:move];
                 }
                 bestScore = score;
             }
-            
+
             // see if we can cut off the search
             if (score > alpha) {
                 alpha = score;
@@ -496,14 +552,20 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
                     return bestScore;
                 }
             }
         }
-        
+
+#if !__has_feature(objc_arc)
+          [move release];
+#endif
         move = [moveList next];
     }
-    
+
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:0 stamp:stamp];
     [generator recycleMoveList:moveList];
 
@@ -517,21 +579,21 @@
 //
 -(int)search:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
     assert(initialAlpha < initialBeta);
-    
+
     if (ply < 10) {
         variations[ply][0] = 0;
     }
-    
+
     if (0 == depth) {
         return [self quiesce:theBoard alpha:initialAlpha beta:initialBeta];
     }
     nodesVisited++;
-    
+
     // if there's already something in the transposition table, skip the entire search
     ChessTTEntry *entry = [transTable lookupBoard:theBoard];
     int alpha = initialAlpha;
     int beta = initialBeta;
-    
+
     if (entry && (entry.depth >= depth)) {
         ttHits++;
         if ((entry.valueType & 1) == (ply & 1)) {
@@ -546,37 +608,37 @@
             return alpha;
     }
     int bestScore = kAlphaBetaMinVal;
-    
+
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     if (nil == moveList)
         return -kAlphaBetaIllegal;
-    
+
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
-    
+
     // Sort move list according to history heuristics
     [moveList sortUsing:historyTable];
-    
+
     // and search
     ChessMove *move = [moveList next];
     while (move) {
-        
+
         ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
         int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
         ply--;
-        
+
         if (stopThinking) {
             [generator recycleMoveList:moveList];
             return score;
         }
-        
+
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
@@ -597,10 +659,10 @@
         }
         move = [moveList next];
     }
-    
+
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
-    
+
     return bestScore;
 }
 
@@ -609,53 +671,56 @@
 //
 -(ChessMove *)searchMove:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
     assert(initialAlpha < initialBeta);
-    
+
     if (ply < 10) {
         variations[ply][0] = 0;
     }
-    
+
     ply = 0;
     int alpha = initialAlpha;
     int beta = initialBeta;
     int bestScore = kAlphaBetaMinVal;
     ChessMove *goodMove = nil;
-    
+
     // generate new moves
     ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
     if (nil == moveList)
         return nil;
-    
+
     if ([moveList isEmpty]) {
         [generator recycleMoveList:moveList];
         return nil;
     }
-    
+
     // Sort move list according to history heuristics
     [moveList sortUsing:historyTable];
 
     // and search
     ChessMove *move = [moveList next];
     while (move) {
-        
+
         ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
         int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
         ply--;
-        
+
         if (stopThinking) {
             [generator recycleMoveList:moveList];
             return move;
         }
-        
+
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
                     [self copyVariation:move];
                 }
                 goodMove = [move copy];
+#if !__has_feature(objc_arc)
+          [goodMove autorelease];
+#endif
                 goodMove.value = score;
                 bestScore = score;
             }
@@ -672,19 +737,19 @@
         }
         move = [moveList next];
     }
-    
+
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
     [generator recycleMoveList:moveList];
-    
+
     return goodMove;
 }
 
 #pragma mark thinking
 
 -(void)checkClock {
-    
+
 //    double now = [[NSDate date] timeIntervalSince1970];
-    
+
 //    if (now - startTime > [self timeToThink]) {
 //        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));
 //        stopThinking = YES;
@@ -692,33 +757,36 @@
 }
 
 -(BOOL)isThinking {
-    
+
     return isThinking;
 }
 
 -(void)startThinking {
-    
+
     if ([self isThinking]) {
         return;
     }
-    
-    if (!transTable) {
+
+  NSLog(@"Started thinking: NegaScout %s ", useNegaScout ? "enabled" : "disabled");
+
+  if (!transTable) {
         // [NSThread detachNewThreadSelector:@selector(initializeTranspositionTable) toTarget:self withObject:nil];
         [self initializeTranspositionTable];
         // TODO: wait for above to complete then return and start thinking
     }
-    
+
     [self setActivePlayer:board.activePlayer];
-    
+
     myMove = [ChessMove nullMove];
     [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
 }
 
 -(void)thinkThread {
+
   @autoreleasepool {
     isThinking = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"StartedThinking" object:nil];
-    
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+
     stopThinking = NO;
     int score = [board.activePlayer evaluate];
     int depth = 1;
@@ -726,42 +794,41 @@
     ply = 0;
     [historyTable clear];
     [transTable clear];
-    
+
     startTime = [[NSDate date] timeIntervalSince1970];
-    NSLog(@"Started thinking");
     nodesVisited = ttHits = alphaBetaCuts = 0;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
 
     while (nodesVisited < 50000) {
-        
-        ChessMove *theMove = nil;
-        
-        if (useNegaScout) {
-            theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
-        }
-        else {
-            theMove = [self mtdfSearch:board score:score depth:depth];
-        }
-        
-        if (!theMove /* || stopThinking */) {
-            // the clock has run out. take the best move we have
-            isThinking = NO;
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
-            return;
-        }
-        
-        myMove = theMove;
-        // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
-        for (int i=0; i<VARIATIONS_SIZE; i++) {
-            bestVariation[i] = activeVariation[i];
-        }
-        
-        score = theMove.value;
-        depth++;
+
+      ChessMove *theMove = nil;
+
+      if (useNegaScout) {
+        theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+      }
+      else {
+        theMove = [self mtdfSearch:board score:score depth:depth];
+      }
+
+      if (!theMove /* || stopThinking */) {
+        // the clock has run out. take the best move we have
+        isThinking = NO;
+        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+        return;
+      }
+
+      myMove = theMove;
+      // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
+      for (int i=0; i<VARIATIONS_SIZE; i++) {
+        bestVariation[i] = activeVariation[i];
+      }
+
+      score = theMove.value;
+      depth++;
     }
     isThinking = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"StoppedThinking" object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
   }
 }
 
@@ -775,27 +842,27 @@
 #pragma mark accessing
 
 -(NSString *)statusString {
-    
+
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {
         resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
     }
-    
+
     int *av = bestVariation;
     int count = av[0];
-    
+
     if (count <= 0) {
         av = activeVariation;
         count = av[0];
     }
-    
+
     if (count <= 0) {
         resultString = [resultString stringByAppendingString:@"***"];
         av = variations[0];
         count = av[0];
         count = MIN(count,3);
     }
-    
+
     for (int i=1; i<count+1; i++) {
         int encodedMove = av[i];
         if (encodedMove) {
@@ -803,9 +870,9 @@
             resultString = [resultString stringByAppendingFormat:@"%@ ", moveString];
         }
     }
-    
+
     resultString = [resultString stringByAppendingFormat:@"[%d]", nodesVisited];
-    
+
     return resultString;
 }
 

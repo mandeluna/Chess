@@ -11,6 +11,7 @@
 #import "ChessPlayerAI.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"
+#import "NSNotificationCenter+MainThread.h"
 
 #pragma mark Initialize
 
@@ -26,24 +27,24 @@ static int HashKeys[12][64];
 static int HashLocks[12][64];
 
 +(void)initializeHashKeys {
-    
-    srand(23648646);
-    for (int i=0; i < 12; i++) {
-        for (int j=0; j < 64; j++) {
-            HashKeys[i][j] = rand();
-            HashLocks[i][j] = rand();
-        }
+
+  srand(23648646);
+  for (int i=0; i < 12; i++) {
+    for (int j=0; j < 64; j++) {
+      HashKeys[i][j] = rand();
+      HashLocks[i][j] = rand();
     }
-    
+  }
+
 }
 
 +(void)initialize {
-    [self initializeHashKeys];
+  [self initializeHashKeys];
 }
 
 -(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
   ChessBoard *board = [self init];
-  
+
   board.whitePlayer = aBoard.whitePlayer;
   board.blackPlayer = aBoard.blackPlayer;
   board.activePlayer = aBoard.activePlayer;
@@ -51,50 +52,72 @@ static int HashLocks[12][64];
   board.searchAgent = aBoard.searchAgent;
   board.hashKey = aBoard.hashKey;
   board.hashLock = aBoard.hashLock;
-  
+
   return board;
 }
 
 #pragma mark Initialize
 
 -(void)resetGame {
-    _hashKey = _hashLock = 0;
-    self.whitePlayer = [[ChessPlayer alloc] init];
-    self.blackPlayer = [[ChessPlayer alloc] init];
-    _whitePlayer.opponent = _blackPlayer;
-    _whitePlayer.board = self;
-    _blackPlayer.opponent = _whitePlayer;
-    _blackPlayer.board = self;
-    _activePlayer = _whitePlayer;
-    [_searchAgent reset:self];
+  _hashKey = _hashLock = 0;
+
+#if !__has_feature(objc_arc)
+  self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
+  self.blackPlayer = [[[ChessPlayer alloc] init] autorelease];
+#else
+  self.whitePlayer = [[ChessPlayer alloc] init];
+  self.blackPlayer = [[ChessPlayer alloc] init];
+#endif
+
+  _whitePlayer.opponent = _blackPlayer;
+  _whitePlayer.board = self;
+  _blackPlayer.opponent = _whitePlayer;
+  _blackPlayer.board = self;
+  _activePlayer = _whitePlayer;
+  [_searchAgent reset:self];
 }
 
 -(void)initializeNewBoard {
-    [self resetGame];
-    [_whitePlayer addWhitePieces];
-    [_blackPlayer addBlackPieces];
+  [self resetGame];
+  [_whitePlayer addWhitePieces];
+  [_blackPlayer addBlackPieces];
 }
 
 -(id)init {
-    if (self = [super init]) {
-        self.generator = [[ChessMoveGenerator alloc] init];
-        self.searchAgent = [[ChessPlayerAI alloc] init];
-    }
-    return self;
+  if (self = [super init]) {
+    _generator = [[ChessMoveGenerator alloc] init];
+    _searchAgent = [[ChessPlayerAI alloc] init];
+  }
+  return self;
 }
+
+#if !__has_feature(objc_arc)
+-(void)dealloc {
+  [_whitePlayer release];
+  [_blackPlayer release];
+  [_generator release];
+  [_searchAgent release];
+  [super dealloc];
+}
+#endif
 
 #pragma mark Copying
 
 -(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard {
-    [_whitePlayer copyPlayer:aBoard.whitePlayer];
-    [_blackPlayer copyPlayer:aBoard.blackPlayer];
-    _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
-    _hashKey = [aBoard hashKey];
-    _hashLock = [aBoard hashLock];
-    _searchAgent = aBoard.searchAgent;
-    _generator = aBoard.generator;
-    
-    return self;
+  [_whitePlayer copyPlayer:aBoard.whitePlayer];
+  [_blackPlayer copyPlayer:aBoard.blackPlayer];
+  _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
+  _hashKey = [aBoard hashKey];
+  _hashLock = [aBoard hashLock];
+  _hasUserAgent = NO;
+#if !__has_feature(objc_arc)
+  _searchAgent = [aBoard.searchAgent retain];
+  _generator = [aBoard.generator retain];
+#else
+  self.searchAgent = aBoard.searchAgent;
+  self.generator = aBoard.generator;
+#endif
+  return self;
 }
 
 -(void)postCopy {
@@ -108,15 +131,17 @@ static int HashLocks[12][64];
     _blackPlayer = [_blackPlayer copy];
     _activePlayer = _blackPlayer;
   }
-  
+
   _whitePlayer.opponent = _blackPlayer;
   _blackPlayer.opponent = _whitePlayer;
   _whitePlayer.board = self;
   _blackPlayer.board = self;
+  self.hasUserAgent = NO;
 }
 
 // deep copy
 -(id)copyWithZone:(NSZone *)zone {
+//  ChessBoard *copy = NSCopyObject(self, 0, nil);
   ChessBoard *copy = [[ChessBoard alloc] initializeWithBoard:self];
   [copy postCopy];
   return copy;
@@ -125,79 +150,91 @@ static int HashLocks[12][64];
 #pragma mark Hashing
 
 -(int)hashKey {
-    return _hashKey;
+  return _hashKey;
 }
 
 -(int)hashLock {
-    return _hashLock;
+  return _hashLock;
 }
 
 -(void)updateHash:(int)piece at:(int)square from:(ChessPlayer *)player {
-    int index = (player == _whitePlayer) ? piece : piece + 6;
-    _hashKey = _hashKey ^ HashKeys[index][square];
-    _hashLock = _hashLock ^ HashLocks[index][square];
+  int index = (player == _whitePlayer) ? piece : piece + 6;
+  _hashKey = _hashKey ^ HashKeys[index][square];
+  _hashLock = _hashLock ^ HashLocks[index][square];
 }
 
 #pragma mark Moving
 
 -(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare {
   if ([_searchAgent isThinking]) {
-      return nil;
+    return nil;
   }
-  
+
   ChessMove *theMove = nil;
-  
+
   NSArray *moves = [_activePlayer findPossibleMovesAt:sourceSquare];
-  
+
   for (ChessMove *move in moves) {
     if (destSquare == [move destinationSquare]) {
-        [self nextMove:move];
-        theMove = move;
-        break;
+      [self nextMove:move];
+      theMove = move;
+      break;
     }
   }
 
   [_searchAgent setActivePlayer:_activePlayer];
-  
+
   return theMove;
 }
 
 -(void)nextMove:(ChessMove *)aMove {
-    [_activePlayer applyMove:aMove];
-    
-    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-    [_activePlayer prepareNextMove];
+
+  [_activePlayer applyMove:aMove];
+
+  if (self.hasUserAgent) {
+    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+    NSNotification *notification = [NSNotification notificationWithName:@"CompletedMove" object:description];
+    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+  }
+
+  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+  [_activePlayer prepareNextMove];
 }
 
 -(void)nullMove {
-    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-    [_activePlayer prepareNextMove];
+  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+  [_activePlayer prepareNextMove];
 }
 
 -(void)undoMove:(ChessMove *)aMove {
-    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-    [_activePlayer undoMove:aMove];
+  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+  [_activePlayer undoMove:aMove];
+
+  if (self.hasUserAgent) {
+    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+    NSNotification *notification = [NSNotification notificationWithName:@"UndoMove" object:description];
+    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+  }
 }
 
 #pragma mark Printing
 
 -(NSString *)description {
-    return [self printPieces];
+  return [self printPieces];
 }
-
 
 //  ╔═╤═╤═╤═╤═╤═╤═╤═╗╮
 //  ║♜│♞│♝│♛│♚│♝│♞│♜║8
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
 //  ║♟│♟│♟│♟│♟│♟│♟│♟║7
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
-//  ║ │░│ │░│ │░│ │░║6
+//  ║ │░│ │░│ │░│ │░║6
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
-//  ║░│ │░│ │░│ │░│ ║5
+//  ║░│ │░│ │░│ │░│ ║5
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
-//  ║ │░│ │░│ │░│ │░║4
+//  ║ │░│ │░│ │░│ │░║4
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
-//  ║░│ │░│ │░│ │░│ ║3
+//  ║░│ │░│ │░│ │░│ ║3
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
 //  ║♙│♙│♙│♙│♙│♙│♙│♙║2
 //  ╟─┼─┼─┼─┼─┼─┼─┼─╢┊
@@ -210,9 +247,9 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
 
 -(NSString *)printPieces {
   NSMutableString *result = [NSMutableString string];
-  
+
   [result appendString: [NSString stringWithFormat: @"\nkey: %d, lock: %d", _hashKey, _hashLock]];
-  
+
   [result appendString: @"\n╔═╤═╤═╤═╤═╤═╤═╤═╗╮"];
 
   for (int i=0; i<64; i++) {
@@ -227,7 +264,7 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
     }
     unsigned char black =_blackPlayer.pieces[i];
     unsigned char white =_whitePlayer.pieces[i];
-    
+
     if (black) {
       [result appendString: blackEmoji[black - 1]];
     }

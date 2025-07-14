@@ -4,3 +4,4 @@
 
 #import "ChessBoard.h"
 #import "ChessPlayerAI.h"
+#import "NSNotificationCenter+MainThread.h"

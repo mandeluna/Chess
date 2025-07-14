@@ -13,7 +13,7 @@
 @class ChessPlayerAI;
 @class ChessMove;
 
-@interface ChessBoard : NSObject {
+@interface ChessBoard : NSObject <NSCopying> {
 
 }
 
@@ -24,17 +24,16 @@
 @property(nonatomic, retain) ChessPlayerAI *searchAgent;
 @property(nonatomic, assign) int hashKey;
 @property(nonatomic, assign) int hashLock;
+@property(nonatomic, assign) BOOL hasUserAgent;
 
-// instance creation (ARC support)
-+(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard;
 
 // initialize
 -(void)resetGame;
 -(void)initializeNewBoard;
--(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard;
 
 // copying
 -(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard;
+-(id)copyWithZone:(NSZone *)zone;
 
 // hashing
 -(int)hashKey;
@@ -49,5 +48,6 @@
 
 // printing
 -(NSString *)description;
+-(NSString *)printPieces;
 
 @end

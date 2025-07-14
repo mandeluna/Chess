@@ -50,17 +50,8 @@
 		6935776716472D8000BEE7BC /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776116472D7F00BEE7BC /* icon.png */; };
 		6935776816472D8000BEE7BC /* icon-small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776216472D7F00BEE7BC /* icon-small-50.png */; };
 		6935776916472D8000BEE7BC /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776316472D8000BEE7BC /* icon-small.png */; };
-		6942F9D11220971B002E59B5 /* ChessBoard.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D01220971B002E59B5 /* ChessBoard.m */; };
-		6942F9D412209736002E59B5 /* ChessMoveGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D312209736002E59B5 /* ChessMoveGenerator.m */; };
-		6942F9D712209743002E59B5 /* ChessPlayerAI.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9D612209743002E59B5 /* ChessPlayerAI.m */; };
-		6942F9E0122097EA002E59B5 /* ChessPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942F9DF122097EA002E59B5 /* ChessPlayer.m */; };
-		6942FA2412209E99002E59B5 /* ChessHistoryTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA2312209E99002E59B5 /* ChessHistoryTable.m */; };
 		6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
-		6942FA7E1220A629002E59B5 /* ChessMove.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA7D1220A629002E59B5 /* ChessMove.m */; };
-		6942FDE51221E574002E59B5 /* ChessMoveList.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FDE41221E574002E59B5 /* ChessMoveList.m */; };
 		6957BDB1127114A6001630F6 /* ChessMailViewController-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */; };
-		699CF5581229BA430054F0B2 /* ChessTranspositionTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 699CF5571229BA430054F0B2 /* ChessTranspositionTable.m */; };
-		699CF60E1229D0790054F0B2 /* ChessTTEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 699CF60D1229D0790054F0B2 /* ChessTTEntry.m */; };
 		69B6A6EF17889B0500A56015 /* Storyboard_ipad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */; };
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
@@ -78,18 +69,10 @@
 		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C1178F89BE00A54608 /* TimerSettingsController.m */; };
 		AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C4178F8B2700A54608 /* TimerModel.m */; };
+		AAE16D3F2E2465A8003DFB22 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		AA5A02762E1995000080DAFC /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 		AAEDD0282E17112300A90C54 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -153,27 +136,9 @@
 		6935776116472D7F00BEE7BC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		6935776216472D7F00BEE7BC /* icon-small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small-50.png"; sourceTree = "<group>"; };
 		6935776316472D8000BEE7BC /* icon-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small.png"; sourceTree = "<group>"; };
-		6942F9CF1220971B002E59B5 /* ChessBoard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessBoard.h; sourceTree = "<group>"; };
-		6942F9D01220971B002E59B5 /* ChessBoard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessBoard.m; sourceTree = "<group>"; };
-		6942F9D212209736002E59B5 /* ChessMoveGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMoveGenerator.h; sourceTree = "<group>"; };
-		6942F9D312209736002E59B5 /* ChessMoveGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMoveGenerator.m; sourceTree = "<group>"; };
-		6942F9D512209743002E59B5 /* ChessPlayerAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessPlayerAI.h; sourceTree = "<group>"; };
-		6942F9D612209743002E59B5 /* ChessPlayerAI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPlayerAI.m; sourceTree = "<group>"; };
-		6942F9DE122097EA002E59B5 /* ChessPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessPlayer.h; sourceTree = "<group>"; };
-		6942F9DF122097EA002E59B5 /* ChessPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPlayer.m; sourceTree = "<group>"; };
-		6942FA2212209E99002E59B5 /* ChessHistoryTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessHistoryTable.h; sourceTree = "<group>"; };
-		6942FA2312209E99002E59B5 /* ChessHistoryTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessHistoryTable.m; sourceTree = "<group>"; };
 		6942FA6A1220A569002E59B5 /* ChessPieceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessPieceLayer.h; sourceTree = "<group>"; };
 		6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPieceLayer.m; sourceTree = "<group>"; };
-		6942FA7C1220A629002E59B5 /* ChessMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMove.h; sourceTree = "<group>"; };
-		6942FA7D1220A629002E59B5 /* ChessMove.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMove.m; sourceTree = "<group>"; };
-		6942FDE31221E574002E59B5 /* ChessMoveList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessMoveList.h; sourceTree = "<group>"; };
-		6942FDE41221E574002E59B5 /* ChessMoveList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessMoveList.m; sourceTree = "<group>"; };
 		6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "ChessMailViewController-iPad.xib"; path = "Resources-iPad/ChessMailViewController-iPad.xib"; sourceTree = "<group>"; };
-		699CF5561229BA430054F0B2 /* ChessTranspositionTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessTranspositionTable.h; sourceTree = "<group>"; };
-		699CF5571229BA430054F0B2 /* ChessTranspositionTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessTranspositionTable.m; sourceTree = "<group>"; };
-		699CF60C1229D0790054F0B2 /* ChessTTEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessTTEntry.h; sourceTree = "<group>"; };
-		699CF60D1229D0790054F0B2 /* ChessTTEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessTTEntry.m; sourceTree = "<group>"; };
 		69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_ipad.storyboard; sourceTree = "<group>"; };
 		69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_iphone.storyboard; sourceTree = "<group>"; };
 		69C4838E12189F2500089898 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "Resources-iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
@@ -187,7 +152,6 @@
 		69F9E015126BC41B0025491A /* WaitingAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAlertView.h; sourceTree = "<group>"; };
 		69F9E016126BC41B0025491A /* WaitingAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAlertView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
-		AA5A02782E1995000080DAFC /* ChessEngine-ObjC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ChessEngine-ObjC"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA6D359C179053C40059A4EA /* checkmark20x14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark20x14.png; sourceTree = "<group>"; };
 		AA6D359D179053C40059A4EA /* checkmark40x28.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark40x28.png; sourceTree = "<group>"; };
 		AA6D35A017906A110059A4EA /* TimerDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerDetailController.h; sourceTree = "<group>"; };
@@ -201,8 +165,26 @@
 		AAEDD02A2E17112300A90C54 /* ChessEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChessEngine; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AAE16D302E243E2D003DFB22 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ChessBoard.m,
+				ChessHistoryTable.m,
+				ChessMove.m,
+				ChessMoveGenerator.m,
+				ChessMoveList.m,
+				ChessPlayer.m,
+				ChessPlayerAI.m,
+				ChessTranspositionTable.m,
+				ChessTTEntry.m,
+			);
+			target = 1D6058900D05DD3D006BFB54 /* Chess */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AAEDD02B2E17112300A90C54 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
+		AAEDD02B2E17112300A90C54 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AAE16D302E243E2D003DFB22 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,13 +201,6 @@
 				690A3D921262466B00E1173B /* CoreAudio.framework in Frameworks */,
 				690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */,
 				690A3DA01262468E00E1173B /* AudioToolbox.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA5A02752E1995000080DAFC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,24 +221,6 @@
 				690A3D0212623DFF00E1173B /* GameKit Support */,
 				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
-				6942F9CF1220971B002E59B5 /* ChessBoard.h */,
-				6942F9D01220971B002E59B5 /* ChessBoard.m */,
-				6942F9D212209736002E59B5 /* ChessMoveGenerator.h */,
-				6942F9D312209736002E59B5 /* ChessMoveGenerator.m */,
-				6942F9D512209743002E59B5 /* ChessPlayerAI.h */,
-				6942F9D612209743002E59B5 /* ChessPlayerAI.m */,
-				6942F9DE122097EA002E59B5 /* ChessPlayer.h */,
-				6942F9DF122097EA002E59B5 /* ChessPlayer.m */,
-				6942FA2212209E99002E59B5 /* ChessHistoryTable.h */,
-				6942FA2312209E99002E59B5 /* ChessHistoryTable.m */,
-				6942FA7C1220A629002E59B5 /* ChessMove.h */,
-				6942FA7D1220A629002E59B5 /* ChessMove.m */,
-				6942FDE31221E574002E59B5 /* ChessMoveList.h */,
-				6942FDE41221E574002E59B5 /* ChessMoveList.m */,
-				699CF5561229BA430054F0B2 /* ChessTranspositionTable.h */,
-				699CF5571229BA430054F0B2 /* ChessTranspositionTable.m */,
-				699CF60C1229D0790054F0B2 /* ChessTTEntry.h */,
-				699CF60D1229D0790054F0B2 /* ChessTTEntry.m */,
 				AADF04C3178F8B2700A54608 /* TimerModel.h */,
 				AADF04C4178F8B2700A54608 /* TimerModel.m */,
 			);
@@ -275,7 +232,6 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Chess Friends.app */,
 				AAEDD02A2E17112300A90C54 /* ChessEngine */,
-				AA5A02782E1995000080DAFC /* ChessEngine-ObjC */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -468,25 +424,6 @@
 			productReference = 1D6058910D05DD3D006BFB54 /* Chess Friends.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AA5A02772E1995000080DAFC /* ChessEngine-ObjC */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AA5A027E2E1995000080DAFC /* Build configuration list for PBXNativeTarget "ChessEngine-ObjC" */;
-			buildPhases = (
-				AA5A02742E1995000080DAFC /* Sources */,
-				AA5A02752E1995000080DAFC /* Frameworks */,
-				AA5A02762E1995000080DAFC /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "ChessEngine-ObjC";
-			packageProductDependencies = (
-			);
-			productName = "ChessEngine-ObjC";
-			productReference = AA5A02782E1995000080DAFC /* ChessEngine-ObjC */;
-			productType = "com.apple.product-type.tool";
-		};
 		AAEDD0292E17112300A90C54 /* ChessEngine */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "ChessEngine" */;
@@ -518,9 +455,6 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 0420;
 				TargetAttributes = {
-					AA5A02772E1995000080DAFC = {
-						CreatedOnToolsVersion = 16.4;
-					};
 					AAEDD0292E17112300A90C54 = {
 						CreatedOnToolsVersion = 16.4;
 						LastSwiftMigration = 1640;
@@ -533,9 +467,6 @@
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
-				Japanese,
-				French,
-				German,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -543,7 +474,6 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Chess */,
 				AAEDD0292E17112300A90C54 /* ChessEngine */,
-				AA5A02772E1995000080DAFC /* ChessEngine-ObjC */,
 			);
 		};
 /* End PBXProject section */
@@ -606,16 +536,7 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */,
-				6942F9D11220971B002E59B5 /* ChessBoard.m in Sources */,
-				6942F9D412209736002E59B5 /* ChessMoveGenerator.m in Sources */,
-				6942F9D712209743002E59B5 /* ChessPlayerAI.m in Sources */,
-				6942F9E0122097EA002E59B5 /* ChessPlayer.m in Sources */,
-				6942FA2412209E99002E59B5 /* ChessHistoryTable.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
-				6942FA7E1220A629002E59B5 /* ChessMove.m in Sources */,
-				6942FDE51221E574002E59B5 /* ChessMoveList.m in Sources */,
-				699CF5581229BA430054F0B2 /* ChessTranspositionTable.m in Sources */,
-				699CF60E1229D0790054F0B2 /* ChessTTEntry.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
 				690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */,
 				690A3D0812623E0000E1173B /* TCPServer.m in Sources */,
@@ -628,17 +549,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AA5A02742E1995000080DAFC /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AAEDD0262E17112300A90C54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAE16D3F2E2465A8003DFB22 /* NSNotificationCenter+MainThread.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -658,7 +573,9 @@
 				GCC_PREFIX_HEADER = Chess_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
@@ -677,133 +594,14 @@
 				GCC_PREFIX_HEADER = Chess_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		AA5A027C2E1995000080DAFC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		AA5A027D2E1995000080DAFC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -980,16 +778,7 @@
 				1D6058950D05DD3E006BFB54 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AA5A027E2E1995000080DAFC /* Build configuration list for PBXNativeTarget "ChessEngine-ObjC" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA5A027C2E1995000080DAFC /* Debug */,
-				AA5A027D2E1995000080DAFC /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "ChessEngine" */ = {
 			isa = XCConfigurationList;
@@ -998,7 +787,7 @@
 				AAEDD0302E17112300A90C54 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Chess" */ = {
 			isa = XCConfigurationList;
@@ -1007,7 +796,7 @@
 				C01FCF5008A954540054247B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};

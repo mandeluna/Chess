@@ -31,7 +31,7 @@ enum {
 
 @interface ChessMove : NSObject <NSCopying> {
 
-  int movingPiece;
+    int movingPiece;
     int capturedPiece;
     int sourceSquare;
     int destinationSquare;
@@ -72,6 +72,10 @@ enum {
 
 -(int)encodedMove;
 -(int)promotion;
+
+// copying
+
+-(id)copyWithZone:(NSZone *)zone;
 
 // comparing
 

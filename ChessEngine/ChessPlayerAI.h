@@ -41,9 +41,9 @@
     BOOL useNegaScout;
 }
 
-@property(nonatomic, retain) ChessPlayer *player;
-@property(nonatomic, retain) ChessBoard *board;
-@property(nonatomic, retain) ChessMoveGenerator *generator;
+@property(nonatomic, assign) ChessPlayer *player;
+@property(nonatomic, assign) ChessBoard *board;
+@property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, copy) ChessMove *myMove;
 @property(nonatomic, assign) BOOL useNegaScout;
 

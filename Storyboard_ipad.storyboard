@@ -27,7 +27,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XX1-uP-VoZ">
-                                <rect key="frame" x="0.0" y="1136" width="768" height="44"/>
+                                <rect key="frame" x="0.0" y="1136" width="820" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="add" id="eQt-yb-Epo">

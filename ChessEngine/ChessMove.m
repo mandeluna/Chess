@@ -15,7 +15,7 @@
 
 -(ChessMove *)initializeWithMove:(ChessMove *)move {
   ChessMove *newMove = [self init];
-  
+
   newMove.bestMove = move.bestMove;
   newMove.capturedPiece = move.capturedPiece;
   newMove.destinationSquare = move.destinationSquare;
@@ -23,21 +23,21 @@
   newMove.movingPiece = move.movingPiece;
   newMove.sourceSquare = move.sourceSquare;
   newMove.value = move.value;
-  
+
   return newMove;
 }
 
 #pragma mark (Class) Accessing
 
 +(ChessMove *)decodeFrom:(int)encodedMove {
-    
+
     ChessMove *instance = [[ChessMove alloc] init];
     [instance moveEncoded:encodedMove];
     return instance;
 }
 
 +(int)basicMoveMask {
-    
+
     return kBasicMoveMask;
 }
 
@@ -58,14 +58,14 @@ static ChessMove *NullMove = nil;
 // return an integer encoding enough of a move for printing
 //
 -(int)encodedMove {
-    
-    return destinationSquare + (sourceSquare << 8) + (movingPiece << 16) + (capturedPiece << 24);  
+
+    return destinationSquare + (sourceSquare << 8) + (movingPiece << 16) + (capturedPiece << 24);
 }
 
 #pragma mark Accessing
 
 -(void)setDestinationSquare:(int)intValue {
-    
+
     if ((intValue < 0) || (intValue > 63)) {
         NSException *exception = [NSException exceptionWithName:@"Invalid Index"
                                                          reason:@"Board index out of range"
@@ -76,7 +76,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)setSourceSquare:(int)intValue {
-    
+
     if ((intValue < 0) || (intValue > 63)) {
         NSException *exception = [NSException exceptionWithName:@"Invalid Index"
                                                          reason:@"Board index out of range"
@@ -87,7 +87,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(int)promotion {
-    
+
     return type >> kExtractPromotionShift;
 }
 
@@ -103,7 +103,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)captureEnPassant:(int)aPiece from:(int)startSquare to:(int)endSquare {
-    
+
     movingPiece = capturedPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -111,7 +111,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)checkMate:(int)aPiece {
-    
+
     movingPiece = aPiece;
     self.sourceSquare = 0;
     destinationSquare = 0;
@@ -120,7 +120,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)doublePush:(int)aPiece from:(int)startSquare to:(int)endSquare {
-    
+
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -129,11 +129,11 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)move:(int)aPiece from:(int)startSquare to:(int)endSquare {
-    
+
 //    if ((1 == aPiece) && ((endSquare < 8) || (startSquare < 8))) {
 //        NSLog(@"illegal move?");
 //    }
-    
+
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -142,7 +142,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)move:(int)aPiece from:(int)startSquare to:(int)endSquare capture:(int)capture {
-    
+
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -151,7 +151,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)moveCastlingKingSide:(int)aPiece from:(int)startSquare to:(int)endSquare {
-    
+
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -160,7 +160,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)moveCastlingQueenSide:(int)aPiece from:(int)startSquare to:(int)endSquare {
-    
+
     movingPiece = aPiece;
     self.sourceSquare = startSquare;
     self.destinationSquare = endSquare;
@@ -169,13 +169,13 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)moveEncoded:(int)intValue {
-    
+
     self.destinationSquare = intValue & 255;        // setter checks for a value between 0 and 63
     self.sourceSquare = (intValue >> 8) & 255;      // setter checks for a value between 0 and 63
     movingPiece = (intValue >> 16) & 255;
     capturedPiece = (intValue >> 24) & 255;
     type = kMoveNormal;
-    
+
     assert(intValue == [self encodedMove]);
 }
 
@@ -190,7 +190,7 @@ static ChessMove *NullMove = nil;
 }
 
 -(void)staleMate:(int)aPiece {
-    
+
     movingPiece = aPiece;
     sourceSquare = 0;
     destinationSquare = 0;
@@ -208,12 +208,12 @@ static ChessMove *NullMove = nil;
 #pragma mark Comparing
 
 -(BOOL)isNullMove {
-    
+
     return (kNullMove == self.moveType);
 }
 
 -(BOOL)isEqual:(ChessMove *)aMove {
-    
+
     if (movingPiece != aMove.movingPiece) return NO;
     if (capturedPiece != aMove.capturedPiece) return NO;
     if (type != aMove.moveType) return NO;
@@ -223,20 +223,20 @@ static ChessMove *NullMove = nil;
 }
 
 -(NSInteger)hash {
-    
+
     NSUInteger mh = [[NSNumber numberWithInt:movingPiece] hash];
     NSUInteger ch = [[NSNumber numberWithInt:capturedPiece] hash];
     NSUInteger sh = [[NSNumber numberWithInt:sourceSquare] hash];
     NSUInteger dh = [[NSNumber numberWithInt:destinationSquare] hash];
     NSUInteger th = [[NSNumber numberWithInt:type] hash];
-    
+
     return (mh ^ ch ^ sh ^ dh ^ th);
 }
 
 #pragma mark Printing
 
 -(NSString *)moveString {
-    
+
     char *labels[] = { "", "", "N", "B", "R", "Q", "K" };
     char *c1 = labels[movingPiece];
     char c2 = 'a' + (sourceSquare & 7);
@@ -245,9 +245,9 @@ static ChessMove *NullMove = nil;
     char *c5 = labels[capturedPiece];
     char c6 = 'a' + (destinationSquare & 7);
     char c7 = '1' + (destinationSquare >> 3);
-    
+
     return [NSString stringWithFormat:@"%s%c%c%c%s%c%c", c1, c2, c3, c4, c5, c6, c7];
-    
+
 }
 
 -(NSString *)description {

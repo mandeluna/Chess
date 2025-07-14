@@ -15,13 +15,13 @@
 
 -(ChessTTEntry *)initializeWithEntry:(ChessTTEntry *)entry {
   ChessTTEntry *newEntry = [self init];
-  
+
   newEntry.value = entry.value;
   newEntry.valueType = entry.valueType;
   newEntry.depth = entry.depth;
   newEntry.hashLock = entry.hashLock;
   newEntry.timeStamp = entry.timeStamp;
-  
+
   return newEntry;
 }
 

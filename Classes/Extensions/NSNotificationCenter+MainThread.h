@@ -4,7 +4,7 @@
 //
 //  Created by Steve Wart on 2025-07-06.
 //
-
+#import <Foundation/Foundation.h>
 
 @interface NSNotificationCenter (MainThread)
  

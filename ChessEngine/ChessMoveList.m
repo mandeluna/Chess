@@ -19,27 +19,31 @@
 // Stream>>contents returns a copy of the contents; renamed here to correspond to cocoa memory usage hints
 //
 -(NSArray *)copyContents {
-    
+
     NSRange range;
-    
+
 //    if (startIndex > readLimit) {
 //        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
 //                                                         reason:@"ChessMoveList is invalid"
 //                                                       userInfo:nil];
 //        [exception raise];
 //    }
-    
+
     // collection copyFrom:startIndex to:readLimit
     range.location = startIndex;
     range.length = [self count];
-    
+
     NSArray *contentsCopy = [collection subarrayWithRange:range];
 
-    return contentsCopy;
+#if !__has_feature(objc_arc)
+  return [contentsCopy retain];
+#else
+  return contentsCopy;
+#endif
 }
 
 -(NSMutableArray *)originalContents {
-    
+
     return collection;
 }
 
@@ -49,20 +53,24 @@
 
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex {
 
-    int len;
-    
-    if (startIndex < 0) {
-        NSException *exception = [NSException exceptionWithName:@"Illegal index"
-                                                         reason:@"stream index cannot be negative"
-                                                       userInfo:nil];
-        [exception raise];
-    }
-    
-    startIndex = firstIndex;
-    collection = anArray;
-    readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
-    position = (firstIndex <= 1) ? 0 : firstIndex - 1;
-    
+  int len;
+
+  if (startIndex < 0) {
+      NSException *exception = [NSException exceptionWithName:@"Illegal index"
+                                                       reason:@"stream index cannot be negative"
+                                                     userInfo:nil];
+      [exception raise];
+  }
+
+#if !__has_feature(objc_arc)
+  collection = [anArray retain];
+#else
+  collection = anArray;
+#endif
+  startIndex = firstIndex;
+  readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
+  position = (firstIndex <= 1) ? 0 : firstIndex - 1;
+
 //    NSLog(@"created moveList startIndex = %d, readLimit = %d, position = %d, count = %d, atEnd = %d, isEmpty = %d",
 //          startIndex, readLimit, position, [self count], [self atEnd], [self isEmpty]);
 
@@ -82,20 +90,20 @@
 // Answer whether the receiver's contents has no elements
 //
 -(BOOL)isEmpty {
-  
+
     // returns true if both the set of past and future sequence values
     // of the receiver are empty. Otherwise returns false
-    
+
     return ([self atEnd] && (-1 == position));
-    
+
 }
 
 -(ChessMove *)next {
     if (position >= readLimit)
         return nil;
-    
+
     position++;
-    
+
     return [collection objectAtIndex:position];
 }
 
@@ -105,7 +113,7 @@
 // Sort elements i through j of the collection to be nondescending
 // according to sorter
 //
-// can't really use an NSComparator because we may be sharing the 
+// can't really use an NSComparator because we may be sharing the
 // contents with other move lists. So we sort in-place.
 //
 // TODO: there may be a more optimal approach. The Squeak version of
@@ -113,22 +121,30 @@
 // originally written in C
 //
 -(void)sort:(int)i to:(int)j using:(ChessHistoryTable *)sorter {
-    
+
     ChessMove *di, *dj, *dij, *tt, *dk, *dl;
     int n;
-    
+
     // the prefix d means that data at that index
     if ((n = j + 1 - i) <= 1)
         return;
-    
+
     // sort di, dj
     di = [collection objectAtIndex:i];
     dj = [collection objectAtIndex:j];
-    
+
     if (![sorter sorts:di before:dj]) {
         // swap in collection and in our copy of the elements
-        [collection replaceObjectAtIndex:i withObject:dj];
-        [collection replaceObjectAtIndex:j withObject:di];
+#if !__has_feature(objc_arc)
+      [di retain];
+      [dj retain];
+#endif
+      [collection replaceObjectAtIndex:i withObject:dj];
+      [collection replaceObjectAtIndex:j withObject:di];
+#if !__has_feature(objc_arc)
+      [di release];
+      [dj release];
+#endif
         tt = di; di = dj; dj = tt;
     }
 
@@ -137,13 +153,29 @@
         dij = [collection objectAtIndex:ij];  // sort di, dij, dj. Make dij be their median
         if ([sorter sorts:di before:dij]) {     // i.e. should di precede dij?
             if (![sorter sorts:dij before:dj]) {    // i.e. should dij preced dj?
+#if !__has_feature(objc_arc)
+              [dij retain]; // keep removed objects from being deallocated
+              [dj retain];
+#endif
                 [collection replaceObjectAtIndex:ij withObject:dj];
                 [collection replaceObjectAtIndex:j withObject:dij];
+#if !__has_feature(objc_arc)
+              [dij release];
+              [dj release];
+#endif
                 dij = dj;
             }
         } else {    // i.e. di should come after dij
+#if !__has_feature(objc_arc)
+          [dij retain];
+          [di retain];
+#endif
             [collection replaceObjectAtIndex:ij withObject:di];
             [collection replaceObjectAtIndex:i withObject:dij];
+#if !__has_feature(objc_arc)
+          [dij release];
+          [di release];
+#endif
             dij = di;
         }
     }
@@ -152,7 +184,7 @@
         // find k>i and l<j such that dk, dij, dl are in reverse order
         // swap k and l. Repeat this procedure until k and l pass each other
         int k = i, l = j;
-        
+
         do {
             // decrement l while dl succeeds dij
             do {
@@ -166,14 +198,22 @@
                 dk = [collection objectAtIndex:k];
             }
             while((k <= l) && [sorter sorts:dk before:dij]);
-            
+
             if (k <= l) {
+#if !__has_feature(objc_arc)
+              [dl retain];
+              [dk retain];
+#endif
                 [collection replaceObjectAtIndex:l withObject:dk];
                 [collection replaceObjectAtIndex:k withObject:dl];
+#if !__has_feature(objc_arc)
+              [dl release];
+              [dk release];
+#endif
             }
         }
         while (k <= l);
-        
+
         // now l<k (either 1 or 2 less), and di through dl ar all less than
         // or equal to dk through dj. Sort those two segments
         [self sort:i to:l using:sorter];
@@ -182,7 +222,7 @@
 }
 
 -(void)sortUsing:(ChessHistoryTable *)sorter {
-    
+
     [self sort:startIndex to:readLimit using:sorter];
 }
 

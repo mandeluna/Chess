@@ -11,6 +11,7 @@
 #import "ChessMove.h"
 #import "ChessMoveGenerator.h"
 #import "ChessMoveList.h"
+#import "NSNotificationCenter+MainThread.h"
 
 // piece values
 
@@ -19,15 +20,15 @@ static int PieceValues[7] = {0, 100, 300, 350, 500, 900, 2000};
 // center scores
 
 static int PieceCenterScores[7][64] = {
-    
+
     // PieceCenterScores[kEmptySquare] -- placeholder
-    
+
     { 0 },
-    
+
     // PieceCenterScores[kPawn]
-    
+
     { 0 },
-    
+
     // PieceCenterScores[kKnight]
     {
         -4,	0,	0,	0,	0,	0,	0,	-4,
@@ -39,7 +40,7 @@ static int PieceCenterScores[7][64] = {
         -4,	0,	2,	2,	2,	2,	0,	-4,
         -4,	0,	0,	0,	0,	0,	0,	-4
     },
-    
+
     // PieceCenterScores[kBishop]
     {
         -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2,
@@ -51,11 +52,11 @@ static int PieceCenterScores[7][64] = {
         -2,	0,	0,	0,	0,	0,	0,	-2,
         -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2
     },
-    
+
     // PieceCenterScores[kRook]
-    
+
     { 0 },
-    
+
     // PieceCenterScores[kQueen]
     {
         -3,	0,	0,	0,	0,	0,	0,	-3,
@@ -67,9 +68,9 @@ static int PieceCenterScores[7][64] = {
         -2,	0,	0,	0,	0,	0,	0,	-2,
         -3,	0,	0,	0,	0,	0,	0,	-3
     },
-    
+
     // PieceCenterScores[kKing]
-    
+
     { 0 }
 };
 
@@ -82,12 +83,12 @@ static int PieceCenterScores[7][64] = {
     if (self = [super init]) {
         //    bzero(pieces, 64 * sizeof(char));
         pieces = calloc(64, sizeof(unsigned char));
-        
+
         if (!pieces) {
             NSLog(@"memory allocation failed");
             return nil;
         }
-        
+
         materialValue = 0;
         positionalValue = 0;
         numPawns = 0;
@@ -100,7 +101,7 @@ static int PieceCenterScores[7][64] = {
 
 -(ChessPlayer *)initializeWithPlayer:(ChessPlayer *)player {
   [self init];
-  
+
   memcpy(pieces, player.pieces, 64 * sizeof(unsigned char));
   opponent = player.opponent;
   board = player.board;
@@ -110,32 +111,40 @@ static int PieceCenterScores[7][64] = {
   enpassantSquare = player.enpassantSquare;
   castlingRookSquare = player.castlingRookSquare;
   castlingStatus = player.castlingStatus;
-  
+
   return self;
 }
+
+#if !__has_feature(objc_arc)
+-(void)dealloc {
+    free(pieces);
+    pieces = nil;
+    [super dealloc];
+}
+#endif
 
 //
 // Clear enpassant square and reset any pending extra kings
 //
 -(void)prepareNextMove {
-    
+
     enpassantSquare = -1;
-    
+
     if (castlingRookSquare >= 0) {
         pieces[castlingRookSquare] = kRook;
     }
-    
+
     castlingRookSquare = -1;
 }
 
 #pragma mark Adding/Removing
 
 -(void)addBlackPieces {
-        
+
     for (int i=48; i<=55; i++) {
         [self addPiece:kPawn at: i];
     }
-    
+
     [self addPiece:kRook at:56];
     [self addPiece:kKnight at:57];
     [self addPiece:kBishop at:58];
@@ -147,20 +156,26 @@ static int PieceCenterScores[7][64] = {
 }
 
 -(void)addPiece:(int)piece at:(int)square {
-    
-    pieces[square] = piece;
-    materialValue += PieceValues[piece];
-    positionalValue += PieceCenterScores[piece][square];
-    
-    if (kPawn == piece) {
-        numPawns++;
-    }
-    
-    [board updateHash:piece at:square from:self];
+
+  pieces[square] = piece;
+  materialValue += PieceValues[piece];
+  positionalValue += PieceCenterScores[piece][square];
+
+  if (kPawn == piece) {
+      numPawns++;
+  }
+
+  [board updateHash:piece at:square from:self];
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:self.isWhitePlayer] };
+    NSString *notificationName = self.isWhitePlayer ? @"AddedPiece" : @"AddedPiece";
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:notificationName object:description];
+  }
 }
 
 -(void)addWhitePieces {
-    
+
     [self addPiece:kRook at:0];
     [self addPiece:kKnight at:1];
     [self addPiece:kBishop at:2];
@@ -172,83 +187,101 @@ static int PieceCenterScores[7][64] = {
 
     for (int i=8; i<=15; i++) {
         [self addPiece:kPawn at: i];
-    }    
+    }
 }
 
 -(void)movePiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
-    
-    int *score = PieceCenterScores[piece];
-    positionalValue -= score[sourceSquare];
-    positionalValue += score[destSquare];
-    pieces[sourceSquare] = 0;
-    pieces[destSquare] = piece;
-    
-    [board updateHash:piece at:sourceSquare from:self];
-    [board updateHash:piece at:destSquare from:self];
+
+  int *score = PieceCenterScores[piece];
+  positionalValue -= score[sourceSquare];
+  positionalValue += score[destSquare];
+  pieces[sourceSquare] = 0;
+  pieces[destSquare] = piece;
+
+  [board updateHash:piece at:sourceSquare from:self];
+  [board updateHash:piece at:destSquare from:self];
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece" : [NSNumber numberWithInt:piece], @"from": [NSNumber numberWithInt:sourceSquare], @"to" : [NSNumber numberWithInt:destSquare] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"MovedPiece" object:description];
+  }
 }
 
 -(void)removePiece:(int)piece at:(int)square {
-    
+
     pieces[square] = 0;
     materialValue -= PieceValues[piece];
     positionalValue -= PieceCenterScores[piece][square];
-    
+
     if (kPawn == piece) {
         numPawns--;
+        if (board.hasUserAgent) {
+          NSLog(@"black has %d pawns, white has %d pawns", board.blackPlayer->numPawns, board.whitePlayer->numPawns);
+        }
     }
-    
+
     [board updateHash:piece at:square from:self];
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"RemovedPiece" object:description];
+  }
 }
 
 -(void)replacePiece:(int)oldPiece with:(int)newPiece at:(int)square {
-    
+
     pieces[square] = newPiece;
     materialValue = materialValue - PieceValues[oldPiece] + PieceValues[newPiece];
     positionalValue -= PieceCenterScores[oldPiece][square];
     positionalValue += PieceCenterScores[newPiece][square];
-    
+
     if (kPawn == oldPiece) {
         numPawns--;
     }
-    
+
     if (kPawn == newPiece) {
         numPawns++;
     }
-    
+
     [board updateHash:oldPiece at:square from:self];
     [board updateHash:newPiece at:square from:self];
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"old": [NSNumber numberWithInt:oldPiece], @"new" : [NSNumber numberWithInt:newPiece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:[self isWhitePlayer]] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"ReplacedPiece" object:description];
+  }
 }
 
 #pragma mark moving
 
 -(void)applyCastleKingSideMove:(ChessMove *)move {
- 
+
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
     [self movePiece:kRook from:[move sourceSquare]+3 to:(castlingRookSquare = [move sourceSquare]+1)];
-    
+
     pieces[castlingRookSquare] = kKing;
     castlingStatus ^= kCastlingDone;
 }
 
 -(void)applyCastleQueenSideMove:(ChessMove *)move {
-    
+
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
     [self movePiece:kRook from:[move sourceSquare]-4 to:(castlingRookSquare = [move sourceSquare]-1)];
-    
+
     pieces[castlingRookSquare] = kKing;
     castlingStatus ^= kCastlingDone;
 }
 
 -(void)applyDoublePushMove:(ChessMove *)move {
-    
+
     // calculate the field between start and destination (bitShift: -1)
     enpassantSquare = (move.sourceSquare + move.destinationSquare) >> 1;
-    
+
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
 }
 
 -(void)applyEnPassantMove:(ChessMove *)move {
-    
+
     [opponent removePiece:[move capturedPiece] at:[move destinationSquare] - ([self isWhitePlayer] ? 8 : -8)];
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
 }
@@ -257,9 +290,9 @@ static int PieceCenterScores[7][64] = {
 // apply the given move
 //
 -(void)applyMove:(ChessMove *)move {
-    
+
     int type = [move moveType] & kBasicMoveMask;
-        
+
     switch(type) {
         case kMoveNormal:
             [self applyNormalMove:move];
@@ -286,61 +319,63 @@ static int PieceCenterScores[7][64] = {
             NSLog(@"applying unknown move %d", type);
             break;
     }
-    
+
     // promote if necessary
     [self applyPromotion:move];
-    
+
     // maintain castling status
     [self updateCastlingStatus:move];
 }
 
 -(void)applyNormalMove:(ChessMove *)move {
-    
+
     int piece = [move capturedPiece];
-    
+
     if (kEmptySquare != piece) {
         [opponent removePiece:piece at:[move destinationSquare]];
     }
-    
+
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
 }
 
 -(void)applyPromotion:(ChessMove *)move {
-    
+
     int piece = [move promotion];
-    
+
     if (piece) {
         [self replacePiece:[move movingPiece] with:piece at:[move destinationSquare]];
     }
 }
 
 -(void)applyResign:(ChessMove *)move {
-    
-//    if ([self userAgent]) {
-//        [[self userAgent] finishedGame:![self isWhitePlayer]];
-//    }
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"white": [NSNumber numberWithBool:[self isWhitePlayer]] };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"FinishedGame" object:description];
+  }
 }
 
 -(void)applyStaleMate:(ChessMove *)move {
-    
-//    if ([self userAgent]) {
-//        [[self userAgent] finishedGame:0.5];
-//    }
+
+  if ([self hasUserAgent]) {
+    NSDictionary *description = @{ @"stalemate": @YES };
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"FinishedGame" object:description];
+  }
 }
 
 -(void)updateCastlingStatus:(ChessMove *)move {
-    
+
     // cannot castle when king has moved
     if (kKing == [move movingPiece]) {
         castlingStatus |= kCastlingDisableAll;
         return;
     }
-    
+
     // see if a rook has moved
     if (kRook == [move movingPiece]) {
         return;
     }
-    
+
     if ([self isWhitePlayer]) {
         if (0 == [move sourceSquare]) {
             castlingStatus |= kCastlingDisableQueenSide;
@@ -361,31 +396,35 @@ static int PieceCenterScores[7][64] = {
 
 #pragma mark accessing
 
+-(BOOL) hasUserAgent {
+  return [board hasUserAgent];
+}
+
 -(int)pieceAt:(int)square {
-    
+
     if (square > 63) {
         NSLog(@"index out of range: pieces[%2d]", square);
         NSException *exception = [NSException exceptionWithName:@"Index out of range"
                                                          reason:@"" userInfo:nil];
         [exception raise];
     }
-    
+
     return pieces[square];
 }
 
 -(unsigned char *)pieces {
-    
+
     return pieces;
 }
 
 #pragma mark testing
 
 -(BOOL)canCastleKingSide {
-    
+
     if (castlingStatus & kCastlingEnableKingSide) {
         return NO;
     }
-    
+
     if ([self isWhitePlayer]) {
         if (pieces[5] || pieces[6] || [opponent pieceAt:5] || [opponent pieceAt:6]) {
             return NO;
@@ -396,16 +435,16 @@ static int PieceCenterScores[7][64] = {
             return NO;
         }
     }
-    
+
     return YES;
 }
 
 -(BOOL)canCastleQueenSide {
-    
+
     if (castlingStatus & kCastlingEnableQueenSide) {
         return NO;
     }
-    
+
     if ([self isWhitePlayer]) {
         if (pieces[1] || pieces[2] || pieces[3] || [opponent pieceAt:1] || [opponent pieceAt:2] || [opponent pieceAt:3]) {
             return NO;
@@ -416,7 +455,7 @@ static int PieceCenterScores[7][64] = {
             return NO;
         }
     }
-    
+
     return YES;
 }
 
@@ -424,17 +463,20 @@ static int PieceCenterScores[7][64] = {
 // if the receiver's king can't be taken after applying the move, it is valid
 //
 -(BOOL)isValidMove:(ChessMove *)move {
-    
+
     ChessBoard *copy = [board copy];
     [copy nextMove:move];
-    
+
     NSArray *possibleMoves = [[copy activePlayer] findPossibleMoves];
-    
+    #if !__has_feature(objc_arc)
+    [copy release];
+    #endif
+
     return (nil != possibleMoves);
 }
 
 -(BOOL)isValidMoveFrom:(int)sourceSquare to:(int)destSquare {
-    
+
     for (ChessMove *move in [self findValidMovesAt:sourceSquare]) {
        if (destSquare == [move destinationSquare]) {
            return YES;
@@ -444,7 +486,7 @@ static int PieceCenterScores[7][64] = {
 }
 
 -(BOOL)isWhitePlayer {
-    
+
     return ([board whitePlayer] == self);
 }
 
@@ -452,17 +494,26 @@ static int PieceCenterScores[7][64] = {
 
 -(void)postCopy {
     unsigned char *piecesCopy = calloc(64, sizeof(unsigned char));
-    
+
+    if (!piecesCopy) {
+        NSLog(@"memory allocation error");
+        self = nil;
+        return;
+    }
+
     memcpy(piecesCopy, pieces, 64 * sizeof(char));
     pieces = piecesCopy;
 }
 
 // shallow copy
 -(id)copyWithZone:(NSZone *)zone {
-    
-  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
+
+  // shallow copy
+  id copy = NSCopyObject(self, 0, zone);
+
+//  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
   [copy postCopy];
-  
+
   return copy;
 }
 
@@ -470,7 +521,7 @@ static int PieceCenterScores[7][64] = {
 // copy all volatile state from another player
 //
 -(void)copyPlayer:(ChessPlayer *)aPlayer {
-    
+
     castlingRookSquare = aPlayer.castlingRookSquare;
     enpassantSquare = aPlayer.enpassantSquare;
     castlingStatus = aPlayer.castlingStatus;
@@ -483,7 +534,7 @@ static int PieceCenterScores[7][64] = {
 #pragma mark evaluation
 
 -(int)evaluate {
-    
+
     return [self evaluateMaterial] + [self evaluatePosition];
 }
 
@@ -492,15 +543,15 @@ static int PieceCenterScores[7][64] = {
 // player.  This is an exact clone of the eval function in CHESS 4.5
 //
 -(int)evaluateMaterial {
-    
+
     int omv = [opponent materialValue];
-    
+
     if (materialValue == omv)   // both sides are equal
         return 0;
-    
+
     int total = materialValue + omv;
     int diff = materialValue - omv;
-    
+
     return MIN(2400,diff) + ((diff * (12000 - total) * numPawns) / (6400 * (numPawns + 1)));
 }
 
@@ -508,7 +559,7 @@ static int PieceCenterScores[7][64] = {
 // Compute the board's positional balance, from the point of view of the side player
 //
 -(int)evaluatePosition {
-    
+
     return positionalValue - [opponent positionalValue];
 }
 
@@ -521,24 +572,31 @@ static int PieceCenterScores[7][64] = {
 // If the game is stale mate (e.g., the receiver has no move left) this method returns an empty array.
 //
 -(NSArray *)findPossibleMoves {
-    
+
     ChessMoveList *moveList = [board.generator findPossibleMovesFor:self];
 
     if (nil == moveList)
         return nil;
-    
+
     NSMutableArray *moves = [NSMutableArray array];
     NSArray *contentsCopy = [moveList copyContents];
-    
+
     for (ChessMove *move in contentsCopy) {
         ChessMove *moveCopy = [move copy];
         if (moveCopy.destinationSquare > 63) {
             NSLog(@"invalid move");
         }
         [moves addObject:moveCopy];
+#if !__has_feature(objc_arc)
+        [moveCopy release];
+#endif
     }
-    
-    
+
+#if !__has_feature(objc_arc)
+    [contentsCopy release];
+#endif
+    [board.generator recycleMoveList:moveList];
+
     return moves;
 }
 
@@ -549,26 +607,32 @@ static int PieceCenterScores[7][64] = {
 // If the game is stale mate (e.g., the receiver has no move left) this method returns an empty array.
 //
 -(NSArray *)findPossibleMovesAt:(int)square {
-    
+
     ChessMoveList *moveList = [board.generator findPossibleMovesFor:self at:square];
-    
+
     if (nil == moveList)
         return nil;
-    
+
     NSMutableArray *moves = [NSMutableArray array];
-    
+
     NSArray *contentsCopy = [moveList copyContents];
-    
+
     for (ChessMove *move in contentsCopy) {
         ChessMove *moveCopy = [move copy];
         if (moveCopy.destinationSquare > 63) {
             NSLog(@"invalid move");
         }
         [moves addObject:moveCopy];
+#if !__has_feature(objc_arc)
+        [moveCopy release];
+#endif
     }
-      
+
+#if !__has_feature(objc_arc)
+    [contentsCopy release];
+#endif
     [board.generator recycleMoveList:moveList];
-    
+
     return moves;
 }
 
@@ -579,14 +643,14 @@ static int PieceCenterScores[7][64] = {
 // If the game is stale mate (e.g., the receiver has no move left) this method returns an empty array.
 //
 -(NSArray *)findQuiescenceMoves {
-    
+
     ChessMoveList *moveList = [board.generator findQuiescenceMovesFor:self];
-    
+
     if (nil == moveList)
         return nil;
-    
+
     NSMutableArray *moves = [NSMutableArray arrayWithArray:[moveList originalContents]];
-    
+
     for (ChessMove *move in [moveList originalContents]) {
         ChessMove *moveCopy = [move copy];
         if (moveCopy.destinationSquare > 63) {
@@ -594,9 +658,9 @@ static int PieceCenterScores[7][64] = {
         }
         [moves addObject:moveCopy];
     }
-    
+
     [board.generator recycleMoveList:moveList];
-    
+
     return moves;
 }
 
@@ -604,14 +668,14 @@ static int PieceCenterScores[7][64] = {
 // find all the valid moves
 //
 -(NSArray *)findValidMoves {
-    
+
     NSArray *moveList = [self findPossibleMoves];
-    
+
     if (nil == moveList)
         return nil;
-    
+
     NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
-    
+
     for (ChessMove *move in moveList) {
         if ([self isValidMove:move]) {
             ChessMove *moveCopy = [move copy];
@@ -619,21 +683,24 @@ static int PieceCenterScores[7][64] = {
                 NSLog(@"invalid move");
             }
             [moves addObject:moveCopy];
+#if !__has_feature(objc_arc)
+            [moveCopy release];
+#endif
         }
     }
-    
+
     return moves;
 }
 
 -(NSArray *)findValidMovesAt:(int)square {
-    
+
     NSArray *moveList = [self findPossibleMovesAt:square];
-    
+
     if (nil == moveList)
         return nil;
-    
+
     NSMutableArray *moves = [NSMutableArray arrayWithCapacity:[moveList count]];
-    
+
     for (ChessMove *move in moveList) {
         if ([self isValidMove:move]) {
             ChessMove *copy = [move copy];
@@ -641,47 +708,50 @@ static int PieceCenterScores[7][64] = {
             if (copy.destinationSquare > 63) {
                 NSLog(@"invalid move");
             }
+#if !__has_feature(objc_arc)
+            [copy release];
+#endif
         }
     }
-    
+
     return moves;
 }
 
 #pragma mark undo
 
 -(void)undoCastlingKingSideMove:(ChessMove *)move {
-    
+
     // remove extra kings
     [self prepareNextMove];
-    
+
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
     [self movePiece:kRook from:[move sourceSquare]+1 to:[move sourceSquare]+3];
 }
 
 -(void)undoCastlingQueenSideMove:(ChessMove *)move {
-    
+
     // remove extra kings
     [self prepareNextMove];
-    
+
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
     [self movePiece:kRook from:[move sourceSquare]-1 to:[move sourceSquare]-4];
 }
 
 -(void)undoDoublePushMove:(ChessMove *)move {
-    
+
     enpassantSquare = -1;
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
 }
 
 -(void)undoEnpassantMove:(ChessMove *)move {
-    
+
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
-    
+
     [opponent addPiece:[move capturedPiece] at:[move destinationSquare] - ([self isWhitePlayer] ? 8 : -8)];
 }
 
 -(void)undoMove:(ChessMove *)move {
-    
+
     int type = [move moveType] & kBasicMoveMask;
 
     switch(type) {
@@ -713,31 +783,31 @@ static int PieceCenterScores[7][64] = {
 }
 
 -(void)undoNormalMove:(ChessMove *)move {
-    
+
     [self movePiece:[move movingPiece] from:[move destinationSquare] to:[move sourceSquare]];
-    
+
     int piece = [move capturedPiece];
-    
+
     if (kEmptySquare != piece) {
         [opponent addPiece:piece at:[move destinationSquare]];
     }
 }
 
 -(void)undoPromotion:(ChessMove *)move {
-    
+
     int piece = [move promotion];
-    
+
     if (piece) {
         [self replacePiece:piece with:[move movingPiece] at:[move destinationSquare]];
     }
 }
 
 -(void)undoResign:(ChessMove *)move {
-    
+
 }
 
 -(void)undoStaleMate:(ChessMove *)move {
-    
+
 }
 
 @end

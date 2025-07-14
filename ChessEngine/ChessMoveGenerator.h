@@ -37,17 +37,17 @@ enum {
 #define kCastlingEnableQueenSide        (kCastlingDone | kCastlingDisableQueenSide)
 
 typedef struct {
-    
+
     int count;
     int *moves;
-    
+
 } DirectionalMoveList;
 
 typedef struct {
-    
+
     int count;
     DirectionalMoveList *directionalMoves;
-    
+
 } PossibleMoveList;
 
 @interface ChessMoveGenerator : NSObject {
@@ -69,10 +69,9 @@ typedef struct {
     ChessMove *kingAttack;
 }
 
-@property(nonatomic, retain) ChessMove *kingAttack;
+@property(nonatomic, assign) ChessMove *kingAttack;
 
 // public
-
 -(char *)attackSquares;
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player;
 -(char *)findAttackSquaresFor:(ChessPlayer *)player;

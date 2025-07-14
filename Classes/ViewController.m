@@ -534,7 +534,13 @@ static NSString *imageNames[12] = {
 //
 -(void)validateGamePosition {
     
-    for (int i=0; i<64; i++) {
+#if __has_feature(objc_arc)
+  NSLog(@"ARC is enabled");
+#else
+  NSLog(@"ARC is not enabled");
+#endif
+
+  for (int i=0; i<64; i++) {
         
         int piece = 0;
         BOOL screenIsWhite = NO;
@@ -660,7 +666,7 @@ static NSString *imageNames[12] = {
   [undoButton setEnabled:NO];
   [redoButton setEnabled:NO];
   
-  [self validateGamePosition];
+//  [self validateGamePosition];
 }
 
 -(IBAction)newGame {
@@ -1662,6 +1668,12 @@ static NSString *imageNames[12] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+#if __has_feature(objc_arc)
+  NSLog(@"ARC is enabled");
+#else
+  NSLog(@"ARC is not enabled");
+#endif
+
   CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
   [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
