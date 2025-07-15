@@ -65,6 +65,10 @@ func run(_ source: String) async {
 // --> results in nonsensical h7h8
 // 00008,r6k/pp2r2p/4Rp1Q/3p4/8/1N1P2R1/PqP2bPP/7K b - - 0 24,f2g3 e6e7 b2b1 b3c1 b1c1 h6c1,1978,77,95,8125,crushing hangingPiece long middlegame,https://lichess.org/787zsVup/black#48
 // --> results in index out of range exception (castling king side during board search)
+// TODO parse next player to move
+// TODO implicitly make first move
+// TODO unit tests to validate subsequent moves
+// TODO parse moves in UCI format, display them in SAN (with unicode glyphs)
 func handlePositionCommand(_ tokens: [Substring]) {
   if let fenIndex = tokens.firstIndex(of: "fen") {
     let fenString = tokens[fenIndex + 1]

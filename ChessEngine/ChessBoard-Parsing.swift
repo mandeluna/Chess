@@ -1,5 +1,5 @@
 //
-//  ChessBoard-FEN.swift
+//  ChessBoard-Parsing.swift
 //  Chess
 //
 //  Created by Steve Wart on 2025-07-15.
