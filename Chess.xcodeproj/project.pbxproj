@@ -169,6 +169,7 @@
 		AAE16D302E243E2D003DFB22 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"ChessBoard-Parsing.swift",
 				ChessBoard.m,
 				ChessHistoryTable.m,
 				ChessMove.m,
@@ -455,6 +456,9 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 0420;
 				TargetAttributes = {
+					1D6058900D05DD3D006BFB54 = {
+						LastSwiftMigration = 1640;
+					};
 					AAEDD0292E17112300A90C54 = {
 						CreatedOnToolsVersion = 16.4;
 						LastSwiftMigration = 1640;
@@ -565,6 +569,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -579,6 +584,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/Chess-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -588,6 +596,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -600,6 +609,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = "Chess Friends";
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/Chess-Bridging-Header.h";
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -615,8 +626,8 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -684,8 +695,8 @@
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;

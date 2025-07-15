@@ -10,7 +10,7 @@ import Foundation
 var board = ChessBoard()
 board.initializeNewBoard()
 
-func main() throws {
+func main() async throws {
   let args = CommandLine.arguments
   print(args)
 
@@ -19,44 +19,62 @@ func main() throws {
     exit(64)
   }
   else if args.count == 2 {
-    try runFile(args[1])
+    try await runFile(args[1])
   }
   else {
-    try runPrompt()
+    try await runPrompt()
   }
 }
 
-func runFile(_ path: String) throws {
+func runFile(_ path: String) async throws {
   let string = try String(contentsOfFile: path, encoding:.utf8)
-  run(string)
+  await run(string)
 }
 
-func runPrompt() throws {
+func runPrompt() async throws {
   while true {
     print("> ", terminator: "")
     guard let line = readLine() else { break }
-    run(line)
+    await run(line)
   }
 }
 
-func run(_ source: String) {
-  let scanner = Tokenizer(source: source)
-  let tokens = scanner.scanTokens()
-  
-  // for now, just print the tokens
-  for token in tokens {
-    switch token.type {
-    case .IDENTIFIER:
-      if ("show".elementsEqual(token.lexeme)) {
-        print(board)
+func run(_ source: String) async {
+  let tokens = source.split(separator: " ")
+  if let token = tokens.first {
+    switch token {
+    case "show":
+      await print(board)
+      break
+    case "go":
+      if let move = await board.searchAgent.findMove() {
+        print(move)
       }
-      else if ("go".elementsEqual(token.lexeme)) {
-        board.searchAgent.startThinking()
-      }
+      break
+    case "position":
+      handlePositionCommand(tokens)
+      break
     default:
-      // do not print anything for unrecognized tokens
+      // do not print anything for unrecognized commands
       break
     }
+  }
+}
+
+// 000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,1039,79,100,171,kingsideAttack mate mateIn1 oneMove opening,https://lichess.org/seIMDWkD#25,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
+// --> results in nonsensical h7h8
+// 00008,r6k/pp2r2p/4Rp1Q/3p4/8/1N1P2R1/PqP2bPP/7K b - - 0 24,f2g3 e6e7 b2b1 b3c1 b1c1 h6c1,1978,77,95,8125,crushing hangingPiece long middlegame,https://lichess.org/787zsVup/black#48
+// --> results in index out of range exception (castling king side during board search)
+func handlePositionCommand(_ tokens: [Substring]) {
+  if let fenIndex = tokens.firstIndex(of: "fen") {
+    let fenString = tokens[fenIndex + 1]
+    board.initializeFromFEN(String(fenString))
+  }
+  else if let startposIndex = tokens.firstIndex(of: "startpos") {
+    print("> position startpos command")
+  }
+  else {
+    print("> Invalid position command")
   }
 }
 
@@ -71,4 +89,4 @@ func report(line: Int, context: String, message: String) {
   hadError = true
 }
 
-try main()
+try await main()

@@ -68,6 +68,7 @@
 -(BOOL)isThinking;
 -(void)startThinking;
 -(void)thinkThread;
+-(void)findMove: (void (^)(ChessMove *move))completion;
 -(long)timeToThink;
 -(void)checkClock;
 

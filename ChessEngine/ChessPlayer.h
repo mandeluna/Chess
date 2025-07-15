@@ -50,6 +50,7 @@
 -(void)movePiece:(int)piece from:(int)start to:(int)end;
 -(void)removePiece:(int)piece at:(int)square;
 -(void)replacePiece:(int)piece with:(int)anotherPiece at:(int)square;
+-(void)removeAllPieces;
 
 // moving
 

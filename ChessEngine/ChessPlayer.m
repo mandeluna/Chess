@@ -228,6 +228,15 @@ static int PieceCenterScores[7][64] = {
   }
 }
 
+-(void)removeAllPieces {
+  for (int square=0; square<64; square++) {
+    int piece = [self pieceAt:square];
+    if (piece > 0) {
+      [self removePiece:piece at:square];
+    }
+  }
+}
+
 -(void)replacePiece:(int)oldPiece with:(int)newPiece at:(int)square {
 
     pieces[square] = newPiece;

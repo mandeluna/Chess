@@ -248,7 +248,9 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
 -(NSString *)printPieces {
   NSMutableString *result = [NSMutableString string];
 
-  [result appendString: [NSString stringWithFormat: @"\nkey: %d, lock: %d", _hashKey, _hashLock]];
+//  [result appendString: [NSString stringWithFormat: @"\nkey: %d, lock: %d", _hashKey, _hashLock]];
+  NSString *nextString = (_activePlayer == _whitePlayer) ? @"White to Move" : @"Black to Move";
+  [result appendString: nextString];
 
   [result appendString: @"\n╔═╤═╤═╤═╤═╤═╤═╤═╗╮"];
 
@@ -275,7 +277,7 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
       [result appendString: @" "];
     }
     if (col == 7) {
-      [result appendString: [NSString stringWithFormat:@"║%d", row + 1]];
+      [result appendString: [NSString stringWithFormat:@"║%d", 8 - row]];
     }
     else {
       [result appendString:@"│"];
