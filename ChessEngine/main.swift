@@ -82,15 +82,4 @@ func handlePositionCommand(_ tokens: [Substring]) {
   }
 }
 
-func error(line: Int, message: String) {
-  report(line: line, context:"", message: message)
-}
-
-var hadError = false
-
-func report(line: Int, context: String, message: String) {
-  print("[line: \(line)] Error: \(context) \(message)")
-  hadError = true
-}
-
 try await main()

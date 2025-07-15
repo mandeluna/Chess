@@ -8,10 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import <GameKit/GameKit.h>
-#import "BrowserViewController.h"
-#import "Picker.h"
-#import "TCPServer.h"
 
 @class ChessBoard;
 @class ChessPieceLayer;
@@ -93,10 +89,7 @@ typedef struct {
 } GameMessage;
 
 
-@interface ViewController : UIViewController <UIActionSheetDelegate,
-	UIPopoverControllerDelegate,
-	BrowserViewControllerDelegate, TCPServerDelegate, NSStreamDelegate,
-														GKVoiceChatClient, GKPeerPickerControllerDelegate, GKSessionDelegate>
+@interface ViewController : UIViewController <UIActionSheetDelegate, UIPopoverControllerDelegate>
 {
     CALayer *boardLayer;
     NSMutableArray *squares;
@@ -131,30 +124,6 @@ typedef struct {
     
     BOOL usePopoverController;      // true if we are running on an iPad
     
-    // data connections from witap example
-    Picker*				picker;
-	TCPServer*			server;
-	NSInputStream*		inStream;
-	NSOutputStream*		outStream;
-	BOOL				inReady;
-	BOOL				outReady;
-    
-	//ivars for voice chat
-	BOOL				hasTCPServer;
-	BOOL				interruptedVoiceChat;
-	BOOL				didStartVoiceChat;
-	GKVoiceChatService  *vcService;
-	VoiceMessageHeader	*currentMessageHeader;
-	NSMutableData		*currentMessageBuffer;
-	NSString			*remoteInstanceName;    // name of game counterparty
-	NSString			*remoteParticipantID;   // last voice chat counterparty
-    
-    NSString            *pendingParticipantID;  // participant ID of requesting caller
-    NSInteger           pendingCallID;          // call ID of requesting caller 
-    
-    // TODO: update session management to use GKSessions
-    GKSession           *session;
-    
     // need to keep track of it so we can dismiss it if user attempts to invoke it multiple times
     UIActionSheet       *gameSelectionActionSheet;
     
@@ -162,7 +131,6 @@ typedef struct {
 															
     // this class is the delegate for several different alert views, so we need to keep track of them in the callback
     UIAlertView         *suggestedMoveAlertView;
-    UIAlertView         *voiceChatInvitationAlertView;
     UIAlertView         *startNewGameAlertView;
     UIAlertView         *undoMoveRequestAlertView;  // displayed when opponent requests to take back a move
     WaitingAlertView    *undoMoveWaitAlertView;     // displayed while waiting for opponent to respond to above request
@@ -234,13 +202,6 @@ typedef enum {
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 
 -(BOOL)isPlayerWhite;
-
-#pragma mark VoiceChatClient protocol required methods
-- (NSString *)participantID; //voice chat client protocol required method
-
-- (void)voiceChatService:(GKVoiceChatService *)voiceChatService 
-				sendData:(NSData *)data 
-		 toParticipantID:(NSString *)participantID;
 
 @end
 

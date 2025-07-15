@@ -18,16 +18,10 @@
 		690A39EE125FEEFC00E1173B /* Settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 690A39ED125FEEFC00E1173B /* Settings.plist */; };
 		690A3BE7126215CF00E1173B /* UIButtonBarPlay.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */; };
 		690A3BF01262164500E1173B /* UIButtonBarRevert.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BEF1262164500E1173B /* UIButtonBarRevert.png */; };
-		690A3C811262310D00E1173B /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3C801262310D00E1173B /* GameKit.framework */; };
 		690A3CE3126239C900E1173B /* blackButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE2126239C900E1173B /* blackButton.png */; };
 		690A3CE512623A2E00E1173B /* clearButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE412623A2E00E1173B /* clearButton.png */; };
-		690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0412623E0000E1173B /* BrowserViewController.m */; };
-		690A3D0812623E0000E1173B /* TCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0612623E0000E1173B /* TCPServer.m */; };
-		690A3D0B12623E8100E1173B /* Picker.m in Sources */ = {isa = PBXBuildFile; fileRef = 690A3D0A12623E8100E1173B /* Picker.m */; };
 		690A3D1C1262453C00E1173B /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3D1B1262453C00E1173B /* bg.png */; };
-		690A3D921262466B00E1173B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D911262466B00E1173B /* CoreAudio.framework */; };
 		690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D971262467500E1173B /* AVFoundation.framework */; };
-		690A3DA01262468E00E1173B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D9F1262468E00E1173B /* AudioToolbox.framework */; };
 		690E50ED123417E600DC1CED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		690E510112341DB500DC1CED /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
 		690E510212341DB500DC1CED /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
@@ -61,7 +55,6 @@
 		69C4847B1218BFC300089898 /* blackplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C484791218BFC300089898 /* blackplayer.png */; };
 		69C4847C1218BFC300089898 /* redplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4847A1218BFC300089898 /* redplayer.png */; };
 		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
-		69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D353831257C6FF002E2FB9 /* MediaPlayer.framework */; };
 		69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F9E016126BC41B0025491A /* WaitingAlertView.m */; };
 		AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359C179053C40059A4EA /* checkmark20x14.png */; };
 		AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359D179053C40059A4EA /* checkmark40x28.png */; };
@@ -103,12 +96,6 @@
 		690A3C801262310D00E1173B /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		690A3CE2126239C900E1173B /* blackButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackButton.png; sourceTree = "<group>"; };
 		690A3CE412623A2E00E1173B /* clearButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clearButton.png; sourceTree = "<group>"; };
-		690A3D0312623E0000E1173B /* BrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrowserViewController.h; sourceTree = "<group>"; };
-		690A3D0412623E0000E1173B /* BrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BrowserViewController.m; sourceTree = "<group>"; };
-		690A3D0512623E0000E1173B /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
-		690A3D0612623E0000E1173B /* TCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TCPServer.m; sourceTree = "<group>"; };
-		690A3D0912623E8100E1173B /* Picker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
-		690A3D0A12623E8100E1173B /* Picker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Picker.m; sourceTree = "<group>"; };
 		690A3D1B1262453C00E1173B /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg.png; sourceTree = "<group>"; };
 		690A3D911262466B00E1173B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		690A3D971262467500E1173B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -197,11 +184,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
 				69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */,
-				69D353841257C6FF002E2FB9 /* MediaPlayer.framework in Frameworks */,
-				690A3C811262310D00E1173B /* GameKit.framework in Frameworks */,
-				690A3D921262466B00E1173B /* CoreAudio.framework in Frameworks */,
 				690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */,
-				690A3DA01262468E00E1173B /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,7 +202,6 @@
 			isa = PBXGroup;
 			children = (
 				AA887B8B2E1B12A2002AA7A4 /* Extensions */,
-				690A3D0212623DFF00E1173B /* GameKit Support */,
 				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
 				AADF04C3178F8B2700A54608 /* TimerModel.h */,
@@ -294,19 +276,6 @@
 				690A3D9F1262468E00E1173B /* AudioToolbox.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		690A3D0212623DFF00E1173B /* GameKit Support */ = {
-			isa = PBXGroup;
-			children = (
-				690A3D0912623E8100E1173B /* Picker.h */,
-				690A3D0A12623E8100E1173B /* Picker.m */,
-				690A3D0312623E0000E1173B /* BrowserViewController.h */,
-				690A3D0412623E0000E1173B /* BrowserViewController.m */,
-				690A3D0512623E0000E1173B /* TCPServer.h */,
-				690A3D0612623E0000E1173B /* TCPServer.m */,
-			);
-			name = "GameKit Support";
 			sourceTree = "<group>";
 		};
 		690E511D123420C900DC1CED /* User Agent */ = {
@@ -542,9 +511,6 @@
 				28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
-				690A3D0712623E0000E1173B /* BrowserViewController.m in Sources */,
-				690A3D0812623E0000E1173B /* TCPServer.m in Sources */,
-				690A3D0B12623E8100E1173B /* Picker.m in Sources */,
 				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
 				AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */,
 				AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */,
