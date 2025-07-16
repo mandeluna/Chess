@@ -71,11 +71,11 @@
 }
 
 -(void)reset {
+  if (transTable) {
+    [transTable clear];
+  }
 
-    if (transTable)
-        [transTable clear];
-
-    [historyTable clear];
+  [historyTable clear];
 }
 
 -(void)reset:(ChessBoard *)aBoard {
@@ -746,19 +746,13 @@
 
 #pragma mark thinking
 
--(void)checkClock {
-
-//    double now = [[NSDate date] timeIntervalSince1970];
-
-//    if (now - startTime > [self timeToThink]) {
-//        NSLog(@"clock ran out: duration is %3.1f s", (now - startTime));
-//        stopThinking = YES;
-//    }
-}
-
 -(BOOL)isThinking {
 
     return isThinking;
+}
+
+-(void)stopThinking {
+  stopThinking = YES;
 }
 
 -(void)startThinking {
@@ -863,9 +857,9 @@
 -(NSString *)statusString {
 
     NSString *resultString = @"";
-    if (myMove && ![myMove isNullMove]) {
-        resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
-    }
+//    if (myMove && ![myMove isNullMove]) {
+//        resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
+//    }
 
     int *av = bestVariation;
     int count = av[0];

@@ -121,7 +121,7 @@ static PossibleMoveList KnightMoves[64];
                 }
             }
 
-            int len = [moveList length];
+            int len = (int)[moveList length];
             int *moves = malloc(len);
             memcpy(moves, [moveList bytes], len);
 
@@ -184,7 +184,7 @@ static PossibleMoveList KnightMoves[64];
 
       for (int l=0; l < 4; l++) {
 
-        int len = [moveList[l] length];
+        int len = (int)[moveList[l] length];
         int *moves = nil;
         if (len > 0)
         {
@@ -248,7 +248,7 @@ static PossibleMoveList KnightMoves[64];
 
       for (int l=0; l < 4; l++) {
 
-        int len = [moveList[l] length];
+        int len = (int)[moveList[l] length];
         int *moves = nil;
         if (len > 0)
         {
@@ -287,7 +287,7 @@ static PossibleMoveList KnightMoves[64];
           [moveList appendBytes:&byteValue length:sizeof(int)];
         }
       }
-      int len = [moveList length];
+      int len = (int)[moveList length];
       int *moves = malloc(len);
       memcpy(moves, [moveList bytes], len);
 
@@ -527,7 +527,7 @@ static PossibleMoveList KnightMoves[64];
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
 
     if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-        NSLog(@"recycleMoveList is confused: index was %d but is actually %d", streamListIndex, [streamList indexOfObject:aChessMoveList]);
+        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
         NSException *exception = [NSException exceptionWithName:@"Index corruption"
                                                          reason:@"Move indexes are out of sync" userInfo:nil];
         [exception raise];

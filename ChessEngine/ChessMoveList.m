@@ -68,7 +68,7 @@
   collection = anArray;
 #endif
   startIndex = firstIndex;
-  readLimit = (lastIndex > (len = [collection count])) ? len : lastIndex;
+  readLimit = (lastIndex > (len = (int)[collection count])) ? len : lastIndex;
   position = (firstIndex <= 1) ? 0 : firstIndex - 1;
 
 //    NSLog(@"created moveList startIndex = %d, readLimit = %d, position = %d, count = %d, atEnd = %d, isEmpty = %d",

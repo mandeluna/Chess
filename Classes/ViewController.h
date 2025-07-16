@@ -124,17 +124,6 @@ typedef struct {
     
     BOOL usePopoverController;      // true if we are running on an iPad
     
-    // need to keep track of it so we can dismiss it if user attempts to invoke it multiple times
-    UIActionSheet       *gameSelectionActionSheet;
-    
-    UIViewController    *pickerModalViewController;
-															
-    // this class is the delegate for several different alert views, so we need to keep track of them in the callback
-    UIAlertView         *suggestedMoveAlertView;
-    UIAlertView         *startNewGameAlertView;
-    UIAlertView         *undoMoveRequestAlertView;  // displayed when opponent requests to take back a move
-    WaitingAlertView    *undoMoveWaitAlertView;     // displayed while waiting for opponent to respond to above request
-    
     int gameState;
     int playerRandomChoice;
     int opponentRandomChoice;
@@ -183,11 +172,6 @@ typedef enum {
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer;
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
 -(void)validateGamePosition;
-
-// action sheet delegate
-
--(void)actionSheetCancel:(UIActionSheet *)actionSheet;
--(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 // playing
 

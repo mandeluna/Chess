@@ -17,7 +17,6 @@
 #import "ChessMove.h"
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
-#import "WaitingAlertView.h"
 
 
 const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
@@ -46,62 +45,11 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 @end
 
 #pragma mark ===
-@implementation ViewController {	
-	UIPopoverController *timerSettingsController;
-}
+@implementation ViewController
 
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
 
 #pragma mark Action Sheet delegate
-
-- (void) showNetworkAlert:(NSString*)title
-{
-	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
-                                                        message:@"Check your network settings"
-                                                       delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[alertView show];
-    [alertView release];
-}
-
-enum {
-    kIndexPlayOnline,
-    kIndexPlayComputer,
-    kIndexSwitchSides,
-	kAutoPlay,
-    kNumActions
-} actionIndexes;
-
--(void)actionSheetCancel:(UIActionSheet *)actionSheet {
-    [actionSheet dismissWithClickedButtonIndex:0 animated:YES];
-    [gameSelectionActionSheet release];
-    gameSelectionActionSheet = nil;
-}
-
-// TODO change this to a callback
--(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
-    switch (buttonIndex) {
-			// TODO - game is not prompting to resign game in progress
-			// TODO - maybe you can have multiple games in progress
-        case kIndexPlayComputer:
-            [self startNewGame];
-            // maybe there is already a session with someone online?
-            if ([board.activePlayer isWhitePlayer] && boardDirection < 0) // computer is black
-                [self thinkAndMove];
-            break;
-        case kIndexSwitchSides:
-            [self switchSides];
-        case kAutoPlay:
-            [self autoPlay];
-            break;
-        default:
-            NSLog(@"Unknown action index %d", buttonIndex);
-    }
-    
-    [gameSelectionActionSheet release];
-    gameSelectionActionSheet = nil;
-}
-
 
 #pragma mark initialize
 
@@ -132,8 +80,6 @@ enum {
         CATextLayer *labelLayer = [labels objectAtIndex:i];
         labelLayer.transform = playerTransform;
     }
-    
-    [self updatePlayerLabels];
 }
 
 -(void)updatePlayerLabels {
@@ -576,18 +522,6 @@ static NSString *imageNames[12] = {
 
 
 -(void)startNewGame {
-    
-    // if game is in progress, prompt to quit game
-    if (kGameStateNormal == gameState)
-    {
-        startNewGameAlertView = [[UIAlertView alloc] initWithTitle:@"Resign from game in progress?"
-                                                           message:@"There is a game already underway. Do you want to resign and start over?"
-                                                          delegate:self
-                                                 cancelButtonTitle:@"Keep playing"
-                                                  otherButtonTitles:@"New Game", nil];
-        [startNewGameAlertView show];
-        return;
-    }
     [self applyStartNewGame];
 }
 
@@ -601,6 +535,8 @@ static NSString *imageNames[12] = {
     [newBoard release];
   }
   [board initializeNewBoard];
+  label.text = @"";
+  autoPlay = NO;
   self.history = [NSMutableArray array];
   self.redoList = [NSMutableArray array];
   
@@ -610,36 +546,27 @@ static NSString *imageNames[12] = {
   [undoButton setEnabled:NO];
   [redoButton setEnabled:NO];
   
-//  [self validateGamePosition];
+  [self validateGamePosition];
+  if (board.activePlayer == board.whitePlayer && boardDirection < 0) {
+    [board.searchAgent startThinking];
+  }
 }
 
 -(IBAction)newGame {
-    
-    // toggle the action sheet if the button is selected multiple times
-    if (gameSelectionActionSheet)
-    {
-        [gameSelectionActionSheet dismissWithClickedButtonIndex:0 animated:YES];
-        [gameSelectionActionSheet release];
-        gameSelectionActionSheet = nil;
-        return;
-    }
-    
-    // TODO: depending on the state of the game, we should change the options available here
-    //
-    // if you're already playing a game
-    // -- against a computer: "Restart Game", "Request Hint", "Undo Move"
-    // -- against an online opponent: "Resign", "Propose Draw", "Request Undo"
-    // if you're not playing yet: "Play Online", "Play Computer", "Switch Sides", "Setup Board"
-    
-    gameSelectionActionSheet = [[UIActionSheet alloc] initWithTitle:@"New Game"
-                                                             delegate:self
-                                                    cancelButtonTitle:@"Cancel"
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Play Online", @"Play Computer", @"Switch Sides", @"Auto Play", nil];
-    
-    [gameSelectionActionSheet showFromBarButtonItem:newGameButton animated:YES];
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Game Options" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+  [alert addAction:[UIAlertAction actionWithTitle:@"Switch Sides" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [self switchSides];
+  }]];
+  [alert addAction:[UIAlertAction actionWithTitle:@"Auto Play" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [self autoPlay];
+  }]];
+  [alert addAction:[UIAlertAction actionWithTitle:@"Restart Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+    [self startNewGame];
+  }]];
+  [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+  
+  [self presentViewController:alert animated:YES completion:nil];
 }
-
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare {
     
@@ -651,7 +578,7 @@ static NSString *imageNames[12] = {
   if ([board.searchAgent isThinking])
       return;
   
-  ChessMove *theMove = [board movePieceFrom:sourceSquare to:destSquare];
+  [board movePieceFrom:sourceSquare to:destSquare];
     
   moveExpected = YES;
   [board.searchAgent startThinking];
@@ -726,9 +653,15 @@ static NSString *imageNames[12] = {
 //
 -(void)switchSides {
     
-    boardDirection *= -1;
-    
-    [self updateBoardTransforms];
+  boardDirection *= -1;
+  
+  [self updateBoardTransforms];
+  [self updatePlayerLabels];
+  
+  if ((board.activePlayer == board.whitePlayer && boardDirection < 0) ||
+      (board.activePlayer == board.blackPlayer && boardDirection > 0)) {
+    [self thinkAndMove];
+  }
 }
 
 -(BOOL)isPlayerWhite {
@@ -984,32 +917,6 @@ static NSString *imageNames[12] = {
 }
 
 //
-// Load the players list, if there is a saved game in progress or from the defaults
-//
-- (NSArray *)loadSavedPlayers {
-    NSString *errorDesc = nil;
-    NSPropertyListFormat format;
-    NSString *plistPath;
-    NSString *rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                              NSUserDomainMask, YES) objectAtIndex:0];
-    plistPath = [rootPath stringByAppendingPathComponent:@"players.plist"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
-        plistPath = [[NSBundle mainBundle] pathForResource:@"players" ofType:@"plist"];
-    }
-    NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:plistPath];
-    NSArray *playerArray = (NSArray *)[NSPropertyListSerialization
-                                          propertyListFromData:plistXML
-                                          mutabilityOption:NSPropertyListMutableContainersAndLeaves
-                                          format:&format
-                                          errorDescription:&errorDesc];
-    if (!playerArray) {
-        NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
-    }
-    
-    return playerArray;
-}
-
-//
 // Convert the board layer coordinates to a 0-origin index in board coordinates
 // board coordinates are [0..63]
 //
@@ -1060,78 +967,49 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)startedThinking {
-    
     [hintButton setEnabled:NO];
     [playButton setEnabled:NO];
     [self.view setNeedsDisplay];
 }
 
-//
-// If we display an error or an alert that the remote disconnected, handle dismissal and return to setup
-//
-- (void) alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (alertView == suggestedMoveAlertView)
-    {
-        [suggestedMoveAlertView release];
-        suggestedMoveAlertView = nil;
-        
-        if (buttonIndex == 1)
-        {
-            [board movePieceFrom:moveHint.sourceSquare to:moveHint.destinationSquare];
-            [moveHint release];
-        }
-    }
-    else if (alertView == startNewGameAlertView)
-    {
-        [startNewGameAlertView release];
-        startNewGameAlertView = nil;
-    }
-}
-
-//
 // notification callback for think thread
 //
 -(void)stoppedThinking {
     
-    [hintButton setEnabled:YES];
-    [playButton setEnabled:YES];
+  [hintButton setEnabled:YES];
+  [playButton setEnabled:YES];
+  
+  ChessMove *move = board.searchAgent.myMove;
+  
+  NSLog(@"Stopped thinking: move = %@", move);
+  
+  if (!moveExpected) {
+    moveHint = [move retain];
     
-    ChessMove *move = board.searchAgent.myMove;
-    
-    NSLog(@"Stopped thinking: move = %@", move);
-    
-    if (!moveExpected) {
-        
-        moveHint = [move retain];
-        
-        suggestedMoveAlertView = [[UIAlertView alloc] initWithTitle:@"Suggested move"
-                                                        message:[move description]
-                                                       delegate:self
-                                              cancelButtonTitle:@"No thanks" otherButtonTitles:@"Accept", nil];
-        
-        [suggestedMoveAlertView performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
-        
-        moveExpected = YES;
-    }
-    else {
-        [board movePieceFrom:move.sourceSquare to:move.destinationSquare];
-    }
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Suggested move" message:[move description] preferredStyle:UIAlertControllerStyleActionSheet];
+    [alert addAction:[UIAlertAction actionWithTitle:@"No thanks" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
+      // cancel action
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Accept" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+      // accept action
+    }]];
 
-    if (autoPlay) {
-        [board.searchAgent startThinking];
-    }    
+    moveExpected = YES;
+  }
+  else {
+    [board movePieceFrom:move.sourceSquare to:move.destinationSquare];
+  }
+
+  if (autoPlay) {
+    [board.searchAgent startThinking];
+  }
 }
 
 //
 // Callback for display link to show search agent progress and to progress autoPlay mode
 //
 -(void)updateStatus:(CADisplayLink *)sender {
-    
-    if ([board.searchAgent isThinking]) {
-        label.text = [board.searchAgent statusString];
-        [board.searchAgent checkClock];
-    }
+  label.text = [board.searchAgent statusString];
 }
 
 #pragma mark view loading

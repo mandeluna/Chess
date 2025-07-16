@@ -517,10 +517,8 @@ static int PieceCenterScores[7][64] = {
 // shallow copy
 -(id)copyWithZone:(NSZone *)zone {
 
-  // shallow copy
-  id copy = NSCopyObject(self, 0, zone);
-
-//  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
+  // deep copy
+  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
   [copy postCopy];
 
   return copy;

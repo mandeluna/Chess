@@ -78,9 +78,12 @@ static int HashLocks[12][64];
 }
 
 -(void)initializeNewBoard {
+  [_whitePlayer removeAllPieces];
+  [_blackPlayer removeAllPieces];
   [self resetGame];
   [_whitePlayer addWhitePieces];
   [_blackPlayer addBlackPieces];
+  _activePlayer = _whitePlayer;
 }
 
 -(id)init {

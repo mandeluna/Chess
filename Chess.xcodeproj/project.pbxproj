@@ -15,12 +15,8 @@
 		2899E5220DE3E06400AC0155 /* ChessMailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ViewController.m */; };
-		690A39EE125FEEFC00E1173B /* Settings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 690A39ED125FEEFC00E1173B /* Settings.plist */; };
-		690A3BE7126215CF00E1173B /* UIButtonBarPlay.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */; };
-		690A3BF01262164500E1173B /* UIButtonBarRevert.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3BEF1262164500E1173B /* UIButtonBarRevert.png */; };
 		690A3CE3126239C900E1173B /* blackButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE2126239C900E1173B /* blackButton.png */; };
 		690A3CE512623A2E00E1173B /* clearButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE412623A2E00E1173B /* clearButton.png */; };
-		690A3D1C1262453C00E1173B /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3D1B1262453C00E1173B /* bg.png */; };
 		690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D971262467500E1173B /* AVFoundation.framework */; };
 		690E50ED123417E600DC1CED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		690E510112341DB500DC1CED /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
@@ -35,8 +31,6 @@
 		690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
 		690E510B12341DB500DC1CED /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
 		690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
-		693018E2178E6A3B0089CDB4 /* timer20x20.png in Resources */ = {isa = PBXBuildFile; fileRef = 693018E0178E6A3B0089CDB4 /* timer20x20.png */; };
-		693018E3178E6A3B0089CDB4 /* timer40x40.png in Resources */ = {isa = PBXBuildFile; fileRef = 693018E1178E6A3B0089CDB4 /* timer40x40.png */; };
 		69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69357758164715F600BEE7BC /* Default-568h@2x.png */; };
 		6935776416472D8000BEE7BC /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775E16472D7F00BEE7BC /* icon@2x.png */; };
 		6935776516472D8000BEE7BC /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775F16472D7F00BEE7BC /* icon-72.png */; };
@@ -49,19 +43,8 @@
 		69B6A6EF17889B0500A56015 /* Storyboard_ipad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */; };
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
-		69C4839C1218A3FF00089898 /* leather.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 69C4839B1218A3FF00089898 /* leather.jpeg */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
-		69C484281218B0DD00089898 /* players.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69C484271218B0DD00089898 /* players.plist */; };
-		69C4847B1218BFC300089898 /* blackplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C484791218BFC300089898 /* blackplayer.png */; };
-		69C4847C1218BFC300089898 /* redplayer.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4847A1218BFC300089898 /* redplayer.png */; };
-		69C4850B1218F8DE00089898 /* checkerboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 69C4850A1218F8DE00089898 /* checkerboard.png */; };
-		69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69F9E016126BC41B0025491A /* WaitingAlertView.m */; };
-		AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359C179053C40059A4EA /* checkmark20x14.png */; };
-		AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */ = {isa = PBXBuildFile; fileRef = AA6D359D179053C40059A4EA /* checkmark40x28.png */; };
-		AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6D35A117906A110059A4EA /* TimerDetailController.m */; };
 		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
-		AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C1178F89BE00A54608 /* TimerSettingsController.m */; };
-		AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = AADF04C4178F8B2700A54608 /* TimerModel.m */; };
 		AAE16D3F2E2465A8003DFB22 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 /* End PBXBuildFile section */
 
@@ -90,13 +73,9 @@
 		28D7ACF70DDB3853001CB0EB /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Chess_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chess_Prefix.pch; sourceTree = "<group>"; };
-		690A39ED125FEEFC00E1173B /* Settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Settings.plist; sourceTree = "<group>"; };
-		690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UIButtonBarPlay.png; sourceTree = "<group>"; };
-		690A3BEF1262164500E1173B /* UIButtonBarRevert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UIButtonBarRevert.png; sourceTree = "<group>"; };
 		690A3C801262310D00E1173B /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		690A3CE2126239C900E1173B /* blackButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackButton.png; sourceTree = "<group>"; };
 		690A3CE412623A2E00E1173B /* clearButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clearButton.png; sourceTree = "<group>"; };
-		690A3D1B1262453C00E1173B /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg.png; sourceTree = "<group>"; };
 		690A3D911262466B00E1173B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		690A3D971262467500E1173B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		690A3D9F1262468E00E1173B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -114,8 +93,6 @@
 		690E50FE12341DB500DC1CED /* blackKnightImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKnightImage.png; sourceTree = "<group>"; };
 		690E50FF12341DB500DC1CED /* blackKingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKingImage.png; sourceTree = "<group>"; };
 		690E510012341DB500DC1CED /* blackBishopImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackBishopImage.png; sourceTree = "<group>"; };
-		693018E0178E6A3B0089CDB4 /* timer20x20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = timer20x20.png; sourceTree = "<group>"; };
-		693018E1178E6A3B0089CDB4 /* timer40x40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = timer40x40.png; sourceTree = "<group>"; };
 		69357758164715F600BEE7BC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		6935775E16472D7F00BEE7BC /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
 		6935775F16472D7F00BEE7BC /* icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72.png"; sourceTree = "<group>"; };
@@ -129,26 +106,11 @@
 		69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_ipad.storyboard; sourceTree = "<group>"; };
 		69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_iphone.storyboard; sourceTree = "<group>"; };
 		69C4838E12189F2500089898 /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "Resources-iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
-		69C4839B1218A3FF00089898 /* leather.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = leather.jpeg; sourceTree = "<group>"; };
 		69C483AE1218A87E00089898 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		69C484271218B0DD00089898 /* players.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = players.plist; sourceTree = "<group>"; };
-		69C484791218BFC300089898 /* blackplayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackplayer.png; sourceTree = "<group>"; };
-		69C4847A1218BFC300089898 /* redplayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redplayer.png; sourceTree = "<group>"; };
-		69C4850A1218F8DE00089898 /* checkerboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkerboard.png; sourceTree = "<group>"; };
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		69F9E015126BC41B0025491A /* WaitingAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaitingAlertView.h; sourceTree = "<group>"; };
-		69F9E016126BC41B0025491A /* WaitingAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaitingAlertView.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
-		AA6D359C179053C40059A4EA /* checkmark20x14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark20x14.png; sourceTree = "<group>"; };
-		AA6D359D179053C40059A4EA /* checkmark40x28.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark40x28.png; sourceTree = "<group>"; };
-		AA6D35A017906A110059A4EA /* TimerDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerDetailController.h; sourceTree = "<group>"; };
-		AA6D35A117906A110059A4EA /* TimerDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerDetailController.m; sourceTree = "<group>"; };
 		AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+MainThread.h"; sourceTree = "<group>"; };
 		AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+MainThread.m"; sourceTree = "<group>"; };
-		AADF04C0178F89BE00A54608 /* TimerSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerSettingsController.h; sourceTree = "<group>"; };
-		AADF04C1178F89BE00A54608 /* TimerSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerSettingsController.m; sourceTree = "<group>"; };
-		AADF04C3178F8B2700A54608 /* TimerModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimerModel.h; sourceTree = "<group>"; };
-		AADF04C4178F8B2700A54608 /* TimerModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimerModel.m; sourceTree = "<group>"; };
 		AAEDD02A2E17112300A90C54 /* ChessEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChessEngine; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -202,10 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				AA887B8B2E1B12A2002AA7A4 /* Extensions */,
-				69D353ED1257D190002E2FB9 /* Settings */,
 				690E511D123420C900DC1CED /* User Agent */,
-				AADF04C3178F8B2700A54608 /* TimerModel.h */,
-				AADF04C4178F8B2700A54608 /* TimerModel.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -248,16 +207,12 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				692653C31220565300D527C5 /* Checkers */,
 				692653C21220563000D527C5 /* Chess */,
-				69C4850A1218F8DE00089898 /* checkerboard.png */,
-				69C4839B1218A3FF00089898 /* leather.jpeg */,
 				69C4839A1218A3EF00089898 /* images */,
 				2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */,
 				6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Chess-Info.plist */,
-				69C484271218B0DD00089898 /* players.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -289,8 +244,6 @@
 				690E50EC123417E600DC1CED /* SquareLayer.m */,
 				28D7ACF60DDB3853001CB0EB /* ViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* ViewController.m */,
-				69F9E015126BC41B0025491A /* WaitingAlertView.h */,
-				69F9E016126BC41B0025491A /* WaitingAlertView.m */,
 			);
 			name = "User Agent";
 			sourceTree = "<group>";
@@ -314,15 +267,6 @@
 			name = Chess;
 			sourceTree = "<group>";
 		};
-		692653C31220565300D527C5 /* Checkers */ = {
-			isa = PBXGroup;
-			children = (
-				69C484791218BFC300089898 /* blackplayer.png */,
-				69C4847A1218BFC300089898 /* redplayer.png */,
-			);
-			name = Checkers;
-			sourceTree = "<group>";
-		};
 		69C4838D12189F2400089898 /* Resources-iPad */ = {
 			isa = PBXGroup;
 			children = (
@@ -334,35 +278,16 @@
 		69C4839A1218A3EF00089898 /* images */ = {
 			isa = PBXGroup;
 			children = (
-				AA6D359C179053C40059A4EA /* checkmark20x14.png */,
-				AA6D359D179053C40059A4EA /* checkmark40x28.png */,
-				693018E0178E6A3B0089CDB4 /* timer20x20.png */,
-				693018E1178E6A3B0089CDB4 /* timer40x40.png */,
 				6935775E16472D7F00BEE7BC /* icon@2x.png */,
 				6935775F16472D7F00BEE7BC /* icon-72.png */,
 				6935776016472D7F00BEE7BC /* icon-small@2x.png */,
 				6935776116472D7F00BEE7BC /* icon.png */,
 				6935776216472D7F00BEE7BC /* icon-small-50.png */,
 				6935776316472D8000BEE7BC /* icon-small.png */,
-				690A3D1B1262453C00E1173B /* bg.png */,
 				690A3CE412623A2E00E1173B /* clearButton.png */,
 				690A3CE2126239C900E1173B /* blackButton.png */,
-				690A3BEF1262164500E1173B /* UIButtonBarRevert.png */,
-				690A3BE6126215CF00E1173B /* UIButtonBarPlay.png */,
 			);
 			name = images;
-			sourceTree = "<group>";
-		};
-		69D353ED1257D190002E2FB9 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				690A39ED125FEEFC00E1173B /* Settings.plist */,
-				AADF04C0178F89BE00A54608 /* TimerSettingsController.h */,
-				AADF04C1178F89BE00A54608 /* TimerSettingsController.m */,
-				AA6D35A017906A110059A4EA /* TimerDetailController.h */,
-				AA6D35A117906A110059A4EA /* TimerDetailController.m */,
-			);
-			name = Settings;
 			sourceTree = "<group>";
 		};
 		AA887B8B2E1B12A2002AA7A4 /* Extensions */ = {
@@ -459,11 +384,6 @@
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* ChessMailViewController.xib in Resources */,
 				69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */,
-				69C4839C1218A3FF00089898 /* leather.jpeg in Resources */,
-				69C484281218B0DD00089898 /* players.plist in Resources */,
-				69C4847B1218BFC300089898 /* blackplayer.png in Resources */,
-				69C4847C1218BFC300089898 /* redplayer.png in Resources */,
-				69C4850B1218F8DE00089898 /* checkerboard.png in Resources */,
 				690E510112341DB500DC1CED /* whiteRookImage.png in Resources */,
 				690E510212341DB500DC1CED /* whiteQueenImage.png in Resources */,
 				690E510312341DB500DC1CED /* whitePawnImage.png in Resources */,
@@ -476,12 +396,8 @@
 				690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */,
 				690E510B12341DB500DC1CED /* blackKingImage.png in Resources */,
 				690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */,
-				690A39EE125FEEFC00E1173B /* Settings.plist in Resources */,
-				690A3BE7126215CF00E1173B /* UIButtonBarPlay.png in Resources */,
-				690A3BF01262164500E1173B /* UIButtonBarRevert.png in Resources */,
 				690A3CE3126239C900E1173B /* blackButton.png in Resources */,
 				690A3CE512623A2E00E1173B /* clearButton.png in Resources */,
-				690A3D1C1262453C00E1173B /* bg.png in Resources */,
 				6957BDB1127114A6001630F6 /* ChessMailViewController-iPad.xib in Resources */,
 				69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */,
 				6935776416472D8000BEE7BC /* icon@2x.png in Resources */,
@@ -492,10 +408,6 @@
 				6935776916472D8000BEE7BC /* icon-small.png in Resources */,
 				69B6A6EF17889B0500A56015 /* Storyboard_ipad.storyboard in Resources */,
 				69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */,
-				693018E2178E6A3B0089CDB4 /* timer20x20.png in Resources */,
-				693018E3178E6A3B0089CDB4 /* timer40x40.png in Resources */,
-				AA6D359E179053C40059A4EA /* checkmark20x14.png in Resources */,
-				AA6D359F179053C40059A4EA /* checkmark40x28.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -511,11 +423,7 @@
 				28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
-				69F9E017126BC41B0025491A /* WaitingAlertView.m in Sources */,
-				AADF04C2178F89BE00A54608 /* TimerSettingsController.m in Sources */,
-				AADF04C5178F8B2700A54608 /* TimerModel.m in Sources */,
 				AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */,
-				AA6D35A217906A110059A4EA /* TimerDetailController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
