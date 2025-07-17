@@ -421,7 +421,7 @@ static int PieceCenterScores[7][64] = {
     return pieces[square];
 }
 
--(unsigned char *)pieces {
+-(UInt8 *)pieces {
 
     return pieces;
 }
@@ -502,7 +502,7 @@ static int PieceCenterScores[7][64] = {
 #pragma mark copying
 
 -(void)postCopy {
-    unsigned char *piecesCopy = calloc(64, sizeof(unsigned char));
+    unsigned char *piecesCopy = calloc(64, sizeof(UInt8));
 
     if (!piecesCopy) {
         NSLog(@"memory allocation error");
@@ -510,7 +510,7 @@ static int PieceCenterScores[7][64] = {
         return;
     }
 
-    memcpy(piecesCopy, pieces, 64 * sizeof(char));
+    memcpy(piecesCopy, pieces, 64 * sizeof(UInt8));
     pieces = piecesCopy;
 }
 

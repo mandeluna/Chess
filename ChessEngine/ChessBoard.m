@@ -257,33 +257,38 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
 
   [result appendString: @"\n╔═╤═╤═╤═╤═╤═╤═╤═╗╮"];
 
-  for (int i=0; i<64; i++) {
-    int row = i / 8;
-    int col = i % 8;
-    if (col == 0) {
-      [result appendString:@"\n"];
-      if (row > 0) {
-        [result appendString:@"╟─┼─┼─┼─┼─┼─┼─┼─╢┊\n"];
+  // print the board from rank 8 at the top
+  for (int rank = 8; rank >= 1; rank--) {
+    for (int file = 'a'; file <= 'h'; file++) {
+      int col = file - 'a';
+      int row = rank - 1;
+      int square = row * 8 + col;
+      
+      if (col == 0) {
+        [result appendString:@"\n"];
+        if (row < 7) {
+          [result appendString:@"╟─┼─┼─┼─┼─┼─┼─┼─╢┊\n"];
+        }
+        [result appendString:@"║"];
       }
-      [result appendString:@"║"];
-    }
-    unsigned char black =_blackPlayer.pieces[i];
-    unsigned char white =_whitePlayer.pieces[i];
+      unsigned char black =_blackPlayer.pieces[square];
+      unsigned char white =_whitePlayer.pieces[square];
 
-    if (black) {
-      [result appendString: blackEmoji[black - 1]];
-    }
-    else if (white) {
-      [result appendString: whiteEmoji[white - 1]];
-    }
-    else {
-      [result appendString: @" "];
-    }
-    if (col == 7) {
-      [result appendString: [NSString stringWithFormat:@"║%d", 8 - row]];
-    }
-    else {
-      [result appendString:@"│"];
+      if (black) {
+        [result appendString: blackEmoji[black - 1]];
+      }
+      else if (white) {
+        [result appendString: whiteEmoji[white - 1]];
+      }
+      else {
+        [result appendString: @" "];
+      }
+      if (col == 7) {
+        [result appendString: [NSString stringWithFormat:@"║%d", rank]];
+      }
+      else {
+        [result appendString:@"│"];
+      }
     }
   }
 

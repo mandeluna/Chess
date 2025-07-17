@@ -6,12 +6,23 @@
 //
 
 extension ChessBoard {
+  /**
+   * https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+   *
+   * Each rank is described, starting with rank 8 and ending with rank 1, with a "/" between each one; within each rank,
+   * the contents of the squares are described in order from the a-file to the h-file.
+   */
   func initializeFromFEN(_ fen: String) {
     self.whitePlayer.removeAllPieces()
     self.blackPlayer.removeAllPieces()
     let rows = fen.split(separator: "/")
-    var boardIndex = 0
-    for row in rows {
+    var rowIterator = rows.makeIterator()
+    for rank in stride(from: 8, to: 0, by: -1) {
+      var boardIndex = (rank - 1) * 8
+      guard let row = rowIterator.next() else {
+        NSLog("Error parsing fen \(fen): expected more ranks")
+        return
+      }
       let columns = row.split(separator: "")
       for (_, column) in columns.enumerated() {
         if let numberOfSpaces = Int(String(column)) {

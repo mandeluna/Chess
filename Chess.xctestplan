@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "A756BC2E-A701-4654-BE4E-1286D3E0321E",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Chess.xcodeproj",
+      "identifier" : "1D6058900D05DD3D006BFB54",
+      "name" : "Chess"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Chess.xcodeproj",
+        "identifier" : "AA1B01F52E282B34009FDDAC",
+        "name" : "Unit Tests (XCUnit)"
+      }
+    }
+  ],
+  "version" : 1
+}
