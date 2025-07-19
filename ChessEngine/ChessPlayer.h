@@ -68,7 +68,7 @@
 // accessing
 
 -(int)pieceAt:(int)square;
--(UInt8 *)pieces;
+-(unsigned char *)pieces;
 
 // testing
 

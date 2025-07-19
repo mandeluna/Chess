@@ -102,9 +102,9 @@
     if (position >= readLimit)
         return nil;
 
-    position++;
+//    position++;
 
-    return [collection objectAtIndex:position];
+    return [collection objectAtIndex:position++];
 }
 
 #pragma mark sorting

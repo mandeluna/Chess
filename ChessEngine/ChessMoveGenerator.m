@@ -398,6 +398,8 @@ static PossibleMoveList KnightMoves[64];
 
 //    NSLog(@"findAllPossibleMovesFor: %@ found %d moves. isEmpty = %d, atEnd = %d",
 //          isWhite ? @"white" : @"black", [list count], [list isEmpty], [list atEnd]);
+  
+  
 
     return list;
 }

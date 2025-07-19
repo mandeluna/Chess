@@ -53,8 +53,8 @@ typedef struct {
 @interface ChessMoveGenerator : NSObject {
 
     ChessPlayer *myPlayer;
-    UInt8 *myPieces;
-    UInt8 *itsPieces;
+    unsigned char *myPieces;
+    unsigned char *itsPieces;
     int castlingStatus;
     int enpassantSquare;
     BOOL forceCaptures;

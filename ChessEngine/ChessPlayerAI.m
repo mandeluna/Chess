@@ -222,7 +222,7 @@
     if (nil == moveList)
         return nil;
 
-    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
+//    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
