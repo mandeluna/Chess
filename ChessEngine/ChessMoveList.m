@@ -20,8 +20,6 @@
 //
 -(NSArray *)copyContents {
 
-    NSRange range;
-
 //    if (startIndex > readLimit) {
 //        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
 //                                                         reason:@"ChessMoveList is invalid"
@@ -30,10 +28,8 @@
 //    }
 
     // collection copyFrom:startIndex to:readLimit
-    range.location = startIndex;
-    range.length = [self count];
 
-    NSArray *contentsCopy = [collection subarrayWithRange:range];
+    NSArray *contentsCopy = [collection subarrayWithRange:NSMakeRange(startIndex, readLimit + 1)];
 
 #if !__has_feature(objc_arc)
   return [contentsCopy retain];
@@ -43,7 +39,6 @@
 }
 
 -(NSMutableArray *)originalContents {
-
     return collection;
 }
 
@@ -102,8 +97,6 @@
     if (position >= readLimit)
         return nil;
 
-//    position++;
-
     return [collection objectAtIndex:position++];
 }
 
@@ -113,15 +106,13 @@
 // Sort elements i through j of the collection to be nondescending
 // according to sorter
 //
-// can't really use an NSComparator because we may be sharing the
-// contents with other move lists. So we sort in-place.
-//
-// TODO: there may be a more optimal approach. The Squeak version of
-// this code appears to have been ported from something that was
-// originally written in C
-//
 -(void)sort:(int)i to:(int)j using:(ChessHistoryTable *)sorter {
 
+//  NSRange range = NSMakeRange(i, i + j - 1);
+//  NSMutableArray *subsequence = [[collection subarrayWithRange:range] mutableCopy];
+//  [subsequence sortUsingSelector:@selector(sorts:before:)];
+//  [collection replaceObjectsInRange:range withObjectsFromArray:subsequence];
+  
     ChessMove *di, *dj, *dij, *tt, *dk, *dl;
     int n;
 

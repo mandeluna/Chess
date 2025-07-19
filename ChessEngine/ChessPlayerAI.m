@@ -762,7 +762,6 @@
 #pragma mark thinking
 
 -(BOOL)isThinking {
-
     return isThinking;
 }
 

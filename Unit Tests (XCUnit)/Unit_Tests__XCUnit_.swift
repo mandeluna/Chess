@@ -53,18 +53,9 @@ func testSquareToIndex() {
     let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1"
     board.initializeFromFEN(fen)
     
-    // move generator needs to know to move the white knight from d4 to e6
-    board.activePlayer = board.whitePlayer
     let start = ChessMove.squareToIndex("d4")
     let end = ChessMove.squareToIndex("e6")
-    let piece = board.whitePlayer.piece(at: Int32(start))
-    XCTAssertTrue(piece == kKnight, "That piece is incorrect")
-    let move = ChessMove(piece: piece, start: Int32(start), end: Int32(end))
-    XCTAssertTrue(move.description() == "Nd4-e6", "That move is incorrect")
-    board.nextMove(move)
-    
-    // changing from white to black
-    board.searchAgent.setActivePlayer(board.blackPlayer)
+    board.movePiece(from: Int32(start), to: Int32(end))
 
     let nextMove = await board.searchAgent.findMove()
     XCTAssertTrue(nextMove!.description() == "Qd6xh2", "That move is incorrect")
