@@ -27,19 +27,33 @@ extension ChessMove {
    *** * Do not specify indications of capture, check, or checkmate.
    *** * A promotion character (ASCII QRBN) may be appended if the move is a pawn reaching the opponent's starting rank (default Q)
    */
-  convenience init(uci: String) {
+  convenience init(san: String) {
     self.init()
-    let chars = uci.split(separator: "")
-    var charIterator = chars.makeIterator()
-    let notated_piece = String(charIterator.next()!)
-    let start_rank = (charIterator.next()?.unicodeScalars.first!.value ?? 49) - 49
-    let start_file = (charIterator.next()?.unicodeScalars.first!.value ?? 49) - 49
-    let end_rank = (charIterator.next()?.unicodeScalars.first!.value ?? 97) - 97
-    let end_file = (charIterator.next()?.unicodeScalars.first!.value ?? 97) - 97
-    let movingPiece = Int32(Self.NotationToBoardCodes[notated_piece]!)
-    let start = start_rank * 8 + start_file
-    let end = end_rank * 8 + end_file
-    self.move(movingPiece, from: Int32(start), to: Int32(end))
+    
+    let san_pattern = /([PQKRB])([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?/
+    do {
+      guard
+        let match = try san_pattern.firstMatch(in: san)
+      
+      else {
+        NSLog("invalid SAN string: \(san)")
+        return
+      }
+      let notated_piece = String(match.1) // PQKRB
+      let start_file = String(match.2)  // a-h
+      let start_rank = UInt32(match.3)!  // 1-8
+      let end_file = String(match.4)
+      let end_rank = UInt32(match.5)!
+      
+      let start = (start_rank - 1) * 8 + start_file.unicodeScalars.first!.value - 97
+      let end = (end_rank - 1) * 8 + end_file.unicodeScalars.first!.value - 97
+      self.movingPiece = Int32(Self.NotationToBoardCodes[String(notated_piece)]!)
+      self.move(movingPiece, from: Int32(start), to: Int32(end))
+    }
+    catch {
+      NSLog("Unable to match SAN string: \(san)")
+      return
+    }
   }
   
   convenience init(piece: Int32, start: Int32, end: Int32) {
