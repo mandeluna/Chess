@@ -137,7 +137,19 @@ func testSquareToIndex() {
     XCTAssertTrue(theirMove!.description() == "Rg8-h8", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
   }
+  
+  func testStreaming() throws {
+    let array = NSMutableArray()
+    XCTAssertTrue(array.count == 0)
+    array.add(ChessTTEntry())
+    XCTAssertTrue(array.count == 1)
+    array.removeAllObjects()
+    XCTAssertTrue(array.count == 0)
+  }
+  
+  
 }
 
   // interesting puzzles
   // https://lichess.org/training/mix/9cPIk
+

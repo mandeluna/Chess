@@ -23,6 +23,16 @@
     entries[index] = entries[index+1];
 }
 
+-(NSString *)description {
+  int count = 0;
+  for (int i = 0; i < HISTORY_TABLE_SIZE; i++) {
+    if (entries[i]) {
+      count++;
+    }
+  }
+  return [NSString stringWithFormat:@"ChessHistoryTable %d entries", count];
+}
+
 // initialize
 -(void)atAllPut:(int)wordValue {
     memset_pattern4(entries, &wordValue, sizeof(int) * HISTORY_TABLE_SIZE);

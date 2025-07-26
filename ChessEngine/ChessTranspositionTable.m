@@ -20,12 +20,22 @@
 // and *very* few collisions (those require us to evaluate positions repeatedly that we've evaluated before -- bad idea!)
 //
 -(void)clear {
+
+#define DEBUG_TT 1
+#ifdef DEBUG_TT
+  NSLog(@"%@", [self description]);
+#endif
+
     for (ChessTTEntry *entry in used) {
         [entry clear];
     }
     [used removeAllObjects];
-
     collisions = 0;
+}
+
+-(NSString *)description {
+  return [NSString stringWithFormat:@"TT entries: %lu (%d%%), collisions: %d",
+                      (unsigned long)[used count], (int)([used count] * 100.0 / [array count]), collisions];
 }
 
 -(id)initWithBits:(int)nBits {
@@ -33,7 +43,7 @@
         int capacity = 1<<nBits;
 
         array = [NSMutableArray arrayWithCapacity:capacity];
-        used = [NSMutableArray arrayWithCapacity:50000];
+        used = [NSMutableArray array];
 #if !__has_feature(objc_arc)
     [array retain];
     [used retain];
@@ -45,7 +55,7 @@
             #if !__has_feature(objc_arc)
                 [copy autorelease];
             #endif
-            [array addObject:copy];
+          array[i] = copy;
         }
         #if !__has_feature(objc_arc)
         [entry release];

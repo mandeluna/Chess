@@ -252,7 +252,7 @@
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
-        NSLog(@"Negascout move %@ score=%d", move, score);
+        // NSLog(@"Negascout move %@ score=%d", move, score);
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
@@ -783,7 +783,7 @@
       return;
   }
 
-  NSLog(@"Started thinking: NegaScout %s ", useNegaScout ? "enabled" : "disabled");
+  // NSLog(@"Started thinking: NegaScout %s ", useNegaScout ? "enabled" : "disabled");
 
   if (!transTable) {
       [self initializeTranspositionTable];
