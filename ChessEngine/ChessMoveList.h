@@ -37,7 +37,6 @@
 
 // sorting
 
--(void)sort:(int)i to:(int)j using:(ChessHistoryTable *)sorter;
 -(void)sortUsing:(ChessHistoryTable *)sorter;
 
 @end

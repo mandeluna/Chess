@@ -5,6 +5,10 @@
 //  Created by Steve Wart on 10-08-21.
 //  Copyright 2010 Steven Wart. All rights reserved.
 //
+// This class is a history table for our 'killer heuristic'. It remembers moves that have proven effective
+// in the past and is later used to prioritize newly generated moves according to the effectiveness of the
+// particular move in the past.
+//
 
 #import "ChessHistoryTable.h"
 #import "ChessMove.h"
@@ -29,15 +33,16 @@
 }
 
 // sorting
--(BOOL)sorts:(ChessMove *)move1 before:(ChessMove *)move2 {
-    
-    int a = ([move1 sourceSquare] << 6) + [move1 destinationSquare];
-    int b = ([move2 sourceSquare] << 6) + [move2 destinationSquare];
-    
-    //NSLog(@"comparing entries[%d]=%d to entries[%d]=%d", a, entries[a], b, entries[b]);
-    
-    return (entries[a] > entries[b]);
+-(NSComparisonResult)sorts:(ChessMove *)move1 before:(ChessMove *)move2 {
+  
+  int a = ([move1 sourceSquare] << 6) + [move1 destinationSquare];
+  int b = ([move2 sourceSquare] << 6) + [move2 destinationSquare];
+  
+  return entries[b] - entries[a];
+  
+//  sorts: move1 before: move2
+//    ^(self at: (move1 sourceSquare bitShift: 6) + move1 destinationSquare) >
+//      (self at: (move2 sourceSquare bitShift: 6) + move2 destinationSquare)
 }
-
 
 @end

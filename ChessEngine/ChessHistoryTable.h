@@ -25,6 +25,6 @@
 -(void)clear;
 
 // sorting
--(BOOL)sorts:(ChessMove *)move before:(ChessMove *)anotherMove;
+-(NSComparisonResult)sorts:(ChessMove *)move before:(ChessMove *)anotherMove;
 
 @end

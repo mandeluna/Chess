@@ -14,7 +14,6 @@
 @class ChessMove;
 
 @interface ChessBoard : NSObject <NSCopying> {
-
 }
 
 @property(nonatomic, retain) ChessPlayer *whitePlayer;
@@ -25,14 +24,16 @@
 @property(nonatomic, assign) int hashKey;
 @property(nonatomic, assign) int hashLock;
 @property(nonatomic, assign) BOOL hasUserAgent;
-
+@property(nonatomic, assign) int halfmoveClock;
+@property(nonatomic, assign) int fullmoveClock;
 
 // initialize
+-(void)initializeSearch;
 -(void)resetGame;
 -(void)initializeNewBoard;
 
 // copying
--(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard;
+-(ChessBoard *)copyBoard:(ChessBoard *)aBoard;
 -(id)copyWithZone:(NSZone *)zone;
 
 // hashing

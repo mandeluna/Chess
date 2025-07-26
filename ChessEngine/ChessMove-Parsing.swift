@@ -30,7 +30,7 @@ extension ChessMove {
   convenience init(san: String) {
     self.init()
     
-    let san_pattern = /([PQKRB])([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?/
+    let san_pattern = /([PQKNRB])([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?/
     do {
       guard
         let match = try san_pattern.firstMatch(in: san)

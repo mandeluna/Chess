@@ -42,24 +42,15 @@ static int HashLocks[12][64];
   [self initializeHashKeys];
 }
 
--(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
-  ChessBoard *board = [self init];
-
-  board.whitePlayer = aBoard.whitePlayer;
-  board.blackPlayer = aBoard.blackPlayer;
-  board.activePlayer = aBoard.activePlayer;
-  board.generator = aBoard.generator;
-  board.searchAgent = aBoard.searchAgent;
-  board.hashKey = aBoard.hashKey;
-  board.hashLock = aBoard.hashLock;
-
-  return board;
-}
+// TODO track this during normal play (enabled for FEN parsing)
+int fullmoveClock;
+int halfmoveClock;
 
 #pragma mark Initialize
 
 -(void)resetGame {
   _hashKey = _hashLock = 0;
+  halfmoveClock = fullmoveClock = 0;
 
 #if !__has_feature(objc_arc)
   self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
@@ -75,6 +66,9 @@ static int HashLocks[12][64];
   _blackPlayer.board = self;
   _activePlayer = _whitePlayer;
   [_searchAgent reset:self];
+
+  NSNotification *notification = [NSNotification notificationWithName:@"ResetGame" object:nil];
+  [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
 }
 
 -(void)initializeNewBoard {
@@ -83,14 +77,26 @@ static int HashLocks[12][64];
   [self resetGame];
   [_whitePlayer addWhitePieces];
   [_blackPlayer addBlackPieces];
-  _activePlayer = _whitePlayer;
 }
 
--(id)init {
+-(void)initializeSearch {
+  _generator = [[ChessMoveGenerator alloc] init];
+  _searchAgent = [[ChessPlayerAI alloc] init];
+}
+
+// shallow copy constructor
+// we don't want to reallocate the generator & search agent in this case
+-(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
   if (self = [super init]) {
-    _generator = [[ChessMoveGenerator alloc] init];
-    _searchAgent = [[ChessPlayerAI alloc] init];
+    self.whitePlayer = aBoard.whitePlayer;
+    self.blackPlayer = aBoard.blackPlayer;
+    self.activePlayer = aBoard.activePlayer;
+    self.generator = aBoard.generator;
+    self.searchAgent = aBoard.searchAgent;
+    self.hashKey = aBoard.hashKey;
+    self.hashLock = aBoard.hashLock;
   }
+
   return self;
 }
 
@@ -106,13 +112,14 @@ static int HashLocks[12][64];
 
 #pragma mark Copying
 
--(ChessBoard *)duplicateBoard:(ChessBoard *)aBoard {
+// Copy all volatile state from the given board
+-(ChessBoard *)copyBoard:(ChessBoard *)aBoard {
   [_whitePlayer copyPlayer:aBoard.whitePlayer];
   [_blackPlayer copyPlayer:aBoard.blackPlayer];
   _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
   _hashKey = [aBoard hashKey];
   _hashLock = [aBoard hashLock];
-  _hasUserAgent = NO;
+  _hasUserAgent = NO;  
 #if !__has_feature(objc_arc)
   _searchAgent = [aBoard.searchAgent retain];
   _generator = [aBoard.generator retain];
@@ -120,6 +127,10 @@ static int HashLocks[12][64];
   self.searchAgent = aBoard.searchAgent;
   self.generator = aBoard.generator;
 #endif
+  
+  self.halfmoveClock = aBoard.halfmoveClock;
+  self.fullmoveClock = aBoard.fullmoveClock;
+  
   return self;
 }
 
@@ -142,10 +153,10 @@ static int HashLocks[12][64];
   self.hasUserAgent = NO;
 }
 
-// deep copy
 -(id)copyWithZone:(NSZone *)zone {
-//  ChessBoard *copy = NSCopyObject(self, 0, nil);
+  // shallow copy
   ChessBoard *copy = [[ChessBoard alloc] initializeWithBoard:self];
+  // deep copy
   [copy postCopy];
   return copy;
 }

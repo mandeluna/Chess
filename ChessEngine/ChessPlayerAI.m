@@ -169,7 +169,7 @@
     while (low < high) {
         int beta = (value == low) ? value + 1 : value;
         ChessMove *move = [self searchMove:theBoard depth:depth alpha:beta-1 beta:beta];
-        if (stopThinking)
+        if (currentThread.cancelled)
             return move;
 
         if (nil == move)
@@ -243,18 +243,16 @@
 
         count++;
 
-        // retain the move so it doesn't get deallocated while we recurse
-#if !__has_feature(objc_arc)
-        [move retain];
-#endif
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
-        [newBoard duplicateBoard:theBoard];
+        [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
 
         // search recursively
         ply++;
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
+
+        NSLog(@"Negascout move %@ score=%d", move, score);
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
@@ -263,12 +261,9 @@
         notFirst = YES;
         ply--;
 
-        if (stopThinking) {
-            [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
-            return move;
+      if (currentThread.cancelled) {
+          [generator recycleMoveList:moveList];
+          return move;
         }
 
         if (score != kAlphaBetaIllegal) {
@@ -297,20 +292,11 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
                     return goodMove;
                 }
             }
             b = a + 1;
         }
-
-        // undo the previous retain
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
-
         move = [moveList next];
     }
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
@@ -324,7 +310,7 @@
 //
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
 
-    assert(initialAlpha < initialBeta);
+  assert(initialAlpha < initialBeta);
 
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -372,13 +358,8 @@
 
     ChessMove *move = [moveList next];
     while (move) {
-
-#if !__has_feature(objc_arc)
-          [move retain];
-#endif
-
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
-        [newBoard duplicateBoard:theBoard];
+        [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
 
         // search recursively
@@ -391,11 +372,8 @@
         notFirst = YES;
         ply--;
 
-        if (stopThinking) {
+        if (currentThread.cancelled) {
             [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
             return score;
         }
 
@@ -413,19 +391,11 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
                     return score;
                 }
             }
             b = a + 1;
         }
-
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
-
         move = [moveList next];
     }
 
@@ -481,7 +451,15 @@
 
     // Evaluate the current position, assuming that we have a non-capturing move.
     int bestScore = [theBoard.activePlayer evaluate];
-
+  
+    // This method will recurse until it finds checkmate so we need to check early to see if the user agent
+    // has accepted an early result. This does not seem to be a problem in Squeak because the Smalltalk
+    // process is suspended and will be gc'd during the thinkStep (which is invoked from the Morphic
+    // animation step). In our case, we are emulating this in findMove() but NSThread does not have the
+    // ability to suspend/resume in the same as as invokers of Smalltalk processes 
+    if (currentThread.cancelled) {
+      return bestScore;
+    }
 
     // TODO: What follows is clearly not the Right Thing to do. The score we just evaluated doesn't
     // take into account that we may be under attack at this point. I've seen it happening various times that
@@ -525,29 +503,18 @@
 
     // and search
     ChessMove *move = [moveList next];
-    int counter = 0;
     while (move) {
-
-        counter++;
-
-#if !__has_feature(objc_arc)
-          [move retain];
-#endif
-
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
-        [newBoard duplicateBoard:theBoard];
+        [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
 
         // search recursively
         ply++;
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
 
-        if (stopThinking) {
-            [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
-            return score;
+        if (currentThread.cancelled) {
+          [generator recycleMoveList:moveList];
+          return score;
         }
         ply--;
 
@@ -567,24 +534,15 @@
                     [historyTable addMove:move];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
                     return bestScore;
                 }
             }
         }
-
-#if !__has_feature(objc_arc)
-          [move release];
-#endif
         move = [moveList next];
     }
 
     [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:0 stamp:stamp];
     [generator recycleMoveList:moveList];
-
-//    NSLog(@"quiesce:alpha:beta: bestScore = %d", bestScore);
 
     return bestScore;
 }
@@ -641,7 +599,7 @@
     ChessMove *move = [moveList next];
     while (move) {
 
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
         [newBoard nextMove:move];
 
         // search recursively
@@ -649,9 +607,9 @@
         int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
         ply--;
 
-        if (stopThinking) {
-            [generator recycleMoveList:moveList];
-            return score;
+        if (currentThread.cancelled) {
+          [generator recycleMoveList:moveList];
+          return score;
         }
 
         if (score != kAlphaBetaIllegal) {
@@ -714,7 +672,7 @@
     ChessMove *move = [moveList next];
     while (move) {
 
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] duplicateBoard:theBoard];
+        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
         [newBoard nextMove:move];
 
         // search recursively
@@ -722,7 +680,7 @@
         int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
         ply--;
 
-        if (stopThinking) {
+        if (currentThread.cancelled) {
             [generator recycleMoveList:moveList];
             return move;
         }
@@ -761,102 +719,131 @@
 
 #pragma mark thinking
 
+-(void)findMove: (void (^)(ChessMove *move))completion {
+  
+  dispatch_async(dispatch_get_main_queue(), ^(){
+    if (![self isThinking]) {
+      while (currentThread != nil) {
+        [NSThread sleepForTimeInterval:(10.0 / MSEC_PER_SEC)];
+        NSLog(@".");
+      }
+      [self startThinking];
+    }
+    
+    ChessMove *theMove = [ChessMove nullMove];
+    
+    do {
+      [NSThread sleepForTimeInterval:(50.0 / MSEC_PER_SEC)];
+      if (myMove != nil && myMove != [ChessMove nullMove]) {
+        theMove = [myMove copy];
+        break;
+      }
+    } while ([self isThinking]);
+    
+    // TODO: Do we have a valid move?
+    // myMove == #none ifTrue: [^nil].  "no"
+    
+    // TODO: Did we time out?
+    // Time millisecondClockValue - startTime > self timeToThink
+    //    ifTrue:
+    //      ["Yes. Abort and return current move."
+    //
+    //      stopThinking := true.
+    //      myProcess resume.
+    //      [myProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
+    //      ^myMove == #none ifTrue: [nil] ifFalse: [myMove]].
+    //
+    [self stopThinking];
+    myMove = [ChessMove nullMove];
+
+    completion(theMove);
+  });
+}
+
+-(ChessMove *)thinkSync {
+  if (!transTable) {
+      [self initializeTranspositionTable];
+  }
+  [self thinkThread];
+  return myMove;
+}
+
 -(BOOL)isThinking {
-    return isThinking;
+    return currentThread != nil && !currentThread.cancelled;
 }
 
 -(void)stopThinking {
-  stopThinking = YES;
+  [currentThread cancel];
 }
 
 -(void)startThinking {
 
-    if ([self isThinking]) {
-        return;
-    }
+  // thread might be cancelled but that is just a convenience flag and a search might still be underway
+  if (currentThread != nil) {
+      return;
+  }
 
   NSLog(@"Started thinking: NegaScout %s ", useNegaScout ? "enabled" : "disabled");
 
   if (!transTable) {
-        // [NSThread detachNewThreadSelector:@selector(initializeTranspositionTable) toTarget:self withObject:nil];
-        [self initializeTranspositionTable];
-        // TODO: wait for above to complete then return and start thinking
-    }
-
-    [self setActivePlayer:board.activePlayer];
-
-    myMove = [ChessMove nullMove];
-    [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
-}
-
--(void)findMove: (void (^)(ChessMove *move))completion {
-  dispatch_async(dispatch_get_main_queue(), ^(){
-    NSLog(@"Finding move");
-
-    if (!transTable) {
-        [self initializeTranspositionTable];
-    }
-    [self setActivePlayer:board.activePlayer];
-
-    myMove = [ChessMove nullMove];
-    
-    [self findMove];
-    completion(myMove);
-  });
-}
-
--(void)findMove {
-  isThinking = YES;
-  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
-
-  stopThinking = NO;
-  int score = [board.activePlayer evaluate];
-  int depth = 1;
-  stamp++;
-  ply = 0;
-  [historyTable clear];
-  [transTable clear];
-
-  startTime = [[NSDate date] timeIntervalSince1970];
-  nodesVisited = ttHits = alphaBetaCuts = 0;
-  bestVariation[0] = 0;
-  activeVariation[0] = 0;
-
-  while (nodesVisited < 50000) {
-
-    ChessMove *theMove = nil;
-
-    if (useNegaScout) {
-      theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
-    }
-    else {
-      theMove = [self mtdfSearch:board score:score depth:depth];
-    }
-
-    if (!theMove || stopThinking) {
-      // the clock has run out. take the best move we have
-      isThinking = NO;
-      [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
-      return;
-    }
-
-    myMove = theMove;
-    // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
-    //[self replace:bestVariation from:0 to:VARIATIONS_SIZE with:activeVariation startingAt:0];
-    for (int i=0; i<VARIATIONS_SIZE; i++) {
-      bestVariation[i] = activeVariation[i];
-    }
-
-    score = theMove.value;
-    depth++;
+      [self initializeTranspositionTable];
   }
-  isThinking = NO;
-  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+
+  [self setActivePlayer:board.activePlayer];
+
+  myMove = [ChessMove nullMove];
+  [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
 }
 
 -(void)thinkThread {
+  currentThread = [NSThread currentThread];
+
+//  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+
   @autoreleasepool {
-    [self findMove];
+
+    int score = [board.activePlayer evaluate];
+    int depth = 1;
+    stamp++;
+    ply = 0;
+    [historyTable clear];
+    [transTable clear];
+
+    startTime = [[NSDate date] timeIntervalSince1970];
+    nodesVisited = ttHits = alphaBetaCuts = 0;
+    bestVariation[0] = 0;
+    activeVariation[0] = 0;
+
+    while (nodesVisited < 50000) {
+
+      ChessMove *theMove = nil;
+
+      if (useNegaScout) {
+        theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+      }
+      else {
+        theMove = [self mtdfSearch:board score:score depth:depth];
+      }
+
+      if (!theMove || currentThread.cancelled) {
+        // the clock has run out. take the best move we have
+//        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+        currentThread = nil;
+        return;
+      }
+
+      myMove = [theMove copy];
+      // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
+      //[self replace:bestVariation from:0 to:VARIATIONS_SIZE with:activeVariation startingAt:0];
+      for (int i=0; i<VARIATIONS_SIZE; i++) {
+        bestVariation[i] = activeVariation[i];
+      }
+
+      score = theMove.value;
+      depth++;
+    }
+    currentThread = nil;
+//    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
   }
 }
 

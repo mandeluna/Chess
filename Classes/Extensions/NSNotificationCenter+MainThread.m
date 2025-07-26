@@ -12,7 +12,7 @@
  
 - (void)postNotificationOnMainThread:(NSNotification *)notification
 {
-	[self performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+	[self performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:NO];
 }
  
 - (void)postNotificationOnMainThreadName:(NSString *)aName object:(id)anObject

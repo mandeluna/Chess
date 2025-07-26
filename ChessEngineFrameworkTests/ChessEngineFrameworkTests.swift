@@ -1,14 +1,29 @@
 //
-//  Unit_Tests__XCUnit_.swift
-//  Unit Tests (XCUnit)
+//  ChessEngineFrameworkTests.swift
+//  ChessEngineFrameworkTests
 //
-//  Created by Steve Wart on 2025-07-16.
+//  Created by Steve Wart on 2025-07-23.
 //
 
 import XCTest
+@testable import ChessEngine
 
-final class Unit_Tests__XCUnit_: XCTestCase {
+final class ChessEngineFrameworkTests: XCTestCase {
 
+  var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
+    let a = obj1 as! Int
+    let b = obj2 as! Int
+    if (a == b) {
+      return ComparisonResult.orderedSame
+    }
+    else if (a > b) {
+      return ComparisonResult.orderedAscending
+    }
+    else {
+      return ComparisonResult.orderedDescending
+    }
+  }
+  
   override func setUpWithError() throws {
       // Put setup code here. This method is called before the invocation of each test method in the class.
   }
@@ -44,29 +59,60 @@ func testSquareToIndex() {
     move = ChessMove(piece: Int32(kRook), start: 62, end: 61)
     XCTAssertTrue(move.description() == "Rg8-f8", "Move description is incorrect")
   }
+  
+  func testQuicksort() {
+    var array: NSMutableArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    var expectedArray: NSMutableArray = [1, 2, 3, 4, 10, 9, 8, 7, 6, 5, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    array.sortSubArray(from:4, to:9, using:reverseBlock)
+    XCTAssertEqual(array, expectedArray)
+    
+    array = [1, 2, 3, 4, 5]
+    expectedArray = [1, 2, 4, 3, 5]
+    array.sortSubArray(from: 2, to: 3, using:reverseBlock)
+    XCTAssertEqual(array, expectedArray)
+
+    array = []
+    expectedArray = []
+    array.sortSubArray(from: 0, to: 0, using:reverseBlock)
+    XCTAssertEqual(array, expectedArray)
+
+    array = [1]
+    expectedArray = [1]
+    array.sortSubArray(from: 0, to: 0, using:reverseBlock)
+    XCTAssertEqual(array, expectedArray)
+
+    array = [1, 2]
+    expectedArray = [2, 1]
+    array.sortSubArray(from: 0, to: 1, using:reverseBlock)
+    XCTAssertEqual(array, expectedArray)
+
+  }
 
   // 000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,1039,79,100,171,kingsideAttack mate mateIn1 oneMove opening,https://lichess.org/seIMDWkD#25,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
-  func testCheckmateIn1() async throws {
+  func testCheckmateIn1() throws {
     let board = ChessBoard()
+    board.initializeSearch()
     board.initializeNewBoard()
     
-    let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1"
+    let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13"
     board.initializeFromFEN(fen)
     
     let start = ChessMove.squareToIndex("d4")
     let end = ChessMove.squareToIndex("e6")
     board.movePiece(from: Int32(start), to: Int32(end))
 
-    let nextMove = await board.searchAgent.findMove()
-    XCTAssertTrue(nextMove!.description() == "Qd6xh2", "That move is incorrect")
+    if let nextMove = board.searchAgent.thinkSync() {
+      XCTAssertTrue(nextMove.description() == "Qd6xh2", "The move \(nextMove) is incorrect")
+    }
   }
 
   // 9cPIk,2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38,a6a7 d4f3 h2h1 g8h8,1491,75,97,23349,endgame mate mateIn2 short,https://lichess.org/gzskFpDu#75,
-  func testCheckmateIn2() async throws {
+  func testCheckmateIn2() throws {
     let board = ChessBoard()
+    board.initializeSearch()
     board.initializeNewBoard()
     
-    let fen = "2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6"
+    let fen = "2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38"
     board.initializeFromFEN(fen)
     
     // move 1w
@@ -75,7 +121,7 @@ func testSquareToIndex() {
     print(ourMove)
 
     // move 1b
-    var theirMove = await board.searchAgent.findMove()
+    var theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
     XCTAssertTrue(theirMove!.description() == "Nd4-f3", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
@@ -86,13 +132,12 @@ func testSquareToIndex() {
     print(ourMove)
 
     // move 2b
-    theirMove = await board.searchAgent.findMove()
+    theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
     XCTAssertTrue(theirMove!.description() == "Rg8-h8", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
   }
 }
 
-
-// interesting puzzles
-// https://lichess.org/training/mix/9cPIk
+  // interesting puzzles
+  // https://lichess.org/training/mix/9cPIk

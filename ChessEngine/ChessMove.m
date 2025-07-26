@@ -247,7 +247,6 @@ static ChessMove *NullMove = nil;
     char c7 = '1' + (destinationSquare >> 3);
 
     return [NSString stringWithFormat:@"%s%c%c%c%s%c%c", c1, c2, c3, c4, c5, c6, c7];
-
 }
 
 -(NSString *)description {

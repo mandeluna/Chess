@@ -1,5 +1,5 @@
 //
-//  Unit_Tests__XCUnit_Bridging-Header.h
+//  ChessEngineFrameworkTests_Bridging-Header.h
 //  Chess
 //
 //  Created by Steve Wart on 2025-07-16.

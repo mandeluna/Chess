@@ -49,6 +49,7 @@ func run(_ source: String) async {
     case "go":
       if let move = await board.searchAgent.findMove() {
         print(move)
+        await board.nextMove(move)
       }
       break
     case "position":
@@ -69,8 +70,13 @@ func run(_ source: String) async {
 // TODO parse moves in UCI format, display them in SAN (with unicode glyphs)
 func handlePositionCommand(_ tokens: [Substring]) {
   if let fenIndex = tokens.firstIndex(of: "fen") {
-    let fenString = tokens[fenIndex + 1]
-    board.initializeFromFEN(String(fenString))
+    board.initializeFromFEN(
+      ranks: String(tokens[fenIndex + 1]),
+      color: String(tokens[fenIndex + 2]),
+      castling: String(tokens[fenIndex + 3]),
+      enpassant: String(tokens[fenIndex + 4]),
+      halfmoves: Int32(tokens[fenIndex + 5]),
+      fullmoves: Int32(tokens[fenIndex + 6]))
   }
   else if let startposIndex = tokens.firstIndex(of: "startpos") {
     print("> position startpos command")

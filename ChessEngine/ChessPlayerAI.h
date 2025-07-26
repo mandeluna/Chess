@@ -36,9 +36,8 @@
     long startTime;
     int ply;
     ChessMove *myMove;
-    BOOL isThinking;
-    BOOL stopThinking;
     BOOL useNegaScout;
+    NSThread *currentThread;
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
@@ -71,6 +70,7 @@
 -(void)thinkThread;
 -(void)findMove: (void (^)(ChessMove *move))completion;
 -(long)timeToThink;
+-(ChessMove *)thinkSync;
 
 // accessing
 

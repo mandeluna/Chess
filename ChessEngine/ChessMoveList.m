@@ -9,6 +9,7 @@
 #import "ChessMoveList.h"
 #import "ChessMove.h"
 #import "ChessHistoryTable.h"
+#import "NSArray+quickSort.h"
 
 @implementation ChessMoveList
 
@@ -19,16 +20,6 @@
 // Stream>>contents returns a copy of the contents; renamed here to correspond to cocoa memory usage hints
 //
 -(NSArray *)copyContents {
-
-//    if (startIndex > readLimit) {
-//        NSException *exception = [NSException exceptionWithName:@"InvalidMoveList"
-//                                                         reason:@"ChessMoveList is invalid"
-//                                                       userInfo:nil];
-//        [exception raise];
-//    }
-
-    // collection copyFrom:startIndex to:readLimit
-
     NSArray *contentsCopy = [collection subarrayWithRange:NSMakeRange(startIndex, readLimit + 1)];
 
 #if !__has_feature(objc_arc)
@@ -49,36 +40,24 @@
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex {
 
   int len;
-
-  if (startIndex < 0) {
-      NSException *exception = [NSException exceptionWithName:@"Illegal index"
-                                                       reason:@"stream index cannot be negative"
-                                                     userInfo:nil];
-      [exception raise];
-  }
-
 #if !__has_feature(objc_arc)
   collection = [anArray retain];
 #else
   collection = anArray;
 #endif
   startIndex = firstIndex;
-  readLimit = (lastIndex > (len = (int)[collection count])) ? len : lastIndex;
-  position = (firstIndex <= 1) ? 0 : firstIndex - 1;
-
-//    NSLog(@"created moveList startIndex = %d, readLimit = %d, position = %d, count = %d, atEnd = %d, isEmpty = %d",
-//          startIndex, readLimit, position, [self count], [self atEnd], [self isEmpty]);
-
+  readLimit = (lastIndex > (len = (int)[collection count])) ? len - 1 : lastIndex - 1;
+  position = firstIndex;
 }
 
 #pragma mark stream protocol
 
 -(BOOL)atEnd {
-    return (position >= readLimit);
+    return (position > readLimit);
 }
 
 -(int)count {
-    return readLimit+1;
+    return readLimit + 1;
 }
 
 //
@@ -102,119 +81,46 @@
 
 #pragma mark sorting
 
-//
-// Sort elements i through j of the collection to be nondescending
-// according to sorter
-//
--(void)sort:(int)i to:(int)j using:(ChessHistoryTable *)sorter {
-
-//  NSRange range = NSMakeRange(i, i + j - 1);
-//  NSMutableArray *subsequence = [[collection subarrayWithRange:range] mutableCopy];
-//  [subsequence sortUsingSelector:@selector(sorts:before:)];
-//  [collection replaceObjectsInRange:range withObjectsFromArray:subsequence];
-  
-    ChessMove *di, *dj, *dij, *tt, *dk, *dl;
-    int n;
-
-    // the prefix d means that data at that index
-    if ((n = j + 1 - i) <= 1)
-        return;
-
-    // sort di, dj
-    di = [collection objectAtIndex:i];
-    dj = [collection objectAtIndex:j];
-
-    if (![sorter sorts:di before:dj]) {
-        // swap in collection and in our copy of the elements
-#if !__has_feature(objc_arc)
-      [di retain];
-      [dj retain];
-#endif
-      [collection replaceObjectAtIndex:i withObject:dj];
-      [collection replaceObjectAtIndex:j withObject:di];
-#if !__has_feature(objc_arc)
-      [di release];
-      [dj release];
-#endif
-        tt = di; di = dj; dj = tt;
-    }
-
-    if (n > 2) {     // more than 2 elements
-        int ij = (i + j) / 2;   // ij is the midpoint of i and j
-        dij = [collection objectAtIndex:ij];  // sort di, dij, dj. Make dij be their median
-        if ([sorter sorts:di before:dij]) {     // i.e. should di precede dij?
-            if (![sorter sorts:dij before:dj]) {    // i.e. should dij preced dj?
-#if !__has_feature(objc_arc)
-              [dij retain]; // keep removed objects from being deallocated
-              [dj retain];
-#endif
-                [collection replaceObjectAtIndex:ij withObject:dj];
-                [collection replaceObjectAtIndex:j withObject:dij];
-#if !__has_feature(objc_arc)
-              [dij release];
-              [dj release];
-#endif
-                dij = dj;
-            }
-        } else {    // i.e. di should come after dij
-#if !__has_feature(objc_arc)
-          [dij retain];
-          [di retain];
-#endif
-            [collection replaceObjectAtIndex:ij withObject:di];
-            [collection replaceObjectAtIndex:i withObject:dij];
-#if !__has_feature(objc_arc)
-          [dij release];
-          [di release];
-#endif
-            dij = di;
-        }
-    }
-
-    if (n > 3) {    // more than 3 elements
-        // find k>i and l<j such that dk, dij, dl are in reverse order
-        // swap k and l. Repeat this procedure until k and l pass each other
-        int k = i, l = j;
-
-        do {
-            // decrement l while dl succeeds dij
-            do {
-                l--;
-                dl = [collection objectAtIndex:l];
-            }
-            while((k <= l) && [sorter sorts:dij before:dl]);
-            // increment k while dij succeeds dk
-            do {
-                k++;
-                dk = [collection objectAtIndex:k];
-            }
-            while((k <= l) && [sorter sorts:dk before:dij]);
-
-            if (k <= l) {
-#if !__has_feature(objc_arc)
-              [dl retain];
-              [dk retain];
-#endif
-                [collection replaceObjectAtIndex:l withObject:dk];
-                [collection replaceObjectAtIndex:k withObject:dl];
-#if !__has_feature(objc_arc)
-              [dl release];
-              [dk release];
-#endif
-            }
-        }
-        while (k <= l);
-
-        // now l<k (either 1 or 2 less), and di through dl ar all less than
-        // or equal to dk through dj. Sort those two segments
-        [self sort:i to:l using:sorter];
-        [self sort:k to:j using:sorter];
-    }
-}
-
 -(void)sortUsing:(ChessHistoryTable *)sorter {
 
-    [self sort:startIndex to:readLimit using:sorter];
+  [collection sortSubArrayFrom:startIndex to:readLimit using:^NSComparisonResult(ChessMove *a, ChessMove *b) {
+    return [sorter sorts:a before:b];
+  }];
+}
+
+#pragma mark printing
+
+// show first two moves and last move in the collection and next moves string
+-(NSString *)descriptionOfSubArrayFrom:(int)start to:(int)end {
+  NSString *result = @"[";
+  
+  for (int i = start; (i < end) && (i < start + 2); i++) {
+    ChessMove *next = [collection objectAtIndex:i];
+    result = [result stringByAppendingFormat:@"%@", next];
+    if ((i < end - 1) && (i < start + 1)) {
+      result = [result stringByAppendingString:@" "];
+    }
+  }
+  
+  result = [result stringByAppendingString:@"..."];
+  result = [result stringByAppendingFormat:@"%@", [collection objectAtIndex: end]];
+  result = [result stringByAppendingFormat:@"] (%d items)", end - start + 1];
+
+  return result;
+}
+
+-(NSString *)description {
+  NSString *result = @"";
+  NSString *abbreviatedCollectionString = [self descriptionOfSubArrayFrom:0 to:readLimit];
+  NSString *nextMovesString = [self descriptionOfSubArrayFrom:startIndex to:readLimit];
+  
+  result = [NSString stringWithFormat:@"position: %d (next: %@)", position, [collection objectAtIndex:position]];
+  result = [result stringByAppendingFormat:@"\nreadLimit: %d", readLimit];
+  result = [result stringByAppendingFormat:@"\nstartIndex: %d", startIndex];
+  result = [result stringByAppendingFormat:@"\nnext moves: %@", nextMovesString];
+  result = [result stringByAppendingFormat:@"\ncollection: %@", abbreviatedCollectionString];
+  
+  return result;
 }
 
 @end

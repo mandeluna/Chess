@@ -11,17 +11,16 @@
   "defaultOptions" : {
     "targetForVariableExpansion" : {
       "containerPath" : "container:Chess.xcodeproj",
-      "identifier" : "1D6058900D05DD3D006BFB54",
-      "name" : "Chess"
+      "identifier" : "AAAF98A82E3137770071E5C9",
+      "name" : "ChessEngine"
     }
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Chess.xcodeproj",
-        "identifier" : "AA1B01F52E282B34009FDDAC",
-        "name" : "Unit Tests (XCUnit)"
+        "identifier" : "AAAF98B22E3137780071E5C9",
+        "name" : "ChessEngineTests"
       }
     }
   ],

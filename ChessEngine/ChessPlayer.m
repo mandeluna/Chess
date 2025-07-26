@@ -381,7 +381,7 @@ static int PieceCenterScores[7][64] = {
     }
 
     // see if a rook has moved
-    if (kRook == [move movingPiece]) {
+    if (kRook != [move movingPiece]) {
         return;
     }
 
@@ -402,6 +402,15 @@ static int PieceCenterScores[7][64] = {
         }
     }
 }
+
+-(void)setCastlingFlags:(int)flags {
+  castlingStatus |= flags;
+}
+
+-(void)clearCastlingFlags:(int)flags {
+  castlingStatus &= ~flags;
+}
+
 
 #pragma mark accessing
 
@@ -551,15 +560,18 @@ static int PieceCenterScores[7][64] = {
 //
 -(int)evaluateMaterial {
 
-    int omv = [opponent materialValue];
+  int omv = [opponent materialValue];
 
-    if (materialValue == omv)   // both sides are equal
-        return 0;
+  if (materialValue == omv)   // both sides are equal
+    return 0;
 
-    int total = materialValue + omv;
-    int diff = materialValue - omv;
+  int total = materialValue + omv;
+  int diff = materialValue - omv;
+  
+  int pawns = [self numPawns];
+  if (pawns < 0) pawns = 0;   // "happens - a bug somewhere"
 
-    return MIN(2400,diff) + ((diff * (12000 - total) * numPawns) / (6400 * (numPawns + 1)));
+  return MIN(2400,diff) + floor((diff * (12000 - total) * numPawns) / (6400.0 * (numPawns + 1)));
 }
 
 //
@@ -815,6 +827,24 @@ static int PieceCenterScores[7][64] = {
 
 -(void)undoStaleMate:(ChessMove *)move {
 
+}
+
+#pragma mark Printing
+
+-(NSString *)description {
+  
+  NSMutableString *pieces_string = [NSMutableString stringWithString:@"["];
+  for (int square = 0; square < 64; square++) {
+    [pieces_string appendFormat:@"%d", pieces[square]];
+    if (square < 63) {
+      [pieces_string appendString:@" "];
+    }
+  }
+  [pieces_string appendString:@"]"];
+  
+  NSString *color = board.whitePlayer == self ? @"White" : @"Black";
+  
+  return [NSString stringWithFormat:@"ChessPlayer (%@)\n  pieces: %@", color, pieces_string];
 }
 
 @end

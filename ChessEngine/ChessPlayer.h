@@ -30,7 +30,7 @@
 @property(nonatomic, assign) ChessBoard *board;
 @property(nonatomic, readonly) int castlingRookSquare;
 @property(nonatomic, readonly) int castlingStatus;
-@property(nonatomic, readonly) int enpassantSquare;
+@property(nonatomic, assign) int enpassantSquare;
 @property(nonatomic, readonly) int materialValue;
 @property(nonatomic, readonly) int positionalValue;
 @property(nonatomic, readonly) int numPawns;
@@ -64,6 +64,8 @@
 -(void)applyResign:(ChessMove *)move;
 -(void)applyStaleMate:(ChessMove *)move;
 -(void)updateCastlingStatus:(ChessMove *)move;
+-(void)setCastlingFlags:(int)flags;
+-(void)clearCastlingFlags:(int)flags;
 
 // accessing
 

@@ -331,6 +331,8 @@ static PossibleMoveList KnightMoves[64];
     itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];
     enpassantSquare = [opponent enpassantSquare];
+  
+    int startingMoveIndex = lastMoveIndex;
 
     if (firstMoveIndex != lastMoveIndex) {
         NSLog(@"I am confused");
@@ -394,12 +396,14 @@ static PossibleMoveList KnightMoves[64];
             break;
     }
 
+    int numMovesAdded = lastMoveIndex - startingMoveIndex - 1;
+  
     ChessMoveList *list = [self moveList];
 
-//    NSLog(@"findAllPossibleMovesFor: %@ found %d moves. isEmpty = %d, atEnd = %d",
-//          isWhite ? @"white" : @"black", [list count], [list isEmpty], [list atEnd]);
-  
-  
+    int moveCount = [list count] - [list startIndex];
+    if (list != nil && numMovesAdded != moveCount) {
+      NSLog(@"findAllPossibleMovesFor: created %d moves but list has %d items", numMovesAdded, moveCount);
+    }
 
     return list;
 }
@@ -516,7 +520,7 @@ static PossibleMoveList KnightMoves[64];
     ++streamListIndex;
 
     ChessMoveList *list = [streamList objectAtIndex:streamListIndex];
-    [list on:moveList from:firstMoveIndex+1 to:lastMoveIndex];
+    [list on:moveList from:firstMoveIndex + 1 to:lastMoveIndex];
     firstMoveIndex = lastMoveIndex;
 
     return list;
