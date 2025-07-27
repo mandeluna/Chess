@@ -137,8 +137,8 @@
       // av replaceFrom:3 to:count+2 with:mv startingAt:2
       // translate from Smalltalk 1-origin index to 0-origin
 //      [self replace:av from:2 to:count+2 with:mv startingAt:1];
-      for (int i=2; i<count+2; i++) {
-          av[i] = mv[i];
+      for (int i=1; i<count+2; i++) {
+          av[i + 1] = mv[i];
       }
     }
     av[0] = count+1;
@@ -189,10 +189,7 @@
         else {
             low = value;
             goodMove = move;
-          // activeVariation replaceFrom:1 to:activeVariation size with:variations first startingAt:1
-          // translate from Smalltalk 1-origin index to 0-origin
-//          [self replace:activeVariation from:0 to:VARIATIONS_SIZE with:variations[0] startingAt:0];
-          for (int i=0; i<VARIATIONS_SIZE; i++) {
+            for (int i=0; i<VARIATIONS_SIZE; i++) {
               activeVariation[i] = variations[0][i];
           }
         }
@@ -277,11 +274,9 @@
 #endif
                 goodMove.value = score;
 
-                // activeVariation replaceFrom:1 to:activeVariation size with:variations first startingAt:1
-//                [self replace:activeVariation from:0 to:VARIATIONS_SIZE with:variations[0] startingAt:0];
-              for (int i=0; i<VARIATIONS_SIZE; i++) {
-                  activeVariation[i] = variations[0][i];
-              }
+                for (int i=0; i<VARIATIONS_SIZE; i++) {
+                    activeVariation[i] = variations[0][i];
+                }
                 bestScore = score;
             }
             // see if we can cut off the search
@@ -833,8 +828,7 @@
       }
 
       myMove = [theMove copy];
-      // bestVariation replaceFrom:1 to:bestVariation size with:activeVariation startingAt:1
-      //[self replace:bestVariation from:0 to:VARIATIONS_SIZE with:activeVariation startingAt:0];
+      // bestVariation replaceFrom: 1 to: bestVariation size with: activeVariation startingAt: 1.
       for (int i=0; i<VARIATIONS_SIZE; i++) {
         bestVariation[i] = activeVariation[i];
       }
@@ -889,6 +883,32 @@
     resultString = [resultString stringByAppendingFormat:@"[%d]", nodesVisited];
 
     return resultString;
+}
+
+-(NSString *)formatArray:(int[]) array size:(int)count {
+  NSString *results = [NSString string];
+  for (int i = 0; i < count; i++) {
+    results = [results stringByAppendingFormat:@"%d", array[i]];
+    if (i < count - 1) {
+      results = [results stringByAppendingString:@" "];
+    }
+  }
+  
+  return [NSString stringWithFormat:@"[%@]", results];
+}
+
+-(NSString *)description {
+  NSString *results = [NSString stringWithFormat:@"ChessPlayerAI ply: %d, ttHits: %d, nv: %d", ply, ttHits, nodesVisited];
+  NSString *avString = [self formatArray: activeVariation size: VARIATIONS_SIZE];
+  NSString *bvString = [self formatArray: bestVariation size: VARIATIONS_SIZE];
+  results = [results stringByAppendingFormat:@"\nactiveVariation: %@", avString];
+  results = [results stringByAppendingFormat:@"\nbestVariation: %@", bvString];
+  results = [results stringByAppendingString:@"\nvariations:"];
+  for (int i = 0; i < VARIATIONS_SIZE; i++) {
+    NSString *vString = [self formatArray: variations[i] size: VARIATIONS_SIZE];
+    results = [results stringByAppendingFormat:@"\n[%d]: %@", i, vString];
+  }
+  return results;
 }
 
 

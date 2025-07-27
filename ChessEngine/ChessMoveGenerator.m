@@ -408,39 +408,6 @@ static PossibleMoveList KnightMoves[64];
     return list;
 }
 
-//
-// Mark all the fields of a board that are attacked by the given player.
-// The pieces attacking a field are encoded as (1 << Piece) so that we can
-// record all types of pieces that attack the square.
-//
--(char *)findAttackSquaresFor:(ChessPlayer *)player {
-
-//    NSLog(@"findAttackSquaresFor:");
-
-    forceCaptures = NO;
-    bzero(attackSquares, 64 * sizeof(char));
-
-    ChessMoveList *list = [self findAllPossibleMovesFor:player];
-#if !__has_feature(objc_arc)
-    [list retain];
-#endif
-
-    for (ChessMove *move in [list originalContents]) {
-        int square = [move destinationSquare];
-        int piece = [move movingPiece];
-        int attack = attackSquares[square];
-        attack |= (1 << piece);
-        attackSquares[square] = attack;
-    }
-
-    [self recycleMoveList:list];
-#if !__has_feature(objc_arc)
-  [list release];
-#endif
-
-    return attackSquares;
-}
-
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player {
     forceCaptures = NO;
     return [self findAllPossibleMovesFor:player];

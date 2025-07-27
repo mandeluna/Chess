@@ -29,10 +29,6 @@
 #endif
 }
 
--(NSMutableArray *)originalContents {
-    return collection;
-}
-
 -(int)startIndex {
     return startIndex;
 }

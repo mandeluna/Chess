@@ -72,7 +72,6 @@ typedef struct {
 // public
 -(char *)attackSquares;
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player;
--(char *)findAttackSquaresFor:(ChessPlayer *)player;
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player;
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player at:(int)square;
 -(ChessMoveList *)findQuiescenceMovesFor:(ChessPlayer *)player;

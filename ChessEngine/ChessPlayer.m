@@ -656,34 +656,6 @@ static int PieceCenterScores[7][64] = {
 }
 
 //
-// Find all possible moves. This method does not check if the move is legal
-// e.g., if the king of the player is under attack after the move.
-// If the opponent is check mate (e.g., the king could be taken in the next move) the method returns nil.
-// If the game is stale mate (e.g., the receiver has no move left) this method returns an empty array.
-//
--(NSArray *)findQuiescenceMoves {
-
-    ChessMoveList *moveList = [board.generator findQuiescenceMovesFor:self];
-
-    if (nil == moveList)
-        return nil;
-
-    NSMutableArray *moves = [NSMutableArray arrayWithArray:[moveList originalContents]];
-
-    for (ChessMove *move in [moveList originalContents]) {
-        ChessMove *moveCopy = [move copy];
-        if (moveCopy.destinationSquare > 63) {
-            NSLog(@"invalid move");
-        }
-        [moves addObject:moveCopy];
-    }
-
-    [board.generator recycleMoveList:moveList];
-
-    return moves;
-}
-
-//
 // find all the valid moves
 //
 -(NSArray *)findValidMoves {

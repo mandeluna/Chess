@@ -24,7 +24,6 @@
 // accessing
 
 -(NSArray *)copyContents;
--(NSMutableArray *)originalContents;
 -(int)startIndex;
 -(void)on:(NSMutableArray *)anArray from:(int)firstIndex to:(int)lastIndex;
 

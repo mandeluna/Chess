@@ -95,7 +95,6 @@
 
 -(NSArray *)findPossibleMoves;
 -(NSArray *)findPossibleMovesAt:(int)square;
--(NSArray *)findQuiescenceMoves;
 -(NSArray *)findValidMoves;
 -(NSArray *)findValidMovesAt:(int)square;
 
