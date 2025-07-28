@@ -396,7 +396,7 @@ static PossibleMoveList KnightMoves[64];
             break;
     }
 
-    int numMovesAdded = lastMoveIndex - startingMoveIndex - 1;
+    int numMovesAdded = lastMoveIndex - startingMoveIndex;
   
     ChessMoveList *list = [self moveList];
 

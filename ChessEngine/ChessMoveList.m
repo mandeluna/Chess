@@ -42,7 +42,7 @@
   collection = anArray;
 #endif
   startIndex = firstIndex;
-  readLimit = (lastIndex > (len = (int)[collection count])) ? len - 1 : lastIndex - 1;
+  readLimit = (lastIndex > (len = (int)[collection count])) ? len - 1 : lastIndex;
   position = firstIndex;
 }
 
@@ -69,7 +69,7 @@
 }
 
 -(ChessMove *)next {
-    if (position >= readLimit)
+    if (position > readLimit)
         return nil;
 
     return [collection objectAtIndex:position++];

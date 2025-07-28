@@ -249,7 +249,9 @@
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
-        // NSLog(@"Negascout move %@ score=%d", move, score);
+      if (score == 30000) {
+        NSLog(@"Negascout move %@ score=%d", move, score);
+      }
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];

@@ -8,5 +8,6 @@
 #import "ChessPlayerAI.h"
 #import "NSNotificationCenter+MainThread.h"
 #import "ChessMoveGenerator.h"
+#import "ChessMoveList.h"
 #import "NSArray+quickSort.h"
 #import "ChessTTEntry.h"

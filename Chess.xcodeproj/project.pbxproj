@@ -191,6 +191,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"ChessBoard-Parsing.swift",
+				"ChessMove-Parsing.swift",
+			);
+			target = AAEDD0292E17112300A90C54 /* ChessTool */;
+		};
 		AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -209,7 +217,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AAAF98AA2E3137770071E5C9 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
+		AAAF98AA2E3137770071E5C9 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
 		AAAF98B92E3137780071E5C9 /* ChessEngineFrameworkTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineFrameworkTests; sourceTree = "<group>"; };
 		AAEDD02B2E17112300A90C54 /* ChessEngineTool */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineTool; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */

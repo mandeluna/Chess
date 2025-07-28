@@ -82,9 +82,9 @@
 //     or:[entry depth <= depth
 //         or:[entry timeStamp < timeStamp]]) ifFalse:[^self].
 
-    if (entry.valueType != -1) return;
-    if (entry.depth > depth) return;
-    if (entry.timeStamp >= timeStamp) return;
+  if ((entry.valueType != -1) && (entry.depth > depth) && (entry.timeStamp >= timeStamp)) {
+    return;
+  }
 
 
     entry.hashLock = aBoard.hashLock;

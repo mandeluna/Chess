@@ -4,12 +4,14 @@
 //
 //  Created by Steve Wart on 2025-07-23.
 //
+//  interesting puzzles
+//  https://lichess.org/training/mix/9cPIk
 
 import XCTest
 @testable import ChessEngine
 
 final class ChessEngineFrameworkTests: XCTestCase {
-
+  
   var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
     let a = obj1 as! Int
     let b = obj2 as! Int
@@ -25,11 +27,12 @@ final class ChessEngineFrameworkTests: XCTestCase {
   }
   
   override func setUpWithError() throws {
-      // Put setup code here. This method is called before the invocation of each test method in the class.
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+    ChessBoard.initialize()
   }
-
+  
   override func tearDownWithError() throws {
-      // Put teardown code here. This method is called after the invocation of each test method in the class.
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
   }
   
   //  ╔══╤══╤══╤══╤══╤══╤══╤══╗╮
@@ -43,8 +46,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
   //  ║ 0│ 1│ 2│ 3│ 4│ 5│ 6│ 7║1
   //  ╚══╧══╧══╧══╧══╧══╧══╧══╝┊
   //  ╰┈a┈┈b┈┈c┈┈d┈┈e┈┈f┈┈g┈┈h┈╯
-
-func testSquareToIndex() {
+  
+  func testSquareToIndex() {
     XCTAssertTrue(ChessMove.squareToIndex("a1") == 0)
     XCTAssertTrue(ChessMove.squareToIndex("b1") == 1)
     XCTAssertTrue(ChessMove.squareToIndex("e5") == 36)
@@ -70,24 +73,24 @@ func testSquareToIndex() {
     expectedArray = [1, 2, 4, 3, 5]
     array.sortSubArray(from: 2, to: 3, using:reverseBlock)
     XCTAssertEqual(array, expectedArray)
-
+    
     array = []
     expectedArray = []
     array.sortSubArray(from: 0, to: 0, using:reverseBlock)
     XCTAssertEqual(array, expectedArray)
-
+    
     array = [1]
     expectedArray = [1]
     array.sortSubArray(from: 0, to: 0, using:reverseBlock)
     XCTAssertEqual(array, expectedArray)
-
+    
     array = [1, 2]
     expectedArray = [2, 1]
     array.sortSubArray(from: 0, to: 1, using:reverseBlock)
     XCTAssertEqual(array, expectedArray)
-
+    
   }
-
+  
   // 000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,1039,79,100,171,kingsideAttack mate mateIn1 oneMove opening,https://lichess.org/seIMDWkD#25,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
   func testCheckmateIn1() throws {
     let board = ChessBoard()
@@ -100,12 +103,12 @@ func testSquareToIndex() {
     let start = ChessMove.squareToIndex("d4")
     let end = ChessMove.squareToIndex("e6")
     board.movePiece(from: Int32(start), to: Int32(end))
-
+    
     if let nextMove = board.searchAgent.thinkSync() {
       XCTAssertTrue(nextMove.description() == "Qd6xh2", "The move \(nextMove) is incorrect")
     }
   }
-
+  
   // 9cPIk,2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38,a6a7 d4f3 h2h1 g8h8,1491,75,97,23349,endgame mate mateIn2 short,https://lichess.org/gzskFpDu#75,
   func testCheckmateIn2() throws {
     let board = ChessBoard()
@@ -119,18 +122,18 @@ func testSquareToIndex() {
     var ourMove = ChessMove(san:"Pa6a7")
     board.movePiece(from: ourMove.sourceSquare, to: ourMove.destinationSquare)
     print(ourMove)
-
+    
     // move 1b
     var theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
     XCTAssertTrue(theirMove!.description() == "Nd4-f3", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
-
+    
     // move 2w
     ourMove = ChessMove(san:"Kh2h1")
     board.movePiece(from: ourMove.sourceSquare, to: ourMove.destinationSquare)
     print(ourMove)
-
+    
     // move 2b
     theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
@@ -138,18 +141,26 @@ func testSquareToIndex() {
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
   }
   
-  func testStreaming() throws {
-    let array = NSMutableArray()
-    XCTAssertTrue(array.count == 0)
-    array.add(ChessTTEntry())
-    XCTAssertTrue(array.count == 1)
-    array.removeAllObjects()
-    XCTAssertTrue(array.count == 0)
+  func testMoveEnumeration() throws {
+    let board = ChessBoard()
+    let generator = ChessMoveGenerator()
+    
+    board.initializeNewBoard()
+    
+    guard let moveList = generator.findAllPossibleMoves(for: board.activePlayer) else {
+      XCTFail("Could not generate move list")
+      return
+    }
+    
+    XCTAssertTrue(moveList.count() == 20, "There should be 20 moves")
+    
+    for _ in 0..<20 {
+      let move = moveList.next()
+      XCTAssertNotNil(move)
+    }
+    
+    generator.recycleMoveList(moveList)
+    XCTAssertTrue(moveList.count() == 20)
   }
   
-  
 }
-
-  // interesting puzzles
-  // https://lichess.org/training/mix/9cPIk
-

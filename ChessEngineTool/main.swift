@@ -70,13 +70,15 @@ func run(_ source: String) async {
 // TODO parse moves in UCI format, display them in SAN (with unicode glyphs)
 func handlePositionCommand(_ tokens: [Substring]) {
   if let fenIndex = tokens.firstIndex(of: "fen") {
-    board.initializeFromFEN(
-      ranks: String(tokens[fenIndex + 1]),
-      color: String(tokens[fenIndex + 2]),
-      castling: String(tokens[fenIndex + 3]),
-      enpassant: String(tokens[fenIndex + 4]),
-      halfmoves: Int32(tokens[fenIndex + 5]),
-      fullmoves: Int32(tokens[fenIndex + 6]))
+
+    let ranks = String(tokens[fenIndex + 1])
+    let color = String(tokens[fenIndex + 2])
+    let castling = String(tokens[fenIndex + 3])
+    let enpassant = String(tokens[fenIndex + 4])
+    let halfmoves = Int32(tokens[fenIndex + 5])
+    let fullmoves = Int32(tokens[fenIndex + 6])
+
+    board.initializeFromFEN(ranks: ranks, color: color, castling: castling, enpassant: enpassant, halfmoves: halfmoves, fullmoves: fullmoves)
   }
   else if let startposIndex = tokens.firstIndex(of: "startpos") {
     print("> position startpos command")
