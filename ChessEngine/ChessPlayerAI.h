@@ -36,15 +36,19 @@
     long startTime;
     int ply;
     ChessMove *myMove;
-    BOOL useNegaScout;
     NSThread *currentThread;
+    int depth_limit;                // maximum number of plies to recurse
+    int node_limit;                 // maximum number of nodes to visit
+    NSTimeInterval time_limit;      // maximum number of seconds of searching
+    int max_depth;                  // furthest depth traversed
+    int max_nodes;                  // total nodes visited
+    NSTimeInterval time_spent;        // number of seconds spent searching
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
 @property(nonatomic, assign) ChessBoard *board;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, copy) ChessMove *myMove;
-@property(nonatomic, assign) BOOL useNegaScout;
 
 // initialize
 
@@ -55,12 +59,9 @@
 // searching
 
 -(void)copyVariation:(ChessMove *)move;
--(ChessMove *)mtdfSearch:(ChessBoard *)theBoard score:(int)estimate depth:(int)depth;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
 -(int)quiesce:(ChessBoard *)theBoard alpha:(int)initialAlpha beta:(int)initialBeta;
--(int)search:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
--(ChessMove *)searchMove:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
 
 // thinking
 

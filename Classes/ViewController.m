@@ -301,7 +301,6 @@ static NSString *imageNames[12] = {
   [history addObject:move];
   [undoButton setEnabled:YES];
 
-  [self validateGamePosition];
 	[self updateBoardLabels:aBool];
 }
 
@@ -381,115 +380,6 @@ static NSString *imageNames[12] = {
     
     [redoList addObject:move];
     [redoButton setEnabled:YES];
-    
-    [self validateGamePosition];
-}
-
--(void)printBoard:(BOOL)isWhitePlayer {
-    printf("\n === display ===");
-    for (int i=0; i<64; i++) {
-        if (0 == (i % 8)) {
-            printf("\n");
-        }
-        SquareLayer *layer = [squares objectAtIndex:i];
-        printf("%2d", layer.pieceLayer.piece);
-    }
-    printf("\n ===============\n");
-}
-
--(void)printWhitePieces {
-    printf("\n ==== white ====");
-    for (int i=0; i<64; i++) {
-        if (0 == (i % 8)) {
-            printf("\n");
-        }
-        printf("%2d", board.whitePlayer.pieces[i]);
-    }
-    printf("\n ===============\n");
-}
-
--(void)printBlackPieces {
-    printf("\n ==== black ====");
-    for (int i=0; i<64; i++) {
-        if (0 == (i % 8)) {
-            printf("\n");
-        }
-        printf("%2d", board.blackPlayer.pieces[i]);
-    }
-    printf("\n ===============\n");
-}
-
-//
-// this method does nothing but validate what you see (on the screen) is what you get (from the board)
-//
--(void)validateGamePosition {
-    
-#if __has_feature(objc_arc)
-  NSLog(@"ARC is enabled");
-#else
-  NSLog(@"ARC is not enabled");
-#endif
-
-  for (int i=0; i<64; i++) {
-        
-        int piece = 0;
-        BOOL screenIsWhite = NO;
-        BOOL screenHasPiece = NO;
-        
-        SquareLayer *square = [squares objectAtIndex:i];
-        
-        if (square.pieceLayer) {
-            screenHasPiece = YES;
-            piece = square.pieceLayer.piece;
-            screenIsWhite = [[NSNumber numberWithBool:square.pieceLayer.isWhite] boolValue];
-        }
-        
-        int p = [board.whitePlayer pieceAt:i];
-        
-        if ([board.whitePlayer castlingRookSquare] == i) {
-            p = kRook;
-        }
-        
-        // 1. screen has a white piece at i
-        if (screenHasPiece && screenIsWhite) {
-            if (p != piece) {
-                [self printBoard:screenIsWhite];
-                [self printWhitePieces];
-                NSLog(@"position %d broken: user agent piece (%d) does not match game model piece (%d)", i, piece, p);
-                return;
-            }
-        }
-        // 2. screen has a black piece or no piece at i but board has a white piece at i
-        else if (p) {
-            [self printBoard:screenIsWhite];
-            [self printWhitePieces];
-            NSLog(@"white broken: game model has a white piece at (%d)", i);
-            return;
-        }
-        
-        p = [board.blackPlayer pieceAt:i];
-        
-        if ([board.blackPlayer castlingRookSquare] == i) {
-            p = kRook;
-        }
-        
-        // 3. screen has a black piece at i
-        if (screenHasPiece && !screenIsWhite) {
-            if (p != piece) {
-                [self printBoard:screenIsWhite];
-                [self printBlackPieces];
-                NSLog(@"position %d broken: user agent piece (%d) does not match game model piece (%d)", i, piece, p);
-                return;
-            }
-        }
-        // 4. screen has a white piece or no piece at i but board has a black piece at i
-        else if (p) {
-            [self printBoard:screenIsWhite];
-            [self printBlackPieces];
-            NSLog(@"black broken: game model has a black piece at (%d)", i);
-            return;
-        }
-    }
 }
 
 #pragma mark ===
@@ -534,6 +424,7 @@ static NSString *imageNames[12] = {
     self.board = newBoard;
     [newBoard release];
   }
+  [board initializeSearch];
   [board initializeNewBoard];
   label.text = @"";
   autoPlay = NO;
@@ -546,7 +437,6 @@ static NSString *imageNames[12] = {
   [undoButton setEnabled:NO];
   [redoButton setEnabled:NO];
   
-  [self validateGamePosition];
   if (board.activePlayer == board.whitePlayer && boardDirection < 0) {
     [board.searchAgent startThinking];
   }
@@ -689,11 +579,8 @@ static NSString *imageNames[12] = {
 }
 
 - (ChessPieceLayer *)playerLayerAtTouchPoint:(CGPoint)touchPoint {
-    
     for (SquareLayer *squareLayer in squares) {
-        
         ChessPieceLayer *candidate = squareLayer.pieceLayer;
-        
         if ((candidate != selectedPlayer) && [candidate hitTest:touchPoint]) {
             return candidate;
         }

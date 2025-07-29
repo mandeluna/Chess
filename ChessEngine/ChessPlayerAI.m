@@ -35,18 +35,20 @@
 
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator, myMove, useNegaScout;
+@synthesize player, board, generator, myMove;
 
 #pragma mark initialize
 
 + (void)initialize{
+  
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSDictionary *appDefaults = @{
+    @"TIME_LIMIT" : @5000.0,  // should be 1-5 seconds, but that wreaks havoc with debugging
+    @"DEPTH_LIMIT" : @20,
+    @"NODE_LIMIT" : @50000
+  };
 
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *appDefaults = [NSDictionary
-                                 dictionaryWithObject:[NSNumber numberWithBool:YES]
-                                 forKey:@"UseNegaScout"];
-
-    [defaults registerDefaults:appDefaults];
+  [defaults registerDefaults:appDefaults];
 }
 
 -(id)init {
@@ -54,7 +56,9 @@
     if (self = [super init]) {
         historyTable = [[ChessHistoryTable alloc] init];
         nodesVisited = ttHits = alphaBetaCuts = stamp = 0;
-        useNegaScout = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseNegaScout"];
+        time_limit = [[NSUserDefaults standardUserDefaults] doubleForKey:@"TIME_LIMIT"];
+        depth_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"DEPTH_LIMIT"];
+        node_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"NODE_LIMIT"];
         [self reset];
     }
 
@@ -127,7 +131,6 @@
 #pragma mark searching
 
 -(void)copyVariation:(ChessMove *)move {
-
     int count = 0;
     int *av = variations[ply];
 
@@ -156,48 +159,6 @@
 }
 
 //
-// An implementation of the MTD(f) algorithm. See:
-// http://www.cs.vu.nl/~aske/mtdf.html
-//
--(ChessMove *)mtdfSearch:(ChessBoard *)theBoard score:(int)estimate depth:(int)depth {
-
-    int value = estimate;
-    int low = kAlphaBetaMinVal;
-    int high = kAlphaBetaMaxVal;
-    ChessMove *goodMove = nil;
-
-    while (low < high) {
-        int beta = (value == low) ? value + 1 : value;
-        ChessMove *move = [self searchMove:theBoard depth:depth alpha:beta-1 beta:beta];
-        if (currentThread.cancelled)
-            return move;
-
-        if (nil == move)
-            return move;
-
-        value = [move value];
-
-        if (value < beta) {
-            high = value;
-        }
-        //
-        // NOTE: It is important that we do *NOT* return a move from a search which didn't reach the beta goal
-        // (e.g., value < beta). This is because all it means is that we didn't reach beta and the move returned
-        // is not the move 'closest' to beta but just one that triggered cut-off. In other words, if we'd take a
-        // move which value is less than beta it could mean that this move is a *LOT* worse than beta.
-        //
-        else {
-            low = value;
-            goodMove = move;
-            for (int i=0; i<VARIATIONS_SIZE; i++) {
-              activeVariation[i] = variations[0][i];
-          }
-        }
-    }
-    return goodMove;
-}
-
-//
 // Modified version to return the move rather than the score
 //
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
@@ -219,7 +180,6 @@
     if (nil == moveList)
         return nil;
 
-//    NSLog(@"*** negaScout processing moveList size = %d, depth = %d", [moveList count], depth);
     if ([moveList count] == 0) {
         [generator recycleMoveList:moveList];
         return nil;
@@ -234,12 +194,8 @@
     BOOL notFirst = NO;
 
     ChessMove *move = [moveList next];
-    int count = 0;
 
     while (nil != move) {
-
-        count++;
-
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
@@ -248,10 +204,6 @@
         ply++;
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
-
-      if (score == 30000) {
-        NSLog(@"Negascout move %@ score=%d", move, score);
-      }
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
             score = -[self ngSearch:newBoard depth:depth-1 alpha:-beta beta:-score];
@@ -275,10 +227,7 @@
           [goodMove autorelease];
 #endif
                 goodMove.value = score;
-
-                for (int i=0; i<VARIATIONS_SIZE; i++) {
-                    activeVariation[i] = variations[0][i];
-                }
+                memcpy(activeVariation, variations[0], VARIATIONS_SIZE * sizeof(int));
                 bestScore = score;
             }
             // see if we can cut off the search
@@ -361,6 +310,11 @@
 
         // search recursively
         ply++;
+      
+        if (ply > max_depth) {
+          max_depth = ply;
+        }
+      
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
@@ -780,8 +734,6 @@
       return;
   }
 
-  // NSLog(@"Started thinking: NegaScout %s ", useNegaScout ? "enabled" : "disabled");
-
   if (!transTable) {
       [self initializeTranspositionTable];
   }
@@ -795,7 +747,9 @@
 -(void)thinkThread {
   currentThread = [NSThread currentThread];
 
-//  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+  if ([board hasUserAgent]) {
+    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+  }
 
   @autoreleasepool {
 
@@ -810,36 +764,34 @@
     nodesVisited = ttHits = alphaBetaCuts = 0;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
-
-    while (nodesVisited < 50000) {
-
-      ChessMove *theMove = nil;
-
-      if (useNegaScout) {
-        theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
-      }
-      else {
-        theMove = [self mtdfSearch:board score:score depth:depth];
-      }
-
+    
+    while (nodesVisited < node_limit) {
+      
+      ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+      
       if (!theMove || currentThread.cancelled) {
         // the clock has run out. take the best move we have
-//        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
-        currentThread = nil;
-        return;
+        if ([board hasUserAgent]) {
+          [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+        }
+        break;
       }
-
-      myMove = [theMove copy];
-      // bestVariation replaceFrom: 1 to: bestVariation size with: activeVariation startingAt: 1.
-      for (int i=0; i<VARIATIONS_SIZE; i++) {
-        bestVariation[i] = activeVariation[i];
-      }
-
       score = theMove.value;
+      myMove = [theMove copy];
+      memcpy(bestVariation, activeVariation, VARIATIONS_SIZE * sizeof(int));
+
       depth++;
+      
+      NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+      time_spent = now - startTime;
+      if ((time_spent > time_limit) || (max_depth > depth_limit)) {
+        break;
+      }
     }
     currentThread = nil;
-//    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+    if ([board hasUserAgent]) {
+      [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+    }
   }
 }
 
@@ -855,9 +807,9 @@
 -(NSString *)statusString {
 
     NSString *resultString = @"";
-//    if (myMove && ![myMove isNullMove]) {
-//        resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
-//    }
+    if (myMove && ![myMove isNullMove]) {
+        resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
+    }
 
     int *av = bestVariation;
     int count = av[0];
