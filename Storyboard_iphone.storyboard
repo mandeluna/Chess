@@ -1,25 +1,41 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="g6y-yE-O4w">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="g6y-yE-O4w">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="HsK-de-GZi">
             <objects>
                 <viewController id="g6y-yE-O4w" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="aZY-ba-quR"/>
+                        <viewControllerLayoutGuide type="bottom" id="M8i-WJ-Ddv"/>
+                    </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="qdF-hi-qsS">
-                        <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="cJK-s0-L7d">
-                                <rect key="frame" x="20" y="483" width="280" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="cJK-s0-L7d">
+                                <rect key="frame" x="16" y="761" width="361" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="tj0-ZK-ac9">
-                                <rect key="frame" x="0.0" y="504" width="320" height="44"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sa8-8q-Img">
+                                <rect key="frame" x="60" y="48" width="273" height="21"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tj0-ZK-ac9">
+                                <rect key="frame" x="0.0" y="808" width="393" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="add" id="Mr0-Es-Zno">
                                         <connections>
@@ -27,12 +43,12 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="yOl-OK-33H"/>
-                                    <barButtonItem image="UIButtonBarRevert.png" style="plain" id="Gnk-oc-5Z8">
+                                    <barButtonItem image="backward.end" catalog="system" style="plain" id="Gnk-oc-5Z8">
                                         <connections>
                                             <action selector="undoMove" destination="g6y-yE-O4w" id="n2e-JX-JpC"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem image="UIButtonBarPlay.png" style="plain" id="4Vi-C9-OnQ">
+                                    <barButtonItem title="Item" image="forward.end" catalog="system" style="plain" id="4Vi-C9-OnQ">
                                         <connections>
                                             <action selector="redoMove" destination="g6y-yE-O4w" id="x4r-a7-Rcb"/>
                                         </connections>
@@ -45,105 +61,27 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="right" lineBreakMode="tailTruncation" minimumFontSize="10" id="Iy0-sZ-kI9">
-                                <rect key="frame" x="175" y="20" width="100" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" minimumFontSize="10" id="AZY-sm-1dq">
-                                <rect key="frame" x="45" y="20" width="100" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="blackButton.png" id="zFb-eo-Auv">
-                                <rect key="frame" x="283" y="21" width="20" height="20"/>
-                            </imageView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="clearButton.png" id="eXH-8r-nIB">
-                                <rect key="frame" x="17" y="21" width="20" height="20"/>
-                            </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="10:00" lineBreakMode="tailTruncation" minimumFontSize="10" id="zDJ-Is-xNT">
-                                <rect key="frame" x="45" y="49" width="100" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="10:00" textAlignment="right" lineBreakMode="tailTruncation" minimumFontSize="10" id="yzV-J4-8WI">
-                                <rect key="frame" x="175" y="49" width="100" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Sa8-8q-Img">
-                                <rect key="frame" x="248" y="15" width="273" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
-                        <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <connections>
-                        <outlet property="blackGameClockLabel" destination="yzV-J4-8WI" id="dOu-hd-f1s"/>
-                        <outlet property="blackPlayerLabel" destination="Iy0-sZ-kI9" id="rG4-tR-uG7"/>
                         <outlet property="hintButton" destination="6qD-kF-fxK" id="Hpe-P3-lxN"/>
                         <outlet property="label" destination="cJK-s0-L7d" id="bVC-uN-cmz"/>
                         <outlet property="newGameButton" destination="Mr0-Es-Zno" id="4uV-sX-Jrj"/>
                         <outlet property="redoButton" destination="4Vi-C9-OnQ" id="ZFD-dc-bxg"/>
                         <outlet property="undoButton" destination="Gnk-oc-5Z8" id="7mq-HM-PQ8"/>
-                        <outlet property="whiteGameClockLabel" destination="zDJ-Is-xNT" id="VN3-mk-Nca"/>
-                        <outlet property="whitePlayerLabel" destination="AZY-sm-1dq" id="SAM-iJ-0JT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rAQ-fT-Vfe" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-388" y="-241"/>
+            <point key="canvasLocation" x="-593.12977099236639" y="-169.71830985915494"/>
         </scene>
     </scenes>
     <resources>
-        <image name="UIButtonBarPlay.png" width="15" height="18"/>
-        <image name="UIButtonBarRevert.png" width="15" height="18"/>
-        <image name="blackButton.png" width="20" height="20"/>
-        <image name="clearButton.png" width="18" height="18"/>
+        <image name="backward.end" catalog="system" width="128" height="112"/>
+        <image name="forward.end" catalog="system" width="128" height="112"/>
+        <systemColor name="darkTextColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
-    <classes>
-        <class className="ViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="autoPlay"/>
-                <relationship kind="action" name="findBestMove"/>
-                <relationship kind="action" name="newGame"/>
-                <relationship kind="action" name="play"/>
-                <relationship kind="action" name="redoMove"/>
-                <relationship kind="action" name="showTimerSettings:"/>
-                <relationship kind="action" name="thinkAndMove"/>
-                <relationship kind="action" name="undoMove"/>
-                <relationship kind="outlet" name="blackGameClockLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="blackPlayerChatStatusButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="blackPlayerChatVolumeView" candidateClass="UIView"/>
-                <relationship kind="outlet" name="blackPlayerLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="blackPlayerOnlineButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="gameStatusLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="hintButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="moveListLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="newGameButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="playButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="redoButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="undoButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="whiteGameClockLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="whitePlayerChatStatusButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="whitePlayerChatVolumeView" candidateClass="UIView"/>
-                <relationship kind="outlet" name="whitePlayerLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="whitePlayerOnlineButton" candidateClass="UIButton"/>
-            </relationships>
-        </class>
-    </classes>
-    <simulatedMetricsContainer key="defaultSimulatedMetrics">
-        <simulatedStatusBarMetrics key="statusBar"/>
-        <simulatedOrientationMetrics key="orientation"/>
-        <simulatedScreenMetrics key="destination" type="retina4"/>
-    </simulatedMetricsContainer>
 </document>

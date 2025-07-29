@@ -676,7 +676,6 @@
     if (![self isThinking]) {
       while (currentThread != nil) {
         [NSThread sleepForTimeInterval:(10.0 / MSEC_PER_SEC)];
-        NSLog(@".");
       }
       [self startThinking];
     }

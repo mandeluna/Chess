@@ -8,6 +8,7 @@
 import Foundation
 
 var board = ChessBoard()
+board.initializeSearch()
 board.initializeNewBoard()
 
 func main() async throws {
