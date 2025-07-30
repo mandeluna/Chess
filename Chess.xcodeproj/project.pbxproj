@@ -136,7 +136,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* Chess Friends.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Chess Friends.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* Chamonix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chamonix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		2899E5210DE3E06400AC0155 /* ChessMailViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChessMailViewController.xib; sourceTree = "<group>"; };
@@ -276,7 +276,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* Chess Friends.app */,
+				1D6058910D05DD3D006BFB54 /* Chamonix.app */,
 				AAEDD02A2E17112300A90C54 /* ChessTool */,
 				AAAF98A92E3137770071E5C9 /* ChessEngine.framework */,
 				AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */,
@@ -422,9 +422,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* Chess */ = {
+		1D6058900D05DD3D006BFB54 /* Chamonix */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chess" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chamonix" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
@@ -436,9 +436,9 @@
 			dependencies = (
 				AAAF98BD2E3137780071E5C9 /* PBXTargetDependency */,
 			);
-			name = Chess;
+			name = Chamonix;
 			productName = ChessMail;
-			productReference = 1D6058910D05DD3D006BFB54 /* Chess Friends.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* Chamonix.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AAAF98A82E3137770071E5C9 /* ChessEngine */ = {
@@ -553,7 +553,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* Chess */,
+				1D6058900D05DD3D006BFB54 /* Chamonix */,
 				AAEDD0292E17112300A90C54 /* ChessTool */,
 				AAAF98A82E3137770071E5C9 /* ChessEngine */,
 				AAAF98B22E3137780071E5C9 /* ChessEngineTests */,
@@ -658,7 +658,7 @@
 		};
 		AAAF98B82E3137780071E5C9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 1D6058900D05DD3D006BFB54 /* Chess */;
+			target = 1D6058900D05DD3D006BFB54 /* Chamonix */;
 			targetProxy = AAAF98B72E3137780071E5C9 /* PBXContainerItemProxy */;
 		};
 		AAAF98BD2E3137780071E5C9 /* PBXTargetDependency */ = {
@@ -690,9 +690,13 @@
 				INFOPLIST_FILE = "Chess-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
-				PRODUCT_NAME = "Chess Friends";
+				PRODUCT_NAME = Chamonix;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/Chess-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -715,9 +719,13 @@
 				INFOPLIST_FILE = "Chess-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
-				PRODUCT_NAME = "Chess Friends";
+				PRODUCT_NAME = Chamonix;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/Chess-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
@@ -1125,6 +1133,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -1188,6 +1197,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -1236,7 +1246,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chess" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chamonix" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
