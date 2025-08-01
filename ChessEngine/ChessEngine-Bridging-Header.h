@@ -11,3 +11,5 @@
 #import "ChessMoveList.h"
 #import "NSArray+quickSort.h"
 #import "ChessTTEntry.h"
+#import "ChessTranspositionTable.h"
+#import "ChessHistoryTable.h"

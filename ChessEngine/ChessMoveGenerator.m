@@ -499,12 +499,12 @@ static PossibleMoveList KnightMoves[64];
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
 
-    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
-        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-        [exception raise];
-    }
+//    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
+//        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
+//        NSException *exception = [NSException exceptionWithName:@"Index corruption"
+//                                                         reason:@"Move indexes are out of sync" userInfo:nil];
+//        [exception raise];
+//    }
     streamListIndex--;
     firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
 

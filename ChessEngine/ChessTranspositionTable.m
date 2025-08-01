@@ -20,17 +20,16 @@
 // and *very* few collisions (those require us to evaluate positions repeatedly that we've evaluated before -- bad idea!)
 //
 -(void)clear {
-
-#define DEBUG_TT 1
-#ifdef DEBUG_TT
-  NSLog(@"%@", [self description]);
-#endif
-
     for (ChessTTEntry *entry in used) {
         [entry clear];
     }
     [used removeAllObjects];
     collisions = 0;
+}
+
+// the hash is x permill full, the engine should send this info regularly
+-(NSString *)hashfull {
+  return [NSString stringWithFormat:@"%d", (int)([used count] * 1000.0 / [array count])];
 }
 
 -(NSString *)description {

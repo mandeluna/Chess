@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 73;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -187,7 +187,7 @@
 		AAAF98A92E3137770071E5C9 /* ChessEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ChessEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98E72E3141FA0071E5C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		AAEDD02A2E17112300A90C54 /* ChessTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ChessTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAEDD02A2E17112300A90C54 /* Chamonix */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chamonix; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -196,8 +196,9 @@
 			membershipExceptions = (
 				"ChessBoard-Parsing.swift",
 				"ChessMove-Parsing.swift",
+				"ChessPlayerAI-Searching.swift",
 			);
-			target = AAEDD0292E17112300A90C54 /* ChessTool */;
+			target = AAEDD0292E17112300A90C54 /* Chamonix */;
 		};
 		AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -208,6 +209,7 @@
 				ChessMoveGenerator.h,
 				ChessMoveList.h,
 				ChessPlayer.h,
+				"ChessPlayerAI-Searching.swift",
 				ChessPlayerAI.h,
 				ChessTranspositionTable.h,
 				ChessTTEntry.h,
@@ -216,8 +218,18 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		AA6315252E3AD5E100EA2152 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = AAAF98A72E3137770071E5C9 /* Resources */;
+			membershipExceptions = (
+				"ChessPlayerAI-Searching.swift",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AAAF98AA2E3137770071E5C9 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
+		AAAF98AA2E3137770071E5C9 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AA6315252E3AD5E100EA2152 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
 		AAAF98B92E3137780071E5C9 /* ChessEngineFrameworkTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineFrameworkTests; sourceTree = "<group>"; };
 		AAEDD02B2E17112300A90C54 /* ChessEngineTool */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineTool; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -277,7 +289,7 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* Chamonix.app */,
-				AAEDD02A2E17112300A90C54 /* ChessTool */,
+				AAEDD02A2E17112300A90C54 /* Chamonix */,
 				AAAF98A92E3137770071E5C9 /* ChessEngine.framework */,
 				AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */,
 			);
@@ -422,9 +434,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* Chamonix */ = {
+		1D6058900D05DD3D006BFB54 /* Shaman */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chamonix" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Shaman" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
@@ -436,7 +448,7 @@
 			dependencies = (
 				AAAF98BD2E3137780071E5C9 /* PBXTargetDependency */,
 			);
-			name = Chamonix;
+			name = Shaman;
 			productName = ChessMail;
 			productReference = 1D6058910D05DD3D006BFB54 /* Chamonix.app */;
 			productType = "com.apple.product-type.application";
@@ -489,9 +501,9 @@
 			productReference = AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		AAEDD0292E17112300A90C54 /* ChessTool */ = {
+		AAEDD0292E17112300A90C54 /* Chamonix */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "ChessTool" */;
+			buildConfigurationList = AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "Chamonix" */;
 			buildPhases = (
 				AAEDD0262E17112300A90C54 /* Sources */,
 				AAEDD0272E17112300A90C54 /* Frameworks */,
@@ -506,12 +518,12 @@
 			fileSystemSynchronizedGroups = (
 				AAEDD02B2E17112300A90C54 /* ChessEngineTool */,
 			);
-			name = ChessTool;
+			name = Chamonix;
 			packageProductDependencies = (
 				AAA9F7E92E2EDDCB00F50F57 /* LineNoise */,
 			);
 			productName = ChessEngine;
-			productReference = AAEDD02A2E17112300A90C54 /* ChessTool */;
+			productReference = AAEDD02A2E17112300A90C54 /* Chamonix */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -540,7 +552,6 @@
 				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Chess" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -550,11 +561,12 @@
 			packageReferences = (
 				AAA9F7E82E2EDDCB00F50F57 /* XCRemoteSwiftPackageReference "linenoise-swift" */,
 			);
+			preferredProjectObjectVersion = 46;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* Chamonix */,
-				AAEDD0292E17112300A90C54 /* ChessTool */,
+				1D6058900D05DD3D006BFB54 /* Shaman */,
+				AAEDD0292E17112300A90C54 /* Chamonix */,
 				AAAF98A82E3137770071E5C9 /* ChessEngine */,
 				AAAF98B22E3137780071E5C9 /* ChessEngineTests */,
 			);
@@ -658,7 +670,7 @@
 		};
 		AAAF98B82E3137780071E5C9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 1D6058900D05DD3D006BFB54 /* Chamonix */;
+			target = 1D6058900D05DD3D006BFB54 /* Shaman */;
 			targetProxy = AAAF98B72E3137780071E5C9 /* PBXContainerItemProxy */;
 		};
 		AAAF98BD2E3137780071E5C9 /* PBXTargetDependency */ = {
@@ -681,6 +693,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -712,6 +725,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = YES;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Chess_Prefix.pch;
@@ -747,7 +761,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -826,7 +840,7 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/ChessEngine-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -847,7 +861,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -918,7 +932,7 @@
 				SWIFT_INSTALL_MODULE = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/ChessEngine-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1114,6 +1128,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1133,6 +1148,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "ChessEnginetool/Chess-info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
@@ -1184,6 +1200,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MSJ6KMGCMB;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1197,6 +1214,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "ChessEnginetool/Chess-info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
@@ -1246,7 +1264,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Chamonix" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Shaman" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
@@ -1273,7 +1291,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "ChessTool" */ = {
+		AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "Chamonix" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAEDD02F2E17112300A90C54 /* Debug */,

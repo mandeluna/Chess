@@ -60,8 +60,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AAEDD0292E17112300A90C54"
-            BuildableName = "ChessTool"
-            BlueprintName = "ChessTool"
+            BuildableName = "Chamonix"
+            BlueprintName = "Chamonix"
             ReferencedContainer = "container:Chess.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -27,15 +27,15 @@
 #define kValueUpperBound        5
 #define kValueThreshold         200
 
-@interface ChessPlayerAI(Private)
-
--(void)initializeTranspositionTable;
-
-@end
-
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator, myMove;
+@synthesize player, board, generator, myMove, depth_limit, node_limit, time_limit, transTable, historyTable, ply, startTime, nodesVisited, previousNodeCount, ttHits, alphaBetaCuts, currentNPS, debug;
+
+#pragma mark derived properties
+
+-(int)score {
+  return myMove.value;
+}
 
 #pragma mark initialize
 
@@ -45,7 +45,8 @@
   NSDictionary *appDefaults = @{
     @"TIME_LIMIT" : @5000.0,  // should be 1-5 seconds, but that wreaks havoc with debugging
     @"DEPTH_LIMIT" : @20,
-    @"NODE_LIMIT" : @50000
+    @"NODE_LIMIT" : @50000,
+    @"DEBUG" : @YES
   };
 
   [defaults registerDefaults:appDefaults];
@@ -59,6 +60,7 @@
         time_limit = [[NSUserDefaults standardUserDefaults] doubleForKey:@"TIME_LIMIT"];
         depth_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"DEPTH_LIMIT"];
         node_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"NODE_LIMIT"];
+        debug = (BOOL)[[NSUserDefaults standardUserDefaults] boolForKey:@"DEBUG"];
         [self reset];
     }
 
@@ -128,7 +130,33 @@
     // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
 }
 
+-(void)initializeBestVariation {
+    bestVariation[0] = 0;
+}
+
+-(void)initializeActiveVariation {
+    activeVariation[0] = 0;
+}
+
+-(void)assignBestVariation {
+    memcpy(bestVariation, activeVariation, VARIATIONS_SIZE * sizeof(int));
+}
+
 #pragma mark searching
+
+-(NSArray *)pvMoves {
+    int *pv = bestVariation;
+    int count = pv[0];
+    if (count < 1) {
+        return @[];
+    }
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
+    for (int i = 1; pv[i] != 0; i++) {
+        ChessMove *move = [ChessMove decodeFrom:pv[i]];
+        result[i - 1] = [move moveString];
+    }
+    return result;
+}
 
 -(void)copyVariation:(ChessMove *)move {
     int count = 0;
@@ -137,9 +165,6 @@
     if (ply < 9) {
       int *mv = variations[ply+1];
       count = mv[0];
-      // av replaceFrom:3 to:count+2 with:mv startingAt:2
-      // translate from Smalltalk 1-origin index to 0-origin
-//      [self replace:av from:2 to:count+2 with:mv startingAt:1];
       for (int i=1; i<count+2; i++) {
           av[i + 1] = mv[i];
       }
@@ -498,177 +523,193 @@
     return bestScore;
 }
 
-//
-// A basic alpha-beta algorithm, based on negaMax rather than from the textbooks
-//
--(int)search:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
-    assert(initialAlpha < initialBeta);
-
-    if (ply < 10) {
-        variations[ply][0] = 0;
-    }
-
-    if (0 == depth) {
-        return [self quiesce:theBoard alpha:initialAlpha beta:initialBeta];
-    }
-    nodesVisited++;
-
-    // if there's already something in the transposition table, skip the entire search
-    ChessTTEntry *entry = [transTable lookupBoard:theBoard];
-    int alpha = initialAlpha;
-    int beta = initialBeta;
-
-    if (entry && (entry.depth >= depth)) {
-        ttHits++;
-        if ((entry.valueType & 1) == (ply & 1)) {
-            beta = MAX(entry.value, initialBeta);
-        }
-        else {
-            alpha = MAX(-entry.value, initialAlpha);
-        }
-        if (beta > initialBeta)
-            return beta;
-        if (alpha >= initialBeta)
-            return alpha;
-    }
-    int bestScore = kAlphaBetaMinVal;
-
-    // generate new moves
-    ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
-    if (nil == moveList)
-        return -kAlphaBetaIllegal;
-
-    if ([moveList isEmpty]) {
-        [generator recycleMoveList:moveList];
-        return bestScore;
-    }
-
-    // Sort move list according to history heuristics
-    [moveList sortUsing:historyTable];
-
-    // and search
-    ChessMove *move = [moveList next];
-    while (move) {
-
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
-        [newBoard nextMove:move];
-
-        // search recursively
-        ply++;
-        int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
-        ply--;
-
-        if (currentThread.cancelled) {
-          [generator recycleMoveList:moveList];
-          return score;
-        }
-
-        if (score != kAlphaBetaIllegal) {
-            if (score > bestScore) {
-                if (ply < 10) {
-                    [self copyVariation:move];
-                }
-                bestScore = score;
-            }
-            if (score > alpha) {
-                alpha = score;
-                if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move];
-                    alphaBetaCuts++;
-                    [generator recycleMoveList:moveList];
-                    return score;
-                }
-            }
-        }
-        move = [moveList next];
-    }
-
-    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
-    [generator recycleMoveList:moveList];
-
-    return bestScore;
-}
-
-//
-// Modified version to return the move rather than the score
-//
--(ChessMove *)searchMove:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
-    assert(initialAlpha < initialBeta);
-
-    if (ply < 10) {
-        variations[ply][0] = 0;
-    }
-
-    ply = 0;
-    int alpha = initialAlpha;
-    int beta = initialBeta;
-    int bestScore = kAlphaBetaMinVal;
-    ChessMove *goodMove = nil;
-
-    // generate new moves
-    ChessMoveList *moveList = [generator findPossibleMovesFor:theBoard.activePlayer];
-    if (nil == moveList)
-        return nil;
-
-    if ([moveList isEmpty]) {
-        [generator recycleMoveList:moveList];
-        return nil;
-    }
-
-    // Sort move list according to history heuristics
-    [moveList sortUsing:historyTable];
-
-    // and search
-    ChessMove *move = [moveList next];
-    while (move) {
-
-        ChessBoard *newBoard = [[boardList objectAtIndex:ply] copyBoard:theBoard];
-        [newBoard nextMove:move];
-
-        // search recursively
-        ply++;
-        int score = -[self search:newBoard depth:depth-1 alpha:-beta beta:-alpha];
-        ply--;
-
-        if (currentThread.cancelled) {
-            [generator recycleMoveList:moveList];
-            return move;
-        }
-
-        if (score != kAlphaBetaIllegal) {
-            if (score > bestScore) {
-                if (ply < 10) {
-                    [self copyVariation:move];
-                }
-                goodMove = [move copy];
-#if !__has_feature(objc_arc)
-          [goodMove autorelease];
-#endif
-                goodMove.value = score;
-                bestScore = score;
-            }
-            if (score > alpha) {
-                alpha = score;
-                if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move];
-                    alphaBetaCuts++;
-                    [generator recycleMoveList:moveList];
-                    return goodMove;
-                }
-            }
-        }
-        move = [moveList next];
-    }
-
-    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
-    [generator recycleMoveList:moveList];
-
-    return goodMove;
-}
-
 #pragma mark thinking
+
+typedef void (^UpdateCallback)(NSDictionary *info);
+typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, ChessSearchStatus status);
+
+/*
+ * TODO: The dispatch callbacks do not seem to be working either in Objective-C nor Swift implementations
+ * All we frankly care about is getting the results written to stdout, so use NSLog to generate the output instead
+ */
+- (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
+    [self performSearchWithUCIParams: uciParams
+                      updateCallback:^(NSDictionary<NSString *,id> *info) {
+        [self printUCIInfo: info];
+    }
+                     completionBlock:^(NSString *bestMove, NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+        NSLog(@"%@", bestMove);
+    }];
+}
+
+- (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
+                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
+                   completionBlock:(void (^)(NSString *bestMove, NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
+{
+    // Extract common UCI parameters
+    int uci_depth = (int)[uciParams[@"depth"] integerValue];
+    int uci_nodes = (int)[uciParams[@"nodes"] integerValue];
+    int64_t time_limit_ms = [uciParams[@"movetime"] integerValue];
+    if (uci_depth > 0) {
+        self.depth_limit = uci_depth;
+        self.node_limit = -1;
+        self.time_limit = -1;
+    }
+    if (uci_nodes > 0) {
+        self.node_limit = uci_nodes;
+        self.time_limit = -1;
+        self.depth_limit = -1;
+    }
+    if (time_limit_ms > 0) {
+        self.time_limit = (double)time_limit_ms / MSEC_PER_SEC;
+        self.node_limit = -1;
+        self.depth_limit = -1;
+    }
+    BOOL infinite = [uciParams[@"infinite"] boolValue];
+
+    if (!transTable) {
+        [self initializeTranspositionTable];
+    }
+
+    [self setActivePlayer:board.activePlayer];
+
+    myMove = [ChessMove nullMove];
+
+//    // 1. Copy the blocks to heap (equivalent to @escaping)
+//    UpdateCallback updateCallbackCopy = updateCallback ? Block_copy(updateCallback) : nil;
+//    CompletionCallback completionBlockCopy = completionBlock ? Block_copy(completionBlock) : nil;
+    
+//    // 2. Create weak self reference to avoid retain cycles
+//    __weak typeof(self) weakSelf = self;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+
+//        // 3. Strong reference only during execution
+//        __strong typeof(weakSelf) strongSelf = weakSelf;
+//        if (!strongSelf) {
+//            if (completionBlockCopy) Block_release(completionBlockCopy);
+//            if (updateCallbackCopy) Block_release(updateCallbackCopy);
+//            return;
+//        }
+
+        ChessSearchStatus status = ChessSearchStatusInProgress;
+        NSInteger score = [board.activePlayer evaluate];
+        int depth = 1;
+        NSString *bestMove = nil;
+        NSMutableDictionary *info = [NSMutableDictionary new];
+
+        ply = 0;
+        [historyTable clear];
+        [transTable clear];
+
+        startTime = [[NSDate date] timeIntervalSince1970];
+        nodesVisited = previousNodeCount = ttHits = alphaBetaCuts = 0;
+        bestVariation[0] = 0;
+        activeVariation[0] = 0;
+        
+        currentThread = [NSThread currentThread];
+
+        if ([board hasUserAgent]) {
+            [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
+        }
+
+        // Search loop
+        while (status == ChessSearchStatusInProgress) {
+            
+            ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+
+            NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+            NSTimeInterval time_spent = now - startTime;
+            int currentNPS = (double)nodesVisited / time_spent;
+            NSArray *pvMoves = [self pvMoves];
+
+            // Prepare UCI info
+            info[@"depth"] = @(depth);
+            info[@"score"] = @{ @"cp": @(score) }; // centipawns
+            info[@"nodes"] = @(nodesVisited);
+            info[@"time"] = @((int)(time_spent * MSEC_PER_SEC));   // convert seconds to ms
+            info[@"nps"] = @(currentNPS);
+            info[@"pv"] = pvMoves;
+            info[@"hashfull"] = [transTable hashfull];
+            
+            // Send periodic update
+            [self printUCIInfo: info];
+//            if (updateCallbackCopy) {
+//                NSLog(@".");
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    NSLog(@"update from callback");
+//                    // callback does not get invoked
+//                    updateCallbackCopy([info copy]);
+//                });
+//            }
+            
+            if (!theMove || currentThread.cancelled) {
+                info[@"stop_reason"] = @"no move found";
+            }
+
+            score = theMove.value;
+            myMove = [theMove copy];
+            [self assignBestVariation];
+
+            depth++;
+
+            BOOL stop_nodes = (node_limit > 0) && (nodesVisited > node_limit);
+            BOOL stop_depth = (depth_limit > 0) && (depth > depth_limit);
+            BOOL stop_time = ((time_limit > 0) && (time_spent > time_limit));
+
+            // Check termination conditions
+            if (!infinite && (stop_depth || stop_nodes || stop_time || !theMove)) {
+                
+                if (stop_time) {
+                    info[@"stop_reason"] = @"time limit exceeded";
+                }
+                else if (stop_depth) {
+                    info[@"stop_reason"] = @"depth limit exceeded";
+                }
+                else if (stop_nodes) {
+                    info[@"stop_reason"] = @"node limit exceeded";
+                }
+
+                status = ChessSearchStatusCompleted;
+                bestMove = theMove ? [theMove copy] : [ChessMove nullMove];
+                if ([board hasUserAgent]) {
+                  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+                }
+            }
+            
+            // Check for cancellation
+            if (![self isThinking]) {
+                status = ChessSearchStatusStopped;
+                info[@"stop_reason"] = @"stopped search";
+                bestMove = theMove ? [theMove copy] : [ChessMove nullMove];
+                [self stopThinking];
+                if ([board hasUserAgent]) {
+                  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+                }
+            }
+        }
+        
+        info[@"bestmove"] = [bestMove description];
+        [self printCompletionInfo: info];
+        
+        currentThread = nil;
+
+        // Final completion
+//        if (completionBlockCopy) {
+//            NSLog(@"done (in completion block)");
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                // callback does not get invoked
+//                completionBlockCopy(bestMove, [info copy], status);
+//                [self stopThinking];
+//                if ([board hasUserAgent]) {
+//                  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+//                }
+//                Block_release(completionBlockCopy);
+//            });
+//        }
+//        if (updateCallbackCopy) Block_release(updateCallbackCopy);
+    });
+}
 
 -(void)findMove: (void (^)(ChessMove *move))completion {
   
@@ -690,19 +731,6 @@
       }
     } while ([self isThinking]);
     
-    // TODO: Do we have a valid move?
-    // myMove == #none ifTrue: [^nil].  "no"
-    
-    // TODO: Did we time out?
-    // Time millisecondClockValue - startTime > self timeToThink
-    //    ifTrue:
-    //      ["Yes. Abort and return current move."
-    //
-    //      stopThinking := true.
-    //      myProcess resume.
-    //      [myProcess isNil] whileFalse: [(Delay forMilliseconds: 10) wait].
-    //      ^myMove == #none ifTrue: [nil] ifFalse: [myMove]].
-    //
     [self stopThinking];
     myMove = [ChessMove nullMove];
 
@@ -732,6 +760,7 @@
   if (currentThread != nil) {
       return;
   }
+    
 
   if (!transTable) {
       [self initializeTranspositionTable];
@@ -782,7 +811,8 @@
       depth++;
       
       NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-      time_spent = now - startTime;
+      NSTimeInterval time_spent = now - startTime;
+
       if ((time_spent > time_limit) || (max_depth > depth_limit)) {
         break;
       }
@@ -836,6 +866,73 @@
     resultString = [resultString stringByAppendingFormat:@"[%d]", nodesVisited];
 
     return resultString;
+}
+
+- (void)printCompletionInfo:(NSDictionary *)info {
+    if (debug) {
+        NSString *info_string = [NSString stringWithFormat: @"info string %@", info[@"stop_reason"]];
+        printf("%s\n", [info_string UTF8String]);
+    }
+    printf("bestmove %s\n", [info[@"bestmove"] UTF8String]);
+    fflush(stdout);
+}
+
+- (void)printUCIInfo:(NSDictionary *)info {
+    NSMutableString *output = [NSMutableString stringWithString:@"info"];
+    
+    // Depth
+    if (info[@"depth"]) {
+        [output appendFormat:@" depth %@", info[@"depth"]];
+    }
+    
+    // Nodes
+    if (info[@"nodes"]) {
+        [output appendFormat:@" nodes %@", info[@"nodes"]];
+    }
+    
+    // Time (in ms)
+    if (info[@"time"]) {
+        [output appendFormat:@" time %@", info[@"time"]];
+    }
+    
+    // the hash is x permill full
+    if (info[@"hashfull"]) {
+        [output appendFormat:@" hashfull %@", info[@"hashfull"]];
+    }
+    
+    // Nodes per second
+    if (info[@"nps"]) {
+        [output appendFormat:@" nps %@", info[@"nps"]];
+    }
+    
+    // Score (cp or mate)
+    if (info[@"score"]) {
+        NSDictionary *scoreDict = info[@"score"];
+        if (scoreDict[@"cp"]) {
+            [output appendFormat:@" score cp %@", scoreDict[@"cp"]];
+            if (scoreDict[@"mate"]) {
+                [output appendFormat:@" mate %@", scoreDict[@"mate"]];
+            }
+        } else if (scoreDict[@"mate"]) {
+            [output appendFormat:@" score mate %@", scoreDict[@"mate"]];
+        }
+    }
+    
+    // Principal Variation
+    if (info[@"pv"]) {
+        NSArray *pv = info[@"pv"];
+        if ([pv isKindOfClass:[NSArray class]] && pv.count > 0) {
+            [output appendFormat:@" pv %@", [pv componentsJoinedByString:@" "]];
+        }
+    }
+    
+    // Current move being searched
+    if (info[@"currmove"]) {
+        [output appendFormat:@" currmove %@", info[@"currmove"]];
+    }
+    
+    printf("%s\n", [output UTF8String]);
+    fflush(stdout);
 }
 
 -(NSString *)formatArray:(int[]) array size:(int)count {

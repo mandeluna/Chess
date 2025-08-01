@@ -17,8 +17,13 @@
 @class ChessTranspositionTable;
 @class ChessMoveGenerator;
 
+typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
+    ChessSearchStatusInProgress,
+    ChessSearchStatusCompleted,
+    ChessSearchStatusStopped
+};
+
 @interface ChessPlayerAI : NSObject {
-    
     ChessBoard *board;
     NSArray *boardList;
     int boardListIndex;
@@ -30,10 +35,11 @@
     int activeVariation[VARIATIONS_SIZE];
     int bestVariation[VARIATIONS_SIZE];
     int nodesVisited;
+    int previousNodeCount;
     int ttHits;
     int stamp;
     int alphaBetaCuts;
-    long startTime;
+    NSTimeInterval startTime;
     int ply;
     ChessMove *myMove;
     NSThread *currentThread;
@@ -42,13 +48,28 @@
     NSTimeInterval time_limit;      // maximum number of seconds of searching
     int max_depth;                  // furthest depth traversed
     int max_nodes;                  // total nodes visited
-    NSTimeInterval time_spent;        // number of seconds spent searching
+    BOOL debug;                     // UCI debug value
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
 @property(nonatomic, assign) ChessBoard *board;
 @property(nonatomic, assign) ChessMoveGenerator *generator;
+@property(nonatomic, readonly) ChessTranspositionTable *transTable;
+@property(nonatomic, readonly) ChessHistoryTable *historyTable;
 @property(nonatomic, copy) ChessMove *myMove;
+
+@property(nonatomic, assign) int depth_limit;
+@property(nonatomic, assign) int node_limit;
+@property(nonatomic, assign) NSTimeInterval time_limit;
+
+@property(nonatomic, assign) int ply;
+@property(nonatomic, assign) NSTimeInterval startTime;
+@property(nonatomic, assign) int nodesVisited;
+@property(nonatomic, assign) int previousNodeCount;
+@property(nonatomic, assign) int ttHits;
+@property(nonatomic, assign) int alphaBetaCuts;
+@property(nonatomic, assign) int currentNPS;
+@property(nonatomic, assign) BOOL debug;
 
 // initialize
 
@@ -58,6 +79,10 @@
 
 // searching
 
+- (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
+                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
+                   completionBlock:(void (^)(NSString *bestMove, NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock;
+-(void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams;
 -(void)copyVariation:(ChessMove *)move;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
@@ -73,8 +98,15 @@
 -(long)timeToThink;
 -(ChessMove *)thinkSync;
 
-// accessing
+// engine
 
 -(NSString *)statusString;
+-(void)printUCIInfo:(NSDictionary *)info;
+-(void)printCompletionInfo:(NSDictionary *)info;
+-(void)initializeTranspositionTable;
+-(void)initializeBestVariation;
+-(void)initializeActiveVariation;
+-(void)assignBestVariation;
+-(NSArray *)pvMoves;
 
 @end

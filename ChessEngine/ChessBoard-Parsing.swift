@@ -6,7 +6,37 @@
 //
 
 extension ChessBoard {
-  /**
+
+    // similar to the constructor on ChessMove, but the short form of the notation
+    // permits the ASCII name of the piece to be omitted.
+    // TODO: It should be easy to internationalize this method & add unicode support
+    public func applyMove(san: String) {
+        var long_san: String? = nil
+        // an awful lot of work just to find out what piece is at the start location
+        let short_pattern = /^([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?$/
+        do {
+            if  let match = try short_pattern.firstMatch(in: san) {
+                let originString = String(match.1) + String(match.2)
+                let origin = ChessMove.squareToIndex(originString)
+                let black = blackPlayer.piece(at: Int32(origin))
+                let white = whitePlayer.piece(at: Int32(origin))
+                let code = Int(black + white)
+                if let label = ChessMove.BoardCodesToNotation[code] {
+                    long_san = label + san
+                }
+            }
+        }
+        catch {
+            debugPrint("unable to match SAN string: \(san)")
+            return
+        }
+
+        debugPrint("applying move \(san)")
+        let move = if (long_san != nil) { ChessMove(san: long_san!) } else { ChessMove(san: san) }
+        self.nextMove(move)
+    }
+    
+ /**
    * https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
    *
    * A FEN record contains six fields, each separated by a space. The fields are as follows:
@@ -56,6 +86,8 @@ extension ChessBoard {
   func initializeFromFEN(ranks: String, color: String?, castling: String?, enpassant: String?, halfmoves: Int32?, fullmoves: Int32?) {
     self.whitePlayer.removeAllPieces()
     self.blackPlayer.removeAllPieces()
+      
+    self.resetGame()
     
     initializeRanks(ranks: ranks)
     initializeActiveColor(color: color ?? "w")

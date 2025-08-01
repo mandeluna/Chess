@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 enum {
-    kMoveNormal = 0,
+    kMoveNormal = 1,
     kMoveDoublePush,
     kMoveCaptureEnPassant,
     kMoveCastlingKingSide,

@@ -13,6 +13,8 @@
 #import "ChessMove.h"
 #import "NSNotificationCenter+MainThread.h"
 
+#import <stdio.h>
+
 #pragma mark Initialize
 
 @interface ChessBoard(Private)
@@ -49,8 +51,8 @@ int halfmoveClock;
 #pragma mark Initialize
 
 -(void)resetGame {
-  _hashKey = _hashLock = 0;
-  halfmoveClock = fullmoveClock = 0;
+    _hashKey = _hashLock = 0;
+    halfmoveClock = fullmoveClock = 0;
 
 #if !__has_feature(objc_arc)
   self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
@@ -60,15 +62,22 @@ int halfmoveClock;
   self.blackPlayer = [[ChessPlayer alloc] init];
 #endif
 
-  _whitePlayer.opponent = _blackPlayer;
-  _whitePlayer.board = self;
-  _blackPlayer.opponent = _whitePlayer;
-  _blackPlayer.board = self;
-  _activePlayer = _whitePlayer;
-  [_searchAgent reset:self];
+    _whitePlayer.opponent = _blackPlayer;
+    _whitePlayer.board = self;
+    _blackPlayer.opponent = _whitePlayer;
+    _blackPlayer.board = self;
+    _activePlayer = _whitePlayer;
+    [_searchAgent reset:self];
 
-  NSNotification *notification = [NSNotification notificationWithName:@"ResetGame" object:nil];
-  [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+    if ([self hasUserAgent]) {
+        NSNotification *notification = [NSNotification notificationWithName:@"ResetGame" object:nil];
+        [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+    }
+}
+
+// need to configure output buffers to flush immediately
+-(void)initializeOutputBuffers {
+    setbuf(__stdoutp, nil);
 }
 
 -(void)initializeNewBoard {

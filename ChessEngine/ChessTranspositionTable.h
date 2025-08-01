@@ -28,4 +28,8 @@
 
 -(ChessTTEntry *)lookupBoard:(ChessBoard *)aBoard;
 
+// reporting
+
+-(NSString *)hashfull;
+
 @end

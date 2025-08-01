@@ -31,6 +31,7 @@
 -(void)initializeSearch;
 -(void)resetGame;
 -(void)initializeNewBoard;
+-(void)initializeOutputBuffers;
 
 // copying
 -(ChessBoard *)copyBoard:(ChessBoard *)aBoard;

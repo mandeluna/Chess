@@ -236,17 +236,20 @@ static ChessMove *NullMove = nil;
 #pragma mark Printing
 
 -(NSString *)moveString {
-
+    if ([self isNullMove]) {
+        return @"0000";
+    }
+    
     char *labels[] = { "", "", "N", "B", "R", "Q", "K" };
     char *c1 = labels[movingPiece];
     char c2 = 'a' + (sourceSquare & 7);
     char c3 = '1' + (sourceSquare >> 3);
-    char c4 = (capturedPiece == 0) ? '-' : 'x';
+    char *s4 = (capturedPiece == 0) ? "" : "x";
     char *c5 = labels[capturedPiece];
     char c6 = 'a' + (destinationSquare & 7);
     char c7 = '1' + (destinationSquare >> 3);
 
-    return [NSString stringWithFormat:@"%s%c%c%c%s%c%c", c1, c2, c3, c4, c5, c6, c7];
+    return [NSString stringWithFormat:@"%s%c%c%s%s%c%c", c1, c2, c3, s4, c5, c6, c7];
 }
 
 -(NSString *)description {

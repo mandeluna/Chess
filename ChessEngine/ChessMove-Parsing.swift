@@ -11,6 +11,10 @@ extension ChessMove {
     "P" : kPawn, "N" : kKnight, "B" : kBishop, "R" : kRook, "Q" : kQueen, "K" : kKing
   ]
   
+  public static let BoardCodesToNotation = [
+    kPawn: "P", kKnight: "N", kBishop: "B", kRook: "R", kQueen: "Q", kKing: "K"
+  ]
+  
   /**
    * https://en.wikipedia.org/wiki/Universal_Chess_Interface
    *
@@ -34,12 +38,12 @@ extension ChessMove {
     do {
       guard
         let match = try san_pattern.firstMatch(in: san)
-      
+          
       else {
-        NSLog("invalid SAN string: \(san)")
+        debugPrint("invalid SAN string: \(san)")
         return
       }
-      let notated_piece = String(match.1) // PQKRB
+      let notated_piece = String(match.1) // PQKNRB
       let start_file = String(match.2)  // a-h
       let start_rank = UInt32(match.3)!  // 1-8
       let end_file = String(match.4)
@@ -51,7 +55,7 @@ extension ChessMove {
       self.move(movingPiece, from: Int32(start), to: Int32(end))
     }
     catch {
-      NSLog("Unable to match SAN string: \(san)")
+      debugPrint("Unable to match SAN string: \(san)")
       return
     }
   }
@@ -62,8 +66,19 @@ extension ChessMove {
   }
   
   class func squareToIndex(_ square: String) -> UInt32 {
+    if (square.count != 2) {
+      print("Invalid square string: \(square)")
+    }
     let file = square.unicodeScalars.first!.value - 97
     let rank = square.unicodeScalars.last!.value - 49
     return rank * 8 + file
   }
+  
+  class func squareToIndex(_ square: String, from: Int, to: Int) -> UInt32 {
+    let startIndex = square.index(square.startIndex, offsetBy: from)
+    let endIndex = square.index(square.startIndex, offsetBy: to)
+    let range = startIndex ..< endIndex
+    return squareToIndex(String(square[range]))
+  }
+  
 }
