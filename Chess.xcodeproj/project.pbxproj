@@ -45,7 +45,7 @@
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
 		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
-		AAA9F7EA2E2EDDCB00F50F57 /* LineNoise in Frameworks */ = {isa = PBXBuildFile; productRef = AAA9F7E92E2EDDCB00F50F57 /* LineNoise */; };
+		AA8C18932E3D679700FCA8A7 /* utility.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8C18912E3D676000FCA8A7 /* utility.m */; };
 		AAAF98B42E3137780071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98BE2E3137780071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98BF2E3137780071E5C9 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -184,6 +184,8 @@
 		AA1B020E2E2830B3009FDDAC /* Chess.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Chess.xctestplan; sourceTree = "<group>"; };
 		AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+MainThread.h"; sourceTree = "<group>"; };
 		AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+MainThread.m"; sourceTree = "<group>"; };
+		AA8C18902E3D61D500FCA8A7 /* utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
+		AA8C18912E3D676000FCA8A7 /* utility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = utility.m; sourceTree = "<group>"; };
 		AAAF98A92E3137770071E5C9 /* ChessEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ChessEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98E72E3141FA0071E5C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -268,7 +270,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAA9F7EA2E2EDDCB00F50F57 /* LineNoise in Frameworks */,
 				AAAF98EB2E31421C0071E5C9 /* ChessEngine.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -319,6 +320,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				AA8C18912E3D676000FCA8A7 /* utility.m */,
+				AA8C18902E3D61D500FCA8A7 /* utility.h */,
 				32CA4F630368D1EE00C91783 /* Chess_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 			);
@@ -520,7 +523,6 @@
 			);
 			name = Chamonix;
 			packageProductDependencies = (
-				AAA9F7E92E2EDDCB00F50F57 /* LineNoise */,
 			);
 			productName = ChessEngine;
 			productReference = AAEDD02A2E17112300A90C54 /* Chamonix */;
@@ -559,7 +561,6 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			packageReferences = (
-				AAA9F7E82E2EDDCB00F50F57 /* XCRemoteSwiftPackageReference "linenoise-swift" */,
 			);
 			preferredProjectObjectVersion = 46;
 			projectDirPath = "";
@@ -642,6 +643,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA8C18932E3D679700FCA8A7 /* utility.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1310,25 +1312,6 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		AAA9F7E82E2EDDCB00F50F57 /* XCRemoteSwiftPackageReference "linenoise-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/andybest/linenoise-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.3;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		AAA9F7E92E2EDDCB00F50F57 /* LineNoise */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AAA9F7E82E2EDDCB00F50F57 /* XCRemoteSwiftPackageReference "linenoise-swift" */;
-			productName = LineNoise;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
 }

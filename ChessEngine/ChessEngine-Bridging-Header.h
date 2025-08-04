@@ -2,6 +2,7 @@
 //  Use this file to import your target's public headers that you would like to expose to Swift.
 //
 
+#import "utility.h"
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"

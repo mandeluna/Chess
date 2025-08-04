@@ -10,6 +10,7 @@
 #import "ChessPlayer.h"
 #import "ChessMove.h"
 #import "ChessMoveList.h"
+#import "utility.h"
 
 // bishop movers
 
@@ -335,10 +336,10 @@ static PossibleMoveList KnightMoves[64];
     int startingMoveIndex = lastMoveIndex;
 
     if (firstMoveIndex != lastMoveIndex) {
-        NSLog(@"I am confused");
-        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-        [exception raise];
+        NSString *reason = [NSString stringWithFormat:@"firstMoveIndex (%d) != lastMoveIndex (%d)",
+                            firstMoveIndex, lastMoveIndex];
+        logDebug([@"I am confused: " stringByAppendingString: reason]);
+        raiseException(@"Index corruption", reason);
     }
 
     self.kingAttack = nil;
@@ -425,10 +426,8 @@ static PossibleMoveList KnightMoves[64];
     enpassantSquare = [opponent enpassantSquare];
 
     if (firstMoveIndex != lastMoveIndex) {
-        NSLog(@"findPossibleMovesFor:at: is confused");
-        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-        [exception raise];
+        //    @"findPossibleMovesFor:at: is confused"
+        raiseException(@"Index corruption", @"Move indexes are out of sync");
     }
 
     self.kingAttack = nil;
@@ -499,12 +498,12 @@ static PossibleMoveList KnightMoves[64];
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
 
-//    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-//        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
-//        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-//                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-//        [exception raise];
-//    }
+    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
+        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
+        NSException *exception = [NSException exceptionWithName:@"Index corruption"
+                                                         reason:@"Move indexes are out of sync" userInfo:nil];
+        [exception raise];
+    }
     streamListIndex--;
     firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
 

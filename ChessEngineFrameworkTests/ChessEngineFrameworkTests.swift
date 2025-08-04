@@ -58,9 +58,9 @@ final class ChessEngineFrameworkTests: XCTestCase {
   
   func testRookMoveDescription() {
     var move = ChessMove(piece: Int32(kRook), start: 62, end: 63)
-    XCTAssertTrue(move.description() == "Rg8-h8", "Move description is incorrect")
+    XCTAssertTrue(move.description() == "Rg8h8", "Move description is incorrect")
     move = ChessMove(piece: Int32(kRook), start: 62, end: 61)
-    XCTAssertTrue(move.description() == "Rg8-f8", "Move description is incorrect")
+    XCTAssertTrue(move.description() == "Rg8f8", "Move description is incorrect")
   }
   
   func testQuicksort() {
@@ -126,7 +126,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
     // move 1b
     var theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
-    XCTAssertTrue(theirMove!.description() == "Nd4-f3", "That move is incorrect")
+    XCTAssertTrue(theirMove!.description() == "Nd4f3", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
     
     // move 2w
@@ -137,7 +137,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
     // move 2b
     theirMove = board.searchAgent.thinkSync()
     print(theirMove!)
-    XCTAssertTrue(theirMove!.description() == "Rg8-h8", "That move is incorrect")
+    XCTAssertTrue(theirMove!.description() == "Rg8h8", "That move is incorrect")
     board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
   }
   

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import LineNoise
 
 class ChessEngineController {
     var board = ChessBoard()
@@ -20,7 +19,7 @@ class ChessEngineController {
         board.initializeNewBoard()
         engine = board.searchAgent
     }
-    
+
     public func processCommand(_ command: String) {
         let parts = command.components(separatedBy: .whitespaces)
         guard !parts.isEmpty else { return }
@@ -30,12 +29,13 @@ class ChessEngineController {
             identifyEngine()
             reportOptions()
             sendOk()
-            debugPrint("responded to uci")
+            logDebug("responded to uci")
         case "ucinewgame":
             board.initializeNewBoard()
         case "isready":
+            Thread.sleep(forTimeInterval: 100.0 / 1000.0)
             print("readyok")
-            debugPrint("responded to isready")
+            logDebug("responded to isready")
         case "go":
             handleGoCommand(Array(parts.dropFirst()))
         case "position":
@@ -44,11 +44,14 @@ class ChessEngineController {
             handleDebugCommand(Array(parts.dropFirst()))
         case "stop":
             handleStopCommand()
-            debugPrint("stopped search")
+            logDebug("stopped search")
         case "ponder":
             startPondering()
         case "quit":
-            debugPrint("exiting")
+            stopSearch()
+            logDebug("exiting")
+            // don't exit until all buffers have been flushed
+            fflush(__stdoutp)
             exit(0)
         case "setoption":
             handleSetOption(Array(parts.dropFirst()))
@@ -71,6 +74,11 @@ class ChessEngineController {
     }
     
     private func handlePositionCommand(_ tokens: [String]) {
+        NSLog("stopping search: \(tokens)")
+        // Cancel any existing search
+        stopSearch()
+
+        NSLog("initializing board: \(tokens)")
         if let fenIndex = tokens.firstIndex(of: "fen") {
 
             let ranks = if tokens.count > 1 { String(tokens[fenIndex + 1]) } else { "" }
@@ -85,7 +93,7 @@ class ChessEngineController {
         else if let _ = tokens.firstIndex(of: "startpos") {
             board.initializeNewBoard()
             let tokensString = tokens.joined(separator: " ")
-            debugPrint("responded to position startpos \(tokensString)")
+            logDebug("responded to position startpos \(tokensString)")
         }
         if let moveIndex = tokens.firstIndex(of: "moves") {
             for i in moveIndex + 1 ..< tokens.count {
@@ -128,7 +136,7 @@ class ChessEngineController {
     private func handleGoCommand(_ args: [String]) {
         // Cancel any existing search
         stopSearch()
-        
+
         var uciParams: [String: Any] = [:]
         var i = 0
         while i < args.count {
@@ -168,6 +176,7 @@ class ChessEngineController {
         }
         
         currentSearchTask = searchTask
+        Thread.sleep(forTimeInterval: 1.0)
         DispatchQueue.global(qos: .userInitiated).async(execute: searchTask)
     }
     

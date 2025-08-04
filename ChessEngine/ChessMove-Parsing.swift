@@ -40,7 +40,7 @@ extension ChessMove {
         let match = try san_pattern.firstMatch(in: san)
           
       else {
-        debugPrint("invalid SAN string: \(san)")
+        logDebug("invalid SAN string: \(san)")
         return
       }
       let notated_piece = String(match.1) // PQKNRB
@@ -55,7 +55,7 @@ extension ChessMove {
       self.move(movingPiece, from: Int32(start), to: Int32(end))
     }
     catch {
-      debugPrint("Unable to match SAN string: \(san)")
+      logDebug("Unable to match SAN string: \(san)")
       return
     }
   }

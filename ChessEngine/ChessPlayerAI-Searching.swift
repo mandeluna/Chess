@@ -20,12 +20,6 @@ extension ChessPlayerAI {
         case AlphaBetaMinVal = -30000
     }
     
-    //case ValueAccurate = 2
-    //case ValueBoundary = 4
-    //case ValueLowerBound = 4
-    //case ValueUpperBound = 5
-    //case ValueThreshold = 200
-
     public func performSearch(uciParams: [String: Any],
                updateCallback: @escaping ([String: Any]) -> Void,
                              completion: @escaping (String, [String: Any], ChessSearchStatus, Error?) -> Void)

@@ -6,6 +6,7 @@
 //  Copyright 2010 Steven Wart. All rights reserved.
 //
 
+#import "utility.h"
 #import "ChessPlayerAI.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"
@@ -221,6 +222,10 @@
     ChessMove *move = [moveList next];
 
     while (nil != move) {
+        if (ply >= [boardList count]) {
+            NSString *reason = [NSString stringWithFormat:@"ply=%d", ply];
+            raiseException(@"invalid index into boardList", reason);
+        }
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
@@ -530,16 +535,24 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 
 /*
  * TODO: The dispatch callbacks do not seem to be working either in Objective-C nor Swift implementations
- * All we frankly care about is getting the results written to stdout, so use NSLog to generate the output instead
+ * All we frankly care about is getting the results written to stdout, so we generate the output instead
  */
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
-    [self performSearchWithUCIParams: uciParams
-                      updateCallback:^(NSDictionary<NSString *,id> *info) {
-        [self printUCIInfo: info];
+    @synchronized (self) {
+        @try {
+            [self performSearchWithUCIParams: uciParams
+                              updateCallback:^(NSDictionary<NSString *,id> *info) {
+                [self printUCIInfo: info];
+            }
+                             completionBlock:^(NSString *bestMove, NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+                [self printCompletionInfo: finalInfo];
+            }];
+        }
+        @catch (NSException *exception) {
+            NSArray *callStack = [NSThread callStackSymbols];
+            NSLog(@"Call Stack:\n%@", callStack);
+        }
     }
-                     completionBlock:^(NSString *bestMove, NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
-        NSLog(@"%@", bestMove);
-    }];
 }
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
@@ -582,6 +595,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 //    // 2. Create weak self reference to avoid retain cycles
 //    __weak typeof(self) weakSelf = self;
     
+    NSLog(@"Dispatching search %@", uciParams);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 
 //        // 3. Strong reference only during execution
@@ -670,8 +684,8 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
                     info[@"stop_reason"] = @"node limit exceeded";
                 }
 
-                status = ChessSearchStatusCompleted;
                 bestMove = theMove ? [theMove copy] : [ChessMove nullMove];
+                status = ChessSearchStatusCompleted;
                 if ([board hasUserAgent]) {
                   [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
                 }
@@ -751,25 +765,31 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 }
 
 -(void)stopThinking {
-  [currentThread cancel];
+    @synchronized(self) {
+        [currentThread cancel];
+        // wait for engine to stop completely to prevent new requests from coming
+        while ([self isThinking]) {
+            [NSThread sleepForTimeInterval: 100.0 / 1000.0];
+        }
+    }
 }
 
 -(void)startThinking {
-
-  // thread might be cancelled but that is just a convenience flag and a search might still be underway
-  if (currentThread != nil) {
+    // thread might be cancelled but that is just a convenience flag and a search might still be underway
+    if (currentThread != nil) {
       return;
-  }
+    }
     
+    @synchronized (self) {
+        if (!transTable) {
+            [self initializeTranspositionTable];
+        }
 
-  if (!transTable) {
-      [self initializeTranspositionTable];
-  }
+        [self setActivePlayer:board.activePlayer];
 
-  [self setActivePlayer:board.activePlayer];
-
-  myMove = [ChessMove nullMove];
-  [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
+        myMove = [ChessMove nullMove];
+        [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
+    }
 }
 
 -(void)thinkThread {
