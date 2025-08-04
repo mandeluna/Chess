@@ -30,7 +30,7 @@
 
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator, myMove, depth_limit, node_limit, time_limit, transTable, historyTable, ply, startTime, nodesVisited, previousNodeCount, ttHits, alphaBetaCuts, currentNPS, debug;
+@synthesize player, board, generator, myMove, depth_limit, node_limit, time_limit, transTable, historyTable, ply, startTime, nodesVisited, previousNodeCount, ttHits, alphaBetaCuts, currentNPS, debug, isSearching, shouldCancelSearch;
 
 #pragma mark derived properties
 
@@ -154,7 +154,7 @@
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
     for (int i = 1; pv[i] != 0; i++) {
         ChessMove *move = [ChessMove decodeFrom:pv[i]];
-        result[i - 1] = [move moveString];
+        result[i - 1] = [move uciString];
     }
     return result;
 }
@@ -530,14 +530,15 @@
 
 #pragma mark thinking
 
-typedef void (^UpdateCallback)(NSDictionary *info);
-typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, ChessSearchStatus status);
-
 /*
  * TODO: The dispatch callbacks do not seem to be working either in Objective-C nor Swift implementations
  * All we frankly care about is getting the results written to stdout, so we generate the output instead
  */
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
+    if (self.isSearching) {
+        NSLog(@"Search already in progress");
+        return;
+    }
     @synchronized (self) {
         @try {
             [self performSearchWithUCIParams: uciParams
@@ -552,6 +553,9 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
             NSArray *callStack = [NSThread callStackSymbols];
             NSLog(@"Call Stack:\n%@", callStack);
         }
+        @finally {
+            self.isSearching = NO;
+        }
     }
 }
 
@@ -559,6 +563,13 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
                     updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
                    completionBlock:(void (^)(NSString *bestMove, NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
 {
+    if (self.isSearching) {
+        if (completionBlock) completionBlock(nil, nil, ChessSearchStatusInProgress);
+        return;
+    }
+
+    self.isSearching = YES;
+
     // Extract common UCI parameters
     int uci_depth = (int)[uciParams[@"depth"] integerValue];
     int uci_nodes = (int)[uciParams[@"nodes"] integerValue];
@@ -588,23 +599,22 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 
     myMove = [ChessMove nullMove];
 
-//    // 1. Copy the blocks to heap (equivalent to @escaping)
-//    UpdateCallback updateCallbackCopy = updateCallback ? Block_copy(updateCallback) : nil;
-//    CompletionCallback completionBlockCopy = completionBlock ? Block_copy(completionBlock) : nil;
+    // 1. Copy the blocks to heap (equivalent to @escaping)
+    UpdateCallback updateCallbackCopy = updateCallback ? Block_copy(updateCallback) : nil;
+    CompletionCallback completionBlockCopy = completionBlock ? Block_copy(completionBlock) : nil;
     
-//    // 2. Create weak self reference to avoid retain cycles
-//    __weak typeof(self) weakSelf = self;
+    // 2. Create weak self reference to avoid retain cycles
+    __weak typeof(self) weakSelf = self;
     
-    NSLog(@"Dispatching search %@", uciParams);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 
-//        // 3. Strong reference only during execution
-//        __strong typeof(weakSelf) strongSelf = weakSelf;
-//        if (!strongSelf) {
-//            if (completionBlockCopy) Block_release(completionBlockCopy);
-//            if (updateCallbackCopy) Block_release(updateCallbackCopy);
-//            return;
-//        }
+        // 3. Strong reference only during execution
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            if (completionBlockCopy) Block_release(completionBlockCopy);
+            if (updateCallbackCopy) Block_release(updateCallbackCopy);
+            return;
+        }
 
         ChessSearchStatus status = ChessSearchStatusInProgress;
         NSInteger score = [board.activePlayer evaluate];
@@ -696,7 +706,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
                 status = ChessSearchStatusStopped;
                 info[@"stop_reason"] = @"stopped search";
                 bestMove = theMove ? [theMove copy] : [ChessMove nullMove];
-                [self stopThinking];
+                [self cancelSearch];
                 if ([board hasUserAgent]) {
                   [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
                 }
@@ -709,62 +719,61 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
         currentThread = nil;
 
         // Final completion
-//        if (completionBlockCopy) {
-//            NSLog(@"done (in completion block)");
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                // callback does not get invoked
-//                completionBlockCopy(bestMove, [info copy], status);
-//                [self stopThinking];
-//                if ([board hasUserAgent]) {
-//                  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
-//                }
-//                Block_release(completionBlockCopy);
-//            });
-//        }
-//        if (updateCallbackCopy) Block_release(updateCallbackCopy);
+        strongSelf.isSearching = NO;
+        [self cancelSearch];
+
+        if (completionBlockCopy) {
+            NSLog(@"done (in completion block)");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // callback does not get invoked
+                completionBlockCopy(bestMove, [info copy], status);
+                if ([board hasUserAgent]) {
+                  [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+                }
+                Block_release(completionBlockCopy);
+            });
+        }
+        if (updateCallbackCopy) Block_release(updateCallbackCopy);
     });
 }
 
--(void)findMove: (void (^)(ChessMove *move))completion {
+-(void)findMove: (void (^)(NSString *move))completion {
   
-  dispatch_async(dispatch_get_main_queue(), ^(){
-    if (![self isThinking]) {
-      while (currentThread != nil) {
-        [NSThread sleepForTimeInterval:(10.0 / MSEC_PER_SEC)];
-      }
-      [self startThinking];
+    if (self.isSearching) {
+        NSLog(@"Search already in progress");
+        return;
     }
-    
-    ChessMove *theMove = [ChessMove nullMove];
-    
-    do {
-      [NSThread sleepForTimeInterval:(50.0 / MSEC_PER_SEC)];
-      if (myMove != nil && myMove != [ChessMove nullMove]) {
-        theMove = [myMove copy];
-        break;
-      }
-    } while ([self isThinking]);
-    
-    [self stopThinking];
-    myMove = [ChessMove nullMove];
-
-    completion(theMove);
-  });
+    @synchronized (self) {
+        @try {
+            [self performSearchWithUCIParams: [NSDictionary dictionary]
+                              updateCallback:^(NSDictionary<NSString *,id> *info) {
+                [self printUCIInfo: info];
+            }
+                             completionBlock:^(NSString *str, NSDictionary<NSString *,id> *info, ChessSearchStatus status) {
+                completion([myMove sanString]);
+            }];
+        }
+        @catch (NSException *exception) {
+            NSArray *callStack = [NSThread callStackSymbols];
+            NSLog(@"Call Stack:\n%@", callStack);
+        }
+        @finally {
+            self.isSearching = NO;
+        }
+    }
 }
 
--(ChessMove *)thinkSync {
-  if (!transTable) {
-      [self initializeTranspositionTable];
-  }
-  [self thinkThread];
-  return myMove;
+-(void)bestMove {
+    [self findMove: ^(NSString *moveString){
+        printf("bestmove %s\n", [moveString UTF8String]);
+    }];
 }
 
 -(BOOL)isThinking {
     return currentThread != nil && !currentThread.cancelled;
 }
 
--(void)stopThinking {
+-(void)cancelSearch {
     @synchronized(self) {
         [currentThread cancel];
         // wait for engine to stop completely to prevent new requests from coming
@@ -774,7 +783,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
     }
 }
 
--(void)startThinking {
+-(void)startSearchThread {
     // thread might be cancelled but that is just a convenience flag and a search might still be underway
     if (currentThread != nil) {
       return;
@@ -788,11 +797,12 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
         [self setActivePlayer:board.activePlayer];
 
         myMove = [ChessMove nullMove];
-        [NSThread detachNewThreadSelector:@selector(thinkThread) toTarget:self withObject:nil];
+        [NSThread detachNewThreadSelector:@selector(searchThread) toTarget:self withObject:nil];
     }
 }
 
--(void)thinkThread {
+// TODO: remove this code
+-(void)searchThread {
   currentThread = [NSThread currentThread];
 
   if ([board hasUserAgent]) {
@@ -844,13 +854,6 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
   }
 }
 
-//
-// return the number of seconds to process each move
-//
--(long)timeToThink {
-    return 5.0;
-}
-
 #pragma mark accessing
 
 -(NSString *)statusString {
@@ -878,7 +881,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
     for (int i=1; i<count+1; i++) {
         int encodedMove = av[i];
         if (encodedMove) {
-            NSString *moveString = [[ChessMove decodeFrom:encodedMove] moveString];
+            NSString *moveString = [[ChessMove decodeFrom:encodedMove] uciString];
             resultString = [resultString stringByAppendingFormat:@"%@ ", moveString];
         }
     }

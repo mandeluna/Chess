@@ -32,7 +32,7 @@ func runFile(_ path: String) throws {
     let string = try String(contentsOfFile: path, encoding:.utf8)
     let lines = string.components(separatedBy: "\n")
     for line in lines {
-        print("line: \(line)")
+        logDebug(line)
         engine.processCommand(line)
         
     }
@@ -41,7 +41,7 @@ func runFile(_ path: String) throws {
 func runPrompt() throws {
     while true {
         if let line = readLine() {
-            logDebug("received: " + line)
+            logDebug(line)
             engine.processCommand(line)
         }
     }

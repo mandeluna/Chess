@@ -120,7 +120,7 @@ extension ChessPlayerAI {
                 // Check termination conditions
                 if stop_depth || stop_nodes || (!infinite && stop_time) || (theMove == nil) {
                     status = .completed
-                    bestMove = (theMove != nil) ? theMove!.moveString() : "no move found"
+                    bestMove = (theMove != nil) ? theMove!.uciString() : "no move found"
                     if board.hasUserAgent {
                         NotificationCenter.default.postNotification(onMainThreadName:"StoppedThinking")
                     }
@@ -137,7 +137,7 @@ extension ChessPlayerAI {
             // Final completion
             DispatchQueue.main.async { [self] in
                 completion(bestMove, info, status, nil)
-                stopThinking()
+                cancelSearch()
                 NotificationCenter.default.postNotification(onMainThreadName:"StoppedThinking", object:nil)
             }
         }

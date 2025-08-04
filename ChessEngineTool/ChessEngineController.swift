@@ -29,13 +29,11 @@ class ChessEngineController {
             identifyEngine()
             reportOptions()
             sendOk()
-            logDebug("responded to uci")
         case "ucinewgame":
             board.initializeNewBoard()
         case "isready":
             Thread.sleep(forTimeInterval: 100.0 / 1000.0)
             print("readyok")
-            logDebug("responded to isready")
         case "go":
             handleGoCommand(Array(parts.dropFirst()))
         case "position":
@@ -74,11 +72,9 @@ class ChessEngineController {
     }
     
     private func handlePositionCommand(_ tokens: [String]) {
-        NSLog("stopping search: \(tokens)")
         // Cancel any existing search
         stopSearch()
 
-        NSLog("initializing board: \(tokens)")
         if let fenIndex = tokens.firstIndex(of: "fen") {
 
             let ranks = if tokens.count > 1 { String(tokens[fenIndex + 1]) } else { "" }
@@ -92,14 +88,14 @@ class ChessEngineController {
         }
         else if let _ = tokens.firstIndex(of: "startpos") {
             board.initializeNewBoard()
-            let tokensString = tokens.joined(separator: " ")
-            logDebug("responded to position startpos \(tokensString)")
         }
         if let moveIndex = tokens.firstIndex(of: "moves") {
             for i in moveIndex + 1 ..< tokens.count {
                 board.applyMove(san: tokens[i])
             }
         }
+        // TODO: this currently prints the move as a side-effect. It should use a callback
+        engine.bestMove()
     }
 
     private func identifyEngine() {
@@ -182,17 +178,17 @@ class ChessEngineController {
     
     private func stopSearch() {
         currentSearchTask?.cancel()
-        engine.stopThinking()
+        engine.cancelSearch()
         isPondering = false
+        while engine.isSearching {
+            Thread.sleep(forTimeInterval: 10)
+        }
     }
     
     private func handleStopCommand() {
         stopSearch()
-        let bestMove = engine.myMove ?? ChessMove.null()
-        let info = [
-            "bestmove" : bestMove!.description()
-        ]
-        engine.printCompletionInfo(info as [AnyHashable : Any])
+        // TODO: this currently prints the move as a side-effect. It should use a callback
+        engine.bestMove()
     }
     
     private func startPondering() {

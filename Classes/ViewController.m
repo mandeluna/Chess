@@ -407,7 +407,7 @@ static NSString *imageNames[12] = {
         return;
     
     moveExpected = NO;
-    [board.searchAgent startThinking];
+    [board.searchAgent startSearchThread];
 }
 
 
@@ -438,7 +438,7 @@ static NSString *imageNames[12] = {
   [redoButton setEnabled:NO];
   
   if (board.activePlayer == board.whitePlayer && boardDirection < 0) {
-    [board.searchAgent startThinking];
+    [board.searchAgent startSearchThread];
   }
 }
 
@@ -471,7 +471,7 @@ static NSString *imageNames[12] = {
   [board movePieceFrom:sourceSquare to:destSquare];
     
   moveExpected = YES;
-  [board.searchAgent startThinking];
+  [board.searchAgent startSearchThread];
 }
 
 //
@@ -503,7 +503,7 @@ static NSString *imageNames[12] = {
         return;
     
     moveExpected = YES;
-    [board.searchAgent startThinking];
+    [board.searchAgent startSearchThread];
 }
 
 -(NSString *)myColorLabel {
@@ -888,7 +888,7 @@ static NSString *imageNames[12] = {
   }
 
   if (autoPlay) {
-    [board.searchAgent startThinking];
+    [board.searchAgent startSearchThread];
   }
 }
 

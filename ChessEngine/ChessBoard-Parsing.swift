@@ -27,11 +27,10 @@ extension ChessBoard {
             }
         }
         catch {
-            logDebug("unable to match SAN string: \(san)")
+            NSLog("unable to match SAN string: \(san)")
             return
         }
 
-        logDebug("applying move \(san)")
         let move = if (long_san != nil) { ChessMove(san: long_san!) } else { ChessMove(san: san) }
         self.nextMove(move)
     }

@@ -23,6 +23,9 @@ typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
     ChessSearchStatusStopped
 };
 
+typedef void (^UpdateCallback)(NSDictionary *info);
+typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, ChessSearchStatus status);
+
 @interface ChessPlayerAI : NSObject {
     ChessBoard *board;
     NSArray *boardList;
@@ -43,6 +46,8 @@ typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
     int ply;
     ChessMove *myMove;
     NSThread *currentThread;
+    BOOL isSearching;
+    BOOL shouldCancelSearch;
     int depth_limit;                // maximum number of plies to recurse
     int node_limit;                 // maximum number of nodes to visit
     NSTimeInterval time_limit;      // maximum number of seconds of searching
@@ -70,6 +75,8 @@ typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
 @property(nonatomic, assign) int alphaBetaCuts;
 @property(nonatomic, assign) int currentNPS;
 @property(nonatomic, assign) BOOL debug;
+@property(nonatomic, assign) BOOL isSearching;
+@property(nonatomic, assign) BOOL shouldCancelSearch;
 
 // initialize
 
@@ -91,12 +98,11 @@ typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
 // thinking
 
 -(BOOL)isThinking;
--(void)startThinking;
--(void)stopThinking;
--(void)thinkThread;
--(void)findMove: (void (^)(ChessMove *move))completion;
--(long)timeToThink;
--(ChessMove *)thinkSync;
+-(void)startSearchThread;
+-(void)cancelSearch;
+-(void)searchThread;
+-(void)findMove: (void (^)(NSString *move))completion;
+-(void)bestMove;
 
 // engine
 

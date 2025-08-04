@@ -12,23 +12,14 @@ import XCTest
 
 final class ChessEngineFrameworkTests: XCTestCase {
   
-  var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
-    let a = obj1 as! Int
-    let b = obj2 as! Int
-    if (a == b) {
-      return ComparisonResult.orderedSame
-    }
-    else if (a > b) {
-      return ComparisonResult.orderedAscending
-    }
-    else {
-      return ComparisonResult.orderedDescending
-    }
-  }
+  var board: ChessBoard!
   
   override func setUpWithError() throws {
     // Put setup code here. This method is called before the invocation of each test method in the class.
     ChessBoard.initialize()
+    board = ChessBoard()
+    board.initializeSearch()
+    board.initializeNewBoard()
   }
   
   override func tearDownWithError() throws {
@@ -58,12 +49,26 @@ final class ChessEngineFrameworkTests: XCTestCase {
   
   func testRookMoveDescription() {
     var move = ChessMove(piece: Int32(kRook), start: 62, end: 63)
-    XCTAssertTrue(move.description() == "Rg8h8", "Move description is incorrect")
+    XCTAssertTrue(move.sanString() == "Rg8h8", "Move description is incorrect")
     move = ChessMove(piece: Int32(kRook), start: 62, end: 61)
-    XCTAssertTrue(move.description() == "Rg8f8", "Move description is incorrect")
+    XCTAssertTrue(move.sanString() == "Rg8f8", "Move description is incorrect")
   }
   
-  func testQuicksort() {
+  var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
+    let a = obj1 as! Int
+    let b = obj2 as! Int
+    if (a == b) {
+      return ComparisonResult.orderedSame
+    }
+    else if (a > b) {
+      return ComparisonResult.orderedAscending
+    }
+    else {
+      return ComparisonResult.orderedDescending
+    }
+  }
+  
+func testQuicksort() {
     var array: NSMutableArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     var expectedArray: NSMutableArray = [1, 2, 3, 4, 10, 9, 8, 7, 6, 5, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     array.sortSubArray(from:4, to:9, using:reverseBlock)
@@ -92,11 +97,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
   }
   
   // 000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,1039,79,100,171,kingsideAttack mate mateIn1 oneMove opening,https://lichess.org/seIMDWkD#25,Scandinavian_Defense Scandinavian_Defense_Modern_Variation
-  func testCheckmateIn1() throws {
-    let board = ChessBoard()
-    board.initializeSearch()
-    board.initializeNewBoard()
-    
+  func testCheckmateIn1_000rZ() async throws {
     let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13"
     board.initializeFromFEN(fen)
     
@@ -104,13 +105,33 @@ final class ChessEngineFrameworkTests: XCTestCase {
     let end = ChessMove.squareToIndex("e6")
     board.movePiece(from: Int32(start), to: Int32(end))
     
-    if let nextMove = board.searchAgent.thinkSync() {
-      XCTAssertTrue(nextMove.description() == "Qd6xh2", "The move \(nextMove) is incorrect")
+    let nextMove = await board.searchAgent.findMove()
+
+    if let move = nextMove {
+      XCTAssertEqual(move, "Qd6xh2", "The move \(move) is incorrect")
+    }
+    else {
+      XCTFail("Move not found")
+    }
+  }
+  
+  // r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1 -- mate in 1 (Qxf7#)
+  func testCheckmateIn1_ucitestsuite() async throws {
+    let fen = "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1"
+    board.initializeFromFEN(fen)
+    
+    let nextMove = await board.searchAgent.findMove()
+    
+    if let move = nextMove {
+      XCTAssertEqual(move, "Qh5xf7", "The move \(move) is incorrect")
+    }
+    else {
+      XCTFail("Move not found")
     }
   }
   
   // 9cPIk,2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38,a6a7 d4f3 h2h1 g8h8,1491,75,97,23349,endgame mate mateIn2 short,https://lichess.org/gzskFpDu#75,
-  func testCheckmateIn2() throws {
+  func testCheckmateIn2() async throws {
     let board = ChessBoard()
     board.initializeSearch()
     board.initializeNewBoard()
@@ -124,10 +145,12 @@ final class ChessEngineFrameworkTests: XCTestCase {
     print(ourMove)
     
     // move 1b
-    var theirMove = board.searchAgent.thinkSync()
+    var theirMove = await board.searchAgent.findMove()
+    
     print(theirMove!)
-    XCTAssertTrue(theirMove!.description() == "Nd4f3", "That move is incorrect")
-    board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
+    XCTAssertEqual(theirMove!, "Nd4f3", "That move is incorrect")
+    var move = ChessMove(san:theirMove!)
+    board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
     
     // move 2w
     ourMove = ChessMove(san:"Kh2h1")
@@ -135,10 +158,11 @@ final class ChessEngineFrameworkTests: XCTestCase {
     print(ourMove)
     
     // move 2b
-    theirMove = board.searchAgent.thinkSync()
+    theirMove = await board.searchAgent.findMove()
     print(theirMove!)
-    XCTAssertTrue(theirMove!.description() == "Rg8h8", "That move is incorrect")
-    board.movePiece(from: theirMove!.sourceSquare, to: theirMove!.destinationSquare)
+    XCTAssertEqual(theirMove!, "Rg8h8", "That move is incorrect")
+    move = ChessMove(san:theirMove!)
+    board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
   }
   
   func testMoveEnumeration() throws {
