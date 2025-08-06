@@ -9,12 +9,25 @@ import Foundation
 
 private var engine = ChessEngineController()
 
+let logger = Logger.default()!
+
+UserDefaults.standard.register(defaults: [
+    debug_level_key: debug_level_verbose
+])
+
 func main() throws {
     let args = CommandLine.arguments
-
+    let currentDebugLevel = UserDefaults.standard.string(forKey: debug_level_key)
+    if currentDebugLevel == debug_level_none {
+        logger.level = None
+    }
+    else {
+        logger.level = Verbose
+    }
+    
     let date = Date.now
-    logDebug("started Chamonix at \(date.ISO8601Format())")
-    logDebug("arguments: " + args.joined(separator: " "))
+    logger.logDebug("started Chamonix at \(date.ISO8601Format())")
+    logger.logDebug("arguments: " + args.joined(separator: " "))
     
     if args.count > 2 {
         print("Usage: {} <script>")
@@ -32,16 +45,15 @@ func runFile(_ path: String) throws {
     let string = try String(contentsOfFile: path, encoding:.utf8)
     let lines = string.components(separatedBy: "\n")
     for line in lines {
-        logDebug(line)
+        logger.logDebug(line)
         engine.processCommand(line)
-        
     }
 }
 
 func runPrompt() throws {
     while true {
         if let line = readLine() {
-            logDebug(line)
+            logger.logDebug(line)
             engine.processCommand(line)
         }
     }

@@ -127,7 +127,7 @@ extension ChessPlayerAI {
                 }
                 
                 // Check cancellation
-                if !isThinking() {
+                if !self.isSearching {
                     status = .stopped
                 }
             }

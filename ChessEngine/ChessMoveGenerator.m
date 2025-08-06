@@ -10,7 +10,6 @@
 #import "ChessPlayer.h"
 #import "ChessMove.h"
 #import "ChessMoveList.h"
-#import "utility.h"
 
 // bishop movers
 
@@ -52,7 +51,6 @@ static PossibleMoveList KnightMoves[64];
 +(void)initializeKingMoves;
 
 @end
-
 
 @implementation ChessMoveGenerator
 
@@ -339,7 +337,7 @@ static PossibleMoveList KnightMoves[64];
         NSString *reason = [NSString stringWithFormat:@"firstMoveIndex (%d) != lastMoveIndex (%d)",
                             firstMoveIndex, lastMoveIndex];
         NSLog(@"I am confused: %@", reason);
-        raiseException(@"Index corruption", reason);
+        [logger raiseExceptionName:@"Index corruption" reason:reason];
     }
 
     self.kingAttack = nil;
@@ -427,7 +425,7 @@ static PossibleMoveList KnightMoves[64];
 
     if (firstMoveIndex != lastMoveIndex) {
         //    @"findPossibleMovesFor:at: is confused"
-        raiseException(@"Index corruption", @"Move indexes are out of sync");
+        [logger raiseExceptionName:@"Index corruption" reason:@"Move indexes are out of sync"];
     }
 
     self.kingAttack = nil;
@@ -492,6 +490,14 @@ static PossibleMoveList KnightMoves[64];
     return list;
 }
 
+-(ChessMove *)nextMove {
+    if (lastMoveIndex < NUM_MOVES) {
+        return [moveList objectAtIndex:++lastMoveIndex];
+    }
+    NSLog(@"MoveList is out of space -- this shouldn't happen");
+    return [ChessMove nullMove];
+}
+
 -(void)profileGenerationFor:(ChessPlayer *)player {
 
 }
@@ -523,7 +529,7 @@ static PossibleMoveList KnightMoves[64];
     int piece = itsPieces[destSquare];
 
     if (piece) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move move:kPawn from:square to:destSquare capture:piece];
 
         if (kKing == piece) {
@@ -537,7 +543,7 @@ static PossibleMoveList KnightMoves[64];
 
     // attempt an en-passant capture
     if (destSquare == enpassantSquare) {
-        [[moveList objectAtIndex:++lastMoveIndex] captureEnPassant:kPawn from:square to:destSquare];
+        [[self nextMove] captureEnPassant:kPawn from:square to:destSquare];
     }
 }
 
@@ -550,7 +556,7 @@ static PossibleMoveList KnightMoves[64];
     if (itsPieces[destSquare])
         return;
 
-    ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+    ChessMove *move = [self nextMove];
     [move move:kPawn from:square to:destSquare];
 
     if (destSquare < 8) {   // a promotion (can't be double-push so get out)
@@ -566,7 +572,7 @@ static PossibleMoveList KnightMoves[64];
     if (itsPieces[destSquare])
         return;
 
-    [[moveList objectAtIndex:++lastMoveIndex] doublePush:kPawn from:square to:destSquare];
+    [[self nextMove] doublePush:kPawn from:square to:destSquare];
 }
 
 //
@@ -616,7 +622,7 @@ static PossibleMoveList KnightMoves[64];
     int piece = itsPieces[destSquare];
 
     if (piece) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move move:kPawn from:square to:destSquare capture:piece];
 
         if (kKing == piece) {
@@ -630,7 +636,7 @@ static PossibleMoveList KnightMoves[64];
 
     // attempt an en-passant capture
     if (destSquare == enpassantSquare) {
-        [[moveList objectAtIndex:++lastMoveIndex] captureEnPassant:kPawn from:square to:destSquare];
+        [[self nextMove] captureEnPassant:kPawn from:square to:destSquare];
     }
 }
 
@@ -643,7 +649,7 @@ static PossibleMoveList KnightMoves[64];
     if (itsPieces[destSquare])
         return;
 
-    ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+    ChessMove *move = [self nextMove];
     [move move:kPawn from:square to:destSquare];
 
     if (destSquare > 55) {   // a promotion (can't be double-push so get out)
@@ -659,7 +665,7 @@ static PossibleMoveList KnightMoves[64];
     if (itsPieces[destSquare])
         return;
 
-    [[moveList objectAtIndex:++lastMoveIndex] doublePush:kPawn from:square to:destSquare];
+    [[self nextMove] doublePush:kPawn from:square to:destSquare];
 }
 
 //
@@ -710,9 +716,9 @@ static PossibleMoveList KnightMoves[64];
 //
 -(void)promotePawn:(ChessMove *)move {
 
-    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kKnight];
-    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kBishop];
-    [[moveList objectAtIndex:++lastMoveIndex] promote:move to:kRook];
+    [[self nextMove] promote:move to:kKnight];
+    [[self nextMove] promote:move to:kBishop];
+    [[self nextMove] promote:move to:kRook];
     [move promote:move to:kQueen];
 }
 
@@ -1139,6 +1145,7 @@ static PossibleMoveList KnightMoves[64];
         }
 
         firstMoveIndex = lastMoveIndex = streamListIndex = -1;
+        logger = [Logger defaultLogger];
     }
     return self;
 }
@@ -1175,7 +1182,7 @@ static PossibleMoveList KnightMoves[64];
             int capture = itsPieces[destSquare];
 
             if (!forceCaptures || capture) {
-                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+                ChessMove *move = [self nextMove];
                 [move move:kKing from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
@@ -1191,12 +1198,12 @@ static PossibleMoveList KnightMoves[64];
     // now consider castling
 
     if ([self canCastleBlackKingSide]) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move moveCastlingKingSide:kKing from:square to:square+2];
     }
 
     if ([self canCastleBlackQueenSide]) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move moveCastlingQueenSide:kKing from:square to:square-2];
     }
 }
@@ -1223,7 +1230,7 @@ static PossibleMoveList KnightMoves[64];
 
             if (!forceCaptures || capture) {
 
-                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+                ChessMove *move = [self nextMove];
                 [move move:kKnight from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
@@ -1257,7 +1264,7 @@ static PossibleMoveList KnightMoves[64];
 
         if (!forceCaptures || capture) {
 
-            ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+            ChessMove *move = [self nextMove];
             [move move:piece from:square to:destSquare capture:capture];
 
             if (kKing == capture) {
@@ -1303,7 +1310,7 @@ static PossibleMoveList KnightMoves[64];
             int capture = itsPieces[destSquare];
 
             if (!forceCaptures || capture) {
-                ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+                ChessMove *move = [self nextMove];
                 [move move:kKing from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
@@ -1319,12 +1326,12 @@ static PossibleMoveList KnightMoves[64];
     // now consider castling
 
     if ([self canCastleWhiteKingSide]) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move moveCastlingKingSide:kKing from:square to:square+2];
     }
 
     if ([self canCastleWhiteQueenSide]) {
-        ChessMove *move = [moveList objectAtIndex:++lastMoveIndex];
+        ChessMove *move = [self nextMove];
         [move moveCastlingQueenSide:kKing from:square to:square-2];
     }
 }

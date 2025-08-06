@@ -171,7 +171,6 @@ typedef enum {
 -(void)removedPiece:(int)piece at:(int)square;
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer;
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
--(void)validateGamePosition;
 
 // playing
 

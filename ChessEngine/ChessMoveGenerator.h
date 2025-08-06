@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Logger.h"
 
 @class ChessPlayer;
 @class ChessMove;
@@ -65,6 +66,7 @@ typedef struct {
     int streamListIndex;
     char attackSquares[64];
     ChessMove *kingAttack;
+    Logger *logger;
 }
 
 @property(nonatomic, assign) ChessMove *kingAttack;

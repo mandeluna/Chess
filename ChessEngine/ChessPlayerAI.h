@@ -24,7 +24,7 @@ typedef NS_ENUM(NSUInteger, ChessSearchStatus) {
 };
 
 typedef void (^UpdateCallback)(NSDictionary *info);
-typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, ChessSearchStatus status);
+typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus status);
 
 @interface ChessPlayerAI : NSObject {
     ChessBoard *board;
@@ -45,15 +45,14 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
     NSTimeInterval startTime;
     int ply;
     ChessMove *myMove;
-    NSThread *currentThread;
     BOOL isSearching;
     BOOL shouldCancelSearch;
+    ChessSearchStatus status;
     int depth_limit;                // maximum number of plies to recurse
     int node_limit;                 // maximum number of nodes to visit
     NSTimeInterval time_limit;      // maximum number of seconds of searching
     int max_depth;                  // furthest depth traversed
     int max_nodes;                  // total nodes visited
-    BOOL debug;                     // UCI debug value
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
@@ -61,22 +60,25 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 @property(nonatomic, assign) ChessMoveGenerator *generator;
 @property(nonatomic, readonly) ChessTranspositionTable *transTable;
 @property(nonatomic, readonly) ChessHistoryTable *historyTable;
-@property(nonatomic, copy) ChessMove *myMove;
+@property(atomic, copy) ChessMove *myMove;
 
 @property(nonatomic, assign) int depth_limit;
 @property(nonatomic, assign) int node_limit;
 @property(nonatomic, assign) NSTimeInterval time_limit;
 
 @property(nonatomic, assign) int ply;
+@property(nonatomic, assign) int depth;
+@property(nonatomic, assign) BOOL infinite;
+@property(nonatomic, assign) NSTimeInterval time_spent;
 @property(nonatomic, assign) NSTimeInterval startTime;
 @property(nonatomic, assign) int nodesVisited;
 @property(nonatomic, assign) int previousNodeCount;
 @property(nonatomic, assign) int ttHits;
 @property(nonatomic, assign) int alphaBetaCuts;
 @property(nonatomic, assign) int currentNPS;
-@property(nonatomic, assign) BOOL debug;
-@property(nonatomic, assign) BOOL isSearching;
-@property(nonatomic, assign) BOOL shouldCancelSearch;
+@property(atomic, assign) BOOL isSearching;
+@property(atomic, assign) BOOL shouldCancelSearch;
+@property(atomic, assign) ChessSearchStatus status;
 
 // initialize
 
@@ -88,7 +90,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
                     updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
-                   completionBlock:(void (^)(NSString *bestMove, NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock;
+                   completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock;
 -(void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams;
 -(void)copyVariation:(ChessMove *)move;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
@@ -97,7 +99,7 @@ typedef void (^CompletionCallback)(NSString* bestMove, NSDictionary* finalInfo, 
 
 // thinking
 
--(BOOL)isThinking;
+-(BOOL)isSearching;
 -(void)startSearchThread;
 -(void)cancelSearch;
 -(void)searchThread;

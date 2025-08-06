@@ -1,6 +1,7 @@
 uci
 ucinewgame
 isready
+debug on
 stop
 stopped search
 position startpos

@@ -30,24 +30,27 @@ class ChessEngineController {
             reportOptions()
             sendOk()
         case "ucinewgame":
+            waitForReady()
             board.initializeNewBoard()
         case "isready":
-            Thread.sleep(forTimeInterval: 100.0 / 1000.0)
+            waitForReady()
             print("readyok")
         case "go":
+            waitForReady()
             handleGoCommand(Array(parts.dropFirst()))
         case "position":
+            waitForReady()
             handlePositionCommand(Array(parts.dropFirst()))
         case "debug":
             handleDebugCommand(Array(parts.dropFirst()))
         case "stop":
             handleStopCommand()
-            logDebug("stopped search")
         case "ponder":
+            waitForReady()
             startPondering()
         case "quit":
             stopSearch()
-            logDebug("exiting")
+            logger.logDebug("exiting")
             // don't exit until all buffers have been flushed
             fflush(__stdoutp)
             exit(0)
@@ -58,6 +61,7 @@ class ChessEngineController {
         case "show":
             print(board.description()!)
         case "move":
+            waitForReady()
             if (parts.count > 1) {
                 handleMoveCommand(parts[1])
             }
@@ -125,7 +129,7 @@ class ChessEngineController {
 
     private func handleDebugCommand(_ args: [String]) {
         if (args.count > 0) {
-            engine.debug = args[0].lowercased() == "on"
+            logger.level = if args[0].lowercased() == "on" { Verbose } else { None }
         }
     }
 
@@ -172,7 +176,6 @@ class ChessEngineController {
         }
         
         currentSearchTask = searchTask
-        Thread.sleep(forTimeInterval: 1.0)
         DispatchQueue.global(qos: .userInitiated).async(execute: searchTask)
     }
     
@@ -180,14 +183,18 @@ class ChessEngineController {
         currentSearchTask?.cancel()
         engine.cancelSearch()
         isPondering = false
+    }
+
+    private func waitForReady() {
+        print("\(Date.now) Waiting for engine ready...");
         while engine.isSearching {
             Thread.sleep(forTimeInterval: 10)
         }
+        print("\(Date.now) ...engine is ready");
     }
     
     private func handleStopCommand() {
         stopSearch()
-        // TODO: this currently prints the move as a side-effect. It should use a callback
         engine.bestMove()
     }
     

@@ -403,7 +403,7 @@ static NSString *imageNames[12] = {
 //
 -(IBAction)findBestMove {
     
-    if ([board.searchAgent isThinking])
+    if ([board.searchAgent isSearching])
         return;
     
     moveExpected = NO;
@@ -465,7 +465,7 @@ static NSString *imageNames[12] = {
   
   // true if it's the computer's move
   // TODO: check if it's the online opponent's move
-  if ([board.searchAgent isThinking])
+  if ([board.searchAgent isSearching])
       return;
   
   [board movePieceFrom:sourceSquare to:destSquare];
@@ -499,7 +499,7 @@ static NSString *imageNames[12] = {
 //
 -(IBAction)thinkAndMove {
     
-    if ([board.searchAgent isThinking])
+    if ([board.searchAgent isSearching])
         return;
     
     moveExpected = YES;
@@ -595,7 +595,7 @@ static NSString *imageNames[12] = {
     if (!board)
         return;
     
-    if ([board.searchAgent isThinking])
+    if ([board.searchAgent isSearching])
         return;
     
     // if human player is black, don't show moves for white pieces, and vice-versa
@@ -638,7 +638,7 @@ static NSString *imageNames[12] = {
 //
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
-    if ([board.searchAgent isThinking])
+    if ([board.searchAgent isSearching])
         return;
         
     UITouch *theTouch = [touches anyObject];
