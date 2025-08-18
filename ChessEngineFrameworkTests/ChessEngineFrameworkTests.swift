@@ -108,7 +108,7 @@ func testQuicksort() {
     let nextMove = await board.searchAgent.findMove()
 
     if let move = nextMove {
-      XCTAssertEqual(move, "Qd6xh2", "The move \(move) is incorrect")
+      XCTAssertEqual(move, "d6xh2", "The move \(move) is incorrect")
     }
     else {
       XCTFail("Move not found")
@@ -123,7 +123,7 @@ func testQuicksort() {
     let nextMove = await board.searchAgent.findMove()
     
     if let move = nextMove {
-      XCTAssertEqual(move, "Qh5xf7", "The move \(move) is incorrect")
+      XCTAssertEqual(move, "h5xf7", "The move \(move) is incorrect")
     }
     else {
       XCTFail("Move not found")
@@ -148,7 +148,7 @@ func testQuicksort() {
     var theirMove = await board.searchAgent.findMove()
     
     print(theirMove!)
-    XCTAssertEqual(theirMove!, "Nd4f3", "That move is incorrect")
+    XCTAssertEqual(theirMove!, "d4f3", "That move is incorrect")
     var move = ChessMove(san:theirMove!)
     board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
     
@@ -160,7 +160,7 @@ func testQuicksort() {
     // move 2b
     theirMove = await board.searchAgent.findMove()
     print(theirMove!)
-    XCTAssertEqual(theirMove!, "Rg8h8", "That move is incorrect")
+    XCTAssertEqual(theirMove!, "g8h8", "That move is incorrect")
     move = ChessMove(san:theirMove!)
     board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
   }

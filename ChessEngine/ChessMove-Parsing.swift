@@ -34,7 +34,7 @@ extension ChessMove {
   convenience init(san: String) {
     self.init()
     
-    let san_pattern = /([PQKNRB])([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?/
+    let san_pattern = /([PQKNRB])?([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?/
     do {
       guard
         let match = try san_pattern.firstMatch(in: san)
@@ -43,7 +43,6 @@ extension ChessMove {
         NSLog("invalid SAN string: \(san)")
         return
       }
-      let notated_piece = String(match.1) // PQKNRB
       let start_file = String(match.2)  // a-h
       let start_rank = UInt32(match.3)!  // 1-8
       let end_file = String(match.4)
@@ -51,8 +50,14 @@ extension ChessMove {
       
       let start = (start_rank - 1) * 8 + start_file.unicodeScalars.first!.value - 97
       let end = (end_rank - 1) * 8 + end_file.unicodeScalars.first!.value - 97
-      self.movingPiece = Int32(Self.NotationToBoardCodes[String(notated_piece)]!)
-      self.move(movingPiece, from: Int32(start), to: Int32(end))
+      if (match.1 != nil) {
+          let notated_piece = String(match.1!) // PQKNRB
+          self.movingPiece = Int32(Self.NotationToBoardCodes[String(notated_piece)]!)
+          self.move(movingPiece, from: Int32(start), to: Int32(end))
+      }
+      else {
+        self.move(-1, from: Int32(start), to: Int32(end))
+      }
     }
     catch {
       NSLog("Unable to match SAN string: \(san)")
