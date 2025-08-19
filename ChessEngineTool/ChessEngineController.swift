@@ -50,9 +50,9 @@ class ChessEngineController {
             startPondering()
         case "quit":
             stopSearch()
-            logger.logDebug("exiting")
+            logger.logMessage("exiting")
             // don't exit until all buffers have been flushed
-            fflush(__stdoutp)
+            fflush(stdout)
             exit(0)
         case "setoption":
             handleSetOption(Array(parts.dropFirst()))
@@ -88,6 +88,7 @@ class ChessEngineController {
             let halfmoves = if tokens.count > 5 { Int32(tokens[fenIndex + 5]) } else { nil as Int32? }
             let fullmoves = if tokens.count > 6 { Int32(tokens[fenIndex + 6]) } else { nil as Int32? }
 
+            board.initializeSearch()
             board.initializeFromFEN(ranks: ranks, color: color, castling: castling, enpassant: enpassant, halfmoves: halfmoves, fullmoves: fullmoves)
         }
         else if let _ = tokens.firstIndex(of: "startpos") {
@@ -167,6 +168,7 @@ class ChessEngineController {
                 uciParams["ponder"] = true
             default:
                 print("info string Unknown go parameter: \(args[i])")
+                logger.logMessage("handleGoCommand: Unknown go parameter: \(args[i])")
             }
             i += 1
         }
@@ -176,21 +178,23 @@ class ChessEngineController {
         }
         
         currentSearchTask = searchTask
+        logger.logMessage("handleGoCommand: dispatching new search task")
         DispatchQueue.global(qos: .userInitiated).async(execute: searchTask)
     }
     
     private func stopSearch() {
         currentSearchTask?.cancel()
+        logger.logMessage("stopSearch: cancelled current search task")
         engine.cancelSearch()
         isPondering = false
     }
 
     private func waitForReady() {
-        print("\(Date.now) Waiting for engine ready...");
+        logger.logMessage("Waiting for engine ready")
         while engine.isSearching {
             Thread.sleep(forTimeInterval: 10)
         }
-        print("\(Date.now) ...engine is ready");
+        logger.logMessage("engine is ready")
     }
     
     private func handleStopCommand() {

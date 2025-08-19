@@ -85,8 +85,6 @@ extension ChessBoard {
   func initializeFromFEN(ranks: String, color: String?, castling: String?, enpassant: String?, halfmoves: Int32?, fullmoves: Int32?) {
     self.whitePlayer.removeAllPieces()
     self.blackPlayer.removeAllPieces()
-      
-    self.resetGame()
     
     initializeRanks(ranks: ranks)
     initializeActiveColor(color: color ?? "w")

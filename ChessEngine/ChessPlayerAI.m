@@ -549,24 +549,16 @@ Logger *logger;
  */
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
     if (self.isSearching) {
-        NSLog(@"Search already in progress");
+        [logger logDebug:@"performSearchWithUCIParams: Search already in progress"];
         return;
     }
-    @synchronized (self) {
-        @try {
-            [self performSearchWithUCIParams: uciParams
-                              updateCallback:^(NSDictionary<NSString *,id> *info) {
-                [self printUCIInfo: info];
-            }
-                             completionBlock:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
-                [self printCompletionInfo: finalInfo];
-            }];
-        }
-        @catch (NSException *exception) {
-            NSArray *callStack = [NSThread callStackSymbols];
-            NSLog(@"Call Stack:\n%@", callStack);
-        }
+    [self performSearchWithUCIParams: uciParams
+                      updateCallback:^(NSDictionary<NSString *,id> *info) {
+        [self printUCIInfo: info];
     }
+                     completionBlock:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+        [self printCompletionInfo: finalInfo];
+    }];
 }
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
@@ -574,11 +566,11 @@ Logger *logger;
                    completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
 {
     if (self.isSearching) {
-        NSLog(@"%@ Unable to start search with UCI parameters %@", [NSDate now], uciParams);
+        NSLog(@"Unable to start search with UCI parameters %@", uciParams);
         if (completionBlock) completionBlock(nil, ChessSearchStatusInProgress);
         return;
     }
-    NSLog(@"%@ Starting search with UCI parameters %@", [NSDate now], uciParams);
+    [logger logDebug:@"Starting search with UCI parameters %@", uciParams];
 
     self.isSearching = YES;
 
@@ -724,7 +716,7 @@ Logger *logger;
             }
         }
 
-        NSLog(@"%@ Completed search with UCI parameters %@", [NSDate now], uciParams);
+        [logger logDebug:@"Completed search with UCI parameters %@", uciParams];
         [self printCompletionInfo: info];
 
         // Final completion
@@ -759,7 +751,7 @@ Logger *logger;
 -(void)findMove: (void (^)(NSString *move))completion {
 
     if (self.isSearching) {
-        [logger logDebug: @"Search already in progress" ];
+        [logger logDebug: @"findmove: Search already in progress" ];
         return;
     }
     @synchronized (self) {
@@ -781,6 +773,7 @@ Logger *logger;
 
 -(void)bestMove {
     [self findMove: ^(NSString *moveString){
+        [logger logDebug: @"bestmove %@\n", moveString];
         printf("bestmove %s\n", [moveString UTF8String]);
         fflush(stdout);
     }];
@@ -907,6 +900,8 @@ Logger *logger;
     NSString *info_string = [NSString stringWithFormat: @"info string %@", info[@"stop_reason"]];
     printf("%s\n", [info_string UTF8String]);
     printf("bestmove %s\n", [info[@"bestmove"] UTF8String]);
+    [logger logDebug: @"%@", info_string];
+    [logger logDebug: @"%@", info[@"bestmove"]];
     fflush(stdout);
 }
 
@@ -964,6 +959,7 @@ Logger *logger;
         [output appendFormat:@" currmove %@", info[@"currmove"]];
     }
 
+    [logger logDebug: @"%@", output];
     printf("%s\n", [output UTF8String]);
     fflush(stdout);
 }

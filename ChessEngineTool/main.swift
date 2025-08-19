@@ -26,8 +26,8 @@ func main() throws {
     }
     
     let date = Date.now
-    logger.logDebug("started Chamonix at \(date.ISO8601Format())")
-    logger.logDebug("arguments: " + args.joined(separator: " "))
+    logger.logMessage("started Chamonix at \(date.ISO8601Format())")
+    logger.logMessage("arguments: " + args.joined(separator: " "))
     
     if args.count > 2 {
         print("Usage: {} <script>")
@@ -45,7 +45,7 @@ func runFile(_ path: String) throws {
     let string = try String(contentsOfFile: path, encoding:.utf8)
     let lines = string.components(separatedBy: "\n")
     for line in lines {
-        logger.logDebug(line)
+        logger.logMessage(line)
         engine.processCommand(line)
     }
 }
@@ -53,7 +53,7 @@ func runFile(_ path: String) throws {
 func runPrompt() throws {
     while true {
         if let line = readLine() {
-            logger.logDebug(line)
+            logger.logMessage(line)
             engine.processCommand(line)
         }
     }

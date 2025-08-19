@@ -28,7 +28,8 @@ enum DebugLevel {
 - (instancetype)copy NS_UNAVAILABLE;
 - (instancetype)mutableCopy NS_UNAVAILABLE;
 
-- (void) logDebug: (NSString *)str;
+- (void) logDebug:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logMessage:(NSString *)message;
 - (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason;
 
 @end
