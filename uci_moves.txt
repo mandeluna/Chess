@@ -3,31 +3,18 @@ ucinewgame
 isready
 debug on
 stop
-position fen r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1
-show
-go movetime 100
 position startpos
-show
 go movetime 100
-show
 position fen r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1
-show
 go movetime 100
-show
+position fen r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1
+go movetime 1000
+stop
 position startpos moves e2e4 e7e5 g1f3
-show
 go movetime 1000
-show
 position startpos moves e2e4 e7e5 g1f3 b8c6 f1b5
-show
 go movetime 1000
-show
 position startpos
-show
 go depth 10
-show
 position startpos moves e2e4 e7e5 g1f3 b8c6 f1c4
-show
 go movetime 1000
-show
-quit

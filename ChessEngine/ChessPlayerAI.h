@@ -37,8 +37,8 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     int variations[VARIATIONS_SIZE][VARIATIONS_SIZE];
     int activeVariation[VARIATIONS_SIZE];
     int bestVariation[VARIATIONS_SIZE];
-    int nodesVisited;
-    int previousNodeCount;
+    long nodesVisited;
+    long previousNodeCount;
     int ttHits;
     int stamp;
     int alphaBetaCuts;
@@ -49,10 +49,10 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     BOOL shouldCancelSearch;
     ChessSearchStatus status;
     int depth_limit;                // maximum number of plies to recurse
-    int node_limit;                 // maximum number of nodes to visit
+    long node_limit;                 // maximum number of nodes to visit
     NSTimeInterval time_limit;      // maximum number of seconds of searching
     int max_depth;                  // furthest depth traversed
-    int max_nodes;                  // total nodes visited
+    long max_nodes;                  // total nodes visited
 }
 
 @property(nonatomic, assign) ChessPlayer *player;
@@ -63,7 +63,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 @property(atomic, copy) ChessMove *myMove;
 
 @property(nonatomic, assign) int depth_limit;
-@property(nonatomic, assign) int node_limit;
+@property(nonatomic, assign) long node_limit;
 @property(nonatomic, assign) NSTimeInterval time_limit;
 
 @property(nonatomic, assign) int ply;
@@ -71,8 +71,8 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 @property(nonatomic, assign) BOOL infinite;
 @property(nonatomic, assign) NSTimeInterval time_spent;
 @property(nonatomic, assign) NSTimeInterval startTime;
-@property(nonatomic, assign) int nodesVisited;
-@property(nonatomic, assign) int previousNodeCount;
+@property(nonatomic, assign) long nodesVisited;
+@property(nonatomic, assign) long previousNodeCount;
 @property(nonatomic, assign) int ttHits;
 @property(nonatomic, assign) int alphaBetaCuts;
 @property(nonatomic, assign) int currentNPS;
@@ -99,12 +99,12 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 
 // thinking
 
--(BOOL)isSearching;
+-(BOOL)isReady;
 -(void)startSearchThread;
 -(void)cancelSearch;
 -(void)searchThread;
 -(void)findMove: (void (^)(NSString *move))completion;
--(void)bestMove;
+-(ChessMove *)bestMove;
 
 // engine
 

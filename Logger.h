@@ -31,5 +31,6 @@ enum DebugLevel {
 - (void) logDebug:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logMessage:(NSString *)message;
 - (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason;
+- (NSString *) timestamp;
 
 @end

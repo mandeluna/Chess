@@ -71,6 +71,7 @@
 
 -(int)pieceAt:(int)square;
 -(unsigned char *)pieces;
+-(int)num_pieces;
 
 // testing
 

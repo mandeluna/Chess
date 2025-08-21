@@ -18,7 +18,7 @@ void get_microsecond_timestamp(char *buffer, size_t buffer_size) {
     struct timeval tv;
     struct tm tm_info;
     time_t seconds;
-    char microsec_part[7];
+    char microsec_part[8];  // 6 digits + 1 decimal + terminator
     
     gettimeofday(&tv, NULL);
     seconds = tv.tv_sec;
@@ -68,6 +68,12 @@ id lock = @[];
         [formatter setDateFormat:@"dd:MM:yy HH:mm:ss"];
     }
     return self;
+}
+
+- (NSString *) timestamp {
+    char timestamp[32];
+    get_microsecond_timestamp(timestamp, sizeof(timestamp));
+    return [NSString stringWithFormat:@"%s", timestamp];
 }
 
 - (void) logMessage:(NSString *)message {

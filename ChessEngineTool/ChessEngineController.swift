@@ -11,7 +11,6 @@ class ChessEngineController {
     var board = ChessBoard()
     var engine: ChessPlayerAI
 
-    private var currentSearchTask: DispatchWorkItem?
     private var isPondering = false
     
     init() {
@@ -31,15 +30,15 @@ class ChessEngineController {
             sendOk()
         case "ucinewgame":
             waitForReady()
+            board.initializeSearch()
             board.initializeNewBoard()
+            engine = board.searchAgent
         case "isready":
             waitForReady()
             print("readyok")
         case "go":
-            waitForReady()
             handleGoCommand(Array(parts.dropFirst()))
         case "position":
-            waitForReady()
             handlePositionCommand(Array(parts.dropFirst()))
         case "debug":
             handleDebugCommand(Array(parts.dropFirst()))
@@ -59,6 +58,7 @@ class ChessEngineController {
         
         // non-standard commands
         case "show":
+            waitForReady()
             print(board.description()!)
         case "move":
             waitForReady()
@@ -76,8 +76,10 @@ class ChessEngineController {
     }
     
     private func handlePositionCommand(_ tokens: [String]) {
-        // Cancel any existing search
-        stopSearch()
+        // don't muck up the board if a search is in progress
+        logger.logMessage("Waiting for engine ready: position \(tokens.joined(separator:" "))")
+        self.waitForReady()
+        logger.logMessage("Engine is ready: position \(tokens.joined(separator:" "))")
 
         if let fenIndex = tokens.firstIndex(of: "fen") {
 
@@ -88,19 +90,19 @@ class ChessEngineController {
             let halfmoves = if tokens.count > 5 { Int32(tokens[fenIndex + 5]) } else { nil as Int32? }
             let fullmoves = if tokens.count > 6 { Int32(tokens[fenIndex + 6]) } else { nil as Int32? }
 
-            board.initializeSearch()
-            board.initializeFromFEN(ranks: ranks, color: color, castling: castling, enpassant: enpassant, halfmoves: halfmoves, fullmoves: fullmoves)
+            self.board.initializeSearch()
+            self.board.initializeFromFEN(ranks: ranks, color: color, castling: castling, enpassant: enpassant, halfmoves: halfmoves, fullmoves: fullmoves)
         }
         else if let _ = tokens.firstIndex(of: "startpos") {
-            board.initializeNewBoard()
+            self.board.initializeNewBoard()
         }
         if let moveIndex = tokens.firstIndex(of: "moves") {
             for i in moveIndex + 1 ..< tokens.count {
-                board.applyMove(san: tokens[i])
+                self.board.applyMove(san: tokens[i])
             }
         }
-        // TODO: this currently prints the move as a side-effect. It should use a callback
-        engine.bestMove()
+        logger.logMessage("position \(tokens.joined(separator:" "))")
+        logger.logMessage(self.board.description())
     }
 
     private func identifyEngine() {
@@ -135,9 +137,6 @@ class ChessEngineController {
     }
 
     private func handleGoCommand(_ args: [String]) {
-        // Cancel any existing search
-        stopSearch()
-
         var uciParams: [String: Any] = [:]
         var i = 0
         while i < args.count {
@@ -173,33 +172,31 @@ class ChessEngineController {
             i += 1
         }
         
-        let searchTask = DispatchWorkItem {
-            self.engine.performSearch(withUCIParams: uciParams)
-        }
-        
-        currentSearchTask = searchTask
-        logger.logMessage("handleGoCommand: dispatching new search task")
-        DispatchQueue.global(qos: .userInitiated).async(execute: searchTask)
+        logger.logMessage("Waiting for engine ready: go \(args.joined(separator:" "))")
+        self.waitForReady()
+        logger.logMessage("Engine is ready: go \(args.joined(separator:" "))")
+        self.engine.performSearch(withUCIParams: uciParams)
     }
     
     private func stopSearch() {
-        currentSearchTask?.cancel()
-        logger.logMessage("stopSearch: cancelled current search task")
         engine.cancelSearch()
         isPondering = false
     }
 
-    private func waitForReady() {
-        logger.logMessage("Waiting for engine ready")
+    public func waitForReady() {
         while engine.isSearching {
             Thread.sleep(forTimeInterval: 10)
         }
-        logger.logMessage("engine is ready")
     }
     
     private func handleStopCommand() {
         stopSearch()
-        engine.bestMove()
+        waitForReady()
+        if let best = engine.bestMove() {
+            logger.logMessage("> bestmove \(best.uciString() ?? "0000")\n")
+            print("bestmove \(best.uciString() ?? "0000")\n")
+            fflush(stdout)
+        }
     }
     
     private func startPondering() {

@@ -430,6 +430,16 @@ static int PieceCenterScores[7][64] = {
     return pieces[square];
 }
 
+-(int)num_pieces {
+    int count = 0;
+    for (int i = 0; i < 64; i++) {
+        if (pieces[i]) {
+            count++;
+        }
+    }
+    return count;
+}
+
 -(unsigned char *)pieces {
 
     return pieces;
@@ -545,6 +555,10 @@ static int PieceCenterScores[7][64] = {
     numPawns = aPlayer.numPawns;
     positionalValue = aPlayer.positionalValue;
     memcpy(pieces, aPlayer.pieces, 64 * sizeof(char));
+    if ([aPlayer num_pieces] == 0) {
+        NSException *exception = [NSException exceptionWithName:@"Invalid Board" reason:@"No pieces to copy" userInfo:nil];
+        @throw exception;
+    }
 }
 
 #pragma mark evaluation

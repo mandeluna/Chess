@@ -45,15 +45,17 @@ func runFile(_ path: String) throws {
     let string = try String(contentsOfFile: path, encoding:.utf8)
     let lines = string.components(separatedBy: "\n")
     for line in lines {
-        logger.logMessage(line)
+        logger.logMessage("< \(line)")
         engine.processCommand(line)
     }
+    // don't exit the program until all requests have been processed
+    engine.waitForReady()
 }
 
 func runPrompt() throws {
     while true {
         if let line = readLine() {
-            logger.logMessage(line)
+            logger.logMessage("< \(line)")
             engine.processCommand(line)
         }
     }

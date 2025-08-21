@@ -108,7 +108,7 @@ func testQuicksort() {
     let nextMove = await board.searchAgent.findMove()
 
     if let move = nextMove {
-      XCTAssertEqual(move, "d6xh2", "The move \(move) is incorrect")
+      XCTAssertEqual(move, "d6h2", "The move \(move) is incorrect")
     }
     else {
       XCTFail("Move not found")
@@ -123,7 +123,7 @@ func testQuicksort() {
     let nextMove = await board.searchAgent.findMove()
     
     if let move = nextMove {
-      XCTAssertEqual(move, "h5xf7", "The move \(move) is incorrect")
+      XCTAssertEqual(move, "h5f7", "The move \(move) is incorrect")
     }
     else {
       XCTFail("Move not found")
