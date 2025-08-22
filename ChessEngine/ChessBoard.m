@@ -189,7 +189,7 @@ int halfmoveClock;
 #pragma mark Moving
 
 -(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare {
-  if ([_searchAgent isReady]) {
+  if (![_searchAgent isReady]) {
     return nil;
   }
 

@@ -29,24 +29,35 @@ class ChessEngineController {
             reportOptions()
             sendOk()
         case "ucinewgame":
-            waitForReady()
-            board.initializeSearch()
-            board.initializeNewBoard()
-            engine = board.searchAgent
+            DispatchQueue.global(qos: .userInitiated).sync {
+                waitForReady()
+                board.initializeSearch()
+                board.initializeNewBoard()
+                engine = board.searchAgent
+            }
         case "isready":
             waitForReady()
             print("readyok")
         case "go":
-            handleGoCommand(Array(parts.dropFirst()))
+            // run go command asynchronously on the same queue that synchronous commands use
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.waitForReady()
+                self.handleGoCommand(Array(parts.dropFirst()))
+            }
         case "position":
-            handlePositionCommand(Array(parts.dropFirst()))
+            DispatchQueue.global(qos: .userInitiated).sync {
+                waitForReady()
+                handlePositionCommand(Array(parts.dropFirst()))
+            }
         case "debug":
             handleDebugCommand(Array(parts.dropFirst()))
         case "stop":
             handleStopCommand()
         case "ponder":
-            waitForReady()
-            startPondering()
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.waitForReady()
+                self.startPondering()
+            }
         case "quit":
             stopSearch()
             logger.logMessage("exiting")
@@ -58,12 +69,16 @@ class ChessEngineController {
         
         // non-standard commands
         case "show":
-            waitForReady()
-            print(board.description()!)
+            DispatchQueue.global(qos: .userInitiated).sync {
+                waitForReady()
+                print(board.description()!)
+            }
         case "move":
-            waitForReady()
-            if (parts.count > 1) {
-                handleMoveCommand(parts[1])
+            DispatchQueue.global(qos: .userInitiated).sync {
+                waitForReady()
+                if (parts.count > 1) {
+                    handleMoveCommand(parts[1])
+                }
             }
 
         default:
@@ -171,10 +186,6 @@ class ChessEngineController {
             }
             i += 1
         }
-        
-        logger.logMessage("Waiting for engine ready: go \(args.joined(separator:" "))")
-        self.waitForReady()
-        logger.logMessage("Engine is ready: go \(args.joined(separator:" "))")
         self.engine.performSearch(withUCIParams: uciParams)
     }
     
@@ -193,8 +204,8 @@ class ChessEngineController {
         stopSearch()
         waitForReady()
         if let best = engine.bestMove() {
-            logger.logMessage("> bestmove \(best.uciString() ?? "0000")\n")
-            print("bestmove \(best.uciString() ?? "0000")\n")
+            logger.logMessage("> bestmove \(best.uciString() ?? "0000")")
+            print("bestmove \(best.uciString() ?? "0000")")
             fflush(stdout)
         }
     }

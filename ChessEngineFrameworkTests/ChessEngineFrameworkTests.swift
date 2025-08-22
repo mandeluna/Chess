@@ -101,9 +101,7 @@ func testQuicksort() {
     let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13"
     board.initializeFromFEN(fen)
     
-    let start = ChessMove.squareToIndex("d4")
-    let end = ChessMove.squareToIndex("e6")
-    board.movePiece(from: Int32(start), to: Int32(end))
+    board.applyMove(san: "d4e6")
     
     let nextMove = await board.searchAgent.findMove()
 

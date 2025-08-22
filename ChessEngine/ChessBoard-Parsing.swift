@@ -32,7 +32,7 @@ extension ChessBoard {
         }
 
         let move = if (long_san != nil) { ChessMove(san: long_san!) } else { ChessMove(san: san) }
-        self.nextMove(move)
+        self.movePiece(from: move.sourceSquare, to: move.destinationSquare)
     }
     
  /**
