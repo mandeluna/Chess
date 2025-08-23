@@ -7,11 +7,19 @@
 
 import Foundation
 
+func respond(_ message: String) {
+    // Always include newline and flush
+    print(message)
+    fflush(stdout)
+}
+
 class ChessEngineController {
     var board = ChessBoard()
     var engine: ChessPlayerAI
+    var isPondering = false
+    let logger = Logger.default()!
 
-    private var isPondering = false
+    private let searchQueue = DispatchQueue(label: "search_q", qos: .userInitiated)
     
     init() {
         board.initializeSearch()
@@ -25,59 +33,67 @@ class ChessEngineController {
         
         switch parts[0].lowercased() {
         case "uci":
-            identifyEngine()
-            reportOptions()
-            sendOk()
+            DispatchQueue.main.async {
+                self.identifyEngine()
+                self.reportOptions()
+                self.sendOk()
+            }
         case "ucinewgame":
-            DispatchQueue.global(qos: .userInitiated).sync {
-                waitForReady()
-                board.initializeSearch()
-                board.initializeNewBoard()
-                engine = board.searchAgent
+            DispatchQueue.main.async {
+                self.waitForReady()
+                self.board.initializeSearch()
+                self.board.initializeNewBoard()
+                self.engine = self.board.searchAgent
             }
         case "isready":
-            waitForReady()
-            print("readyok")
+            DispatchQueue.main.async {
+                self.waitForReady()
+                respond("readyok")
+            }
         case "go":
             // run go command asynchronously on the same queue that synchronous commands use
-            DispatchQueue.global(qos: .userInitiated).async {
+            let args = Array(parts.dropFirst())
+            searchQueue.async {
+                if self.engine.status == .inProgress {
+                    self.stopSearch()
+                }
+                self.logger.log("queued go \(args.joined(separator: " "))", level: Info)
                 self.waitForReady()
-                self.handleGoCommand(Array(parts.dropFirst()))
+                self.handleGoCommand(args)
             }
         case "position":
-            DispatchQueue.global(qos: .userInitiated).sync {
-                waitForReady()
-                handlePositionCommand(Array(parts.dropFirst()))
+            searchQueue.async {
+                self.waitForReady()
+                self.handlePositionCommand(Array(parts.dropFirst()))
             }
         case "debug":
             handleDebugCommand(Array(parts.dropFirst()))
         case "stop":
-            handleStopCommand()
+            DispatchQueue.main.async {
+                self.handleStopCommand()
+            }
         case "ponder":
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.main.async {
+                self.logger.log("queued ponder", level: Info)
                 self.waitForReady()
                 self.startPondering()
             }
-        case "quit":
-            stopSearch()
-            logger.logMessage("exiting")
-            // don't exit until all buffers have been flushed
-            fflush(stdout)
-            exit(0)
         case "setoption":
-            handleSetOption(Array(parts.dropFirst()))
+            DispatchQueue.main.async {
+                self.handleSetOption(Array(parts.dropFirst()))
+            }
         
         // non-standard commands
         case "show":
-            DispatchQueue.global(qos: .userInitiated).sync {
-                waitForReady()
-                print(board.description()!)
+            DispatchQueue.main.async {
+                self.waitForReady()
+                respond(self.board.description()!)
             }
         case "move":
-            DispatchQueue.global(qos: .userInitiated).sync {
-                waitForReady()
+            DispatchQueue.main.async {
+                self.waitForReady()
                 if (parts.count > 1) {
-                    handleMoveCommand(parts[1])
+                    self.handleMoveCommand(parts[1])
                 }
             }
 
@@ -129,20 +145,17 @@ class ChessEngineController {
             else {
                 return
             }
-            print("id name \(displayName) \(version)")
-            print("id author \(author)")
-            fflush(stdout)
+            respond("id name \(displayName) \(version)")
+            respond("id author \(author)")
         }
     }
     
     private func reportOptions() {
-        print("option name Hash type spin default 1 min 1 max 128")
-        fflush(stdout)
+        respond("option name Hash type spin default 1 min 1 max 128")
     }
     
     private func sendOk() {
-        print("uciok")
-        fflush(stdout)
+        respond("uciok")
     }
 
     private func handleDebugCommand(_ args: [String]) {
@@ -181,7 +194,7 @@ class ChessEngineController {
             case "ponder":
                 uciParams["ponder"] = true
             default:
-                print("info string Unknown go parameter: \(args[i])")
+                respond("info string Unknown go parameter: \(args[i])")
                 logger.logMessage("handleGoCommand: Unknown go parameter: \(args[i])")
             }
             i += 1
@@ -201,23 +214,20 @@ class ChessEngineController {
     }
     
     private func handleStopCommand() {
-        stopSearch()
-        waitForReady()
-        if let best = engine.bestMove() {
-            logger.logMessage("> bestmove \(best.uciString() ?? "0000")")
-            print("bestmove \(best.uciString() ?? "0000")")
-            fflush(stdout)
+        if engine.status == .inProgress {
+            stopSearch()
+            waitForReady()
         }
     }
     
     private func startPondering() {
         isPondering = true
         handleGoCommand(["infinite"])
-        print("info string Pondering started")
+        respond("info string Pondering started")
     }
     
     private func handleSetOption(_ args: [String]) {
         // Handle engine configuration
-        print("info string Option set: \(args.joined(separator: " "))")
+        respond("info string Option set: \(args.joined(separator: " "))")
     }
 }

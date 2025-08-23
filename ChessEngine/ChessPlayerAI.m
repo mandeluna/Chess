@@ -34,7 +34,7 @@ NSString *CancelExceptionName = @"CancelSearchException";
 
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator, myMove, depth_limit, node_limit, time_limit, transTable, historyTable, ply, startTime, nodesVisited, previousNodeCount, ttHits, alphaBetaCuts, currentNPS, isSearching, shouldCancelSearch, status;
+@synthesize player, board, generator, myMove, transTable, historyTable, isSearching, shouldCancelSearch, status, reportInfo, uciOptions, updateCallback, completionCallback, dispatch_queue;
 
 #pragma mark derived properties
 
@@ -43,7 +43,7 @@ NSString *CancelExceptionName = @"CancelSearchException";
 }
 
 -(BOOL)isReady {
-    return self.status == ChessSearchStatusStopped;
+    return self.status == ChessSearchStatusCompleted;
 }
 
 #pragma mark initialize
@@ -67,10 +67,10 @@ Logger *logger;
     if (self = [super init]) {
         historyTable = [[ChessHistoryTable alloc] init];
         nodesVisited = ttHits = alphaBetaCuts = stamp = 0;
-        self.time_limit = [[NSUserDefaults standardUserDefaults] doubleForKey:time_limit_key];
-        self.depth_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:depth_limit_key];
-        self.node_limit = (long)[[NSUserDefaults standardUserDefaults] integerForKey:node_limit_key];
-        self.status = ChessSearchStatusStopped;
+        time_limit = [[NSUserDefaults standardUserDefaults] doubleForKey:time_limit_key];
+        depth_limit = (int)[[NSUserDefaults standardUserDefaults] integerForKey:depth_limit_key];
+        node_limit = (long)[[NSUserDefaults standardUserDefaults] integerForKey:node_limit_key];
+        status = ChessSearchStatusCompleted;
         logger = [Logger defaultLogger];
         [self reset];
     }
@@ -209,6 +209,8 @@ Logger *logger;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
 
     assert(initialAlpha < initialBeta);
+    [logger logVerbose:@"negaScout: depth=%d, alpha=%d, beta=%d", depth, initialAlpha, initialBeta];
+    [self checkForCancellation];
 
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -253,7 +255,7 @@ Logger *logger;
 
         ply++;
 
-        [self checkForCancellation];
+        [self printUCIReport];
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
@@ -273,7 +275,7 @@ Logger *logger;
 #if !__has_feature(objc_arc)
           [goodMove autorelease];
 #endif
-                [logger logDebug:@"found good move %@, score=%d, count=%d", goodMove, score, count];
+                [logger logVerbose:@"found good move %@, score=%d, count=%d", goodMove, score, count];
                 goodMove.value = score;
                 [self assignActiveVariation];
                 bestScore = score;
@@ -304,7 +306,7 @@ Logger *logger;
 //
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
 
-  assert(initialAlpha < initialBeta);
+    assert(initialAlpha < initialBeta);
 
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -363,6 +365,10 @@ Logger *logger;
           max_depth = ply;
         }
 
+        [logger logVerbose:@"ngSearch: depth=%d, ply=%d, alpha=%d, beta=%d", depth, ply, initialAlpha, initialBeta];
+        [self checkForCancellation];
+//        [self printUCIReport];
+
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
@@ -370,8 +376,6 @@ Logger *logger;
         }
         notFirst = YES;
         ply--;
-
-        [self checkForCancellation];
 
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
@@ -506,10 +510,12 @@ Logger *logger;
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
         
-        [self checkForCancellation];
-
         // search recursively
         ply++;
+        [logger logVerbose:@"quiesce: ply=%d, alpha=%d, beta=%d", ply, initialAlpha, initialBeta];
+        [self checkForCancellation];
+//        [self printUCIReport];
+
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
 
         if (self.shouldCancelSearch) {
@@ -550,10 +556,6 @@ Logger *logger;
 #pragma mark thinking
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
-    if (![self isReady]) {
-        [logger logDebug:@"performSearchWithUCIParams: Search already in progress"];
-        return;
-    }
     [self performSearchWithUCIParams: uciParams
                       updateCallback:^(NSDictionary<NSString *,id> *info) {
         [self printUCIInfo: info];
@@ -564,39 +566,43 @@ Logger *logger;
 }
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
-                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
+                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateBlock
                    completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
 {
-    if (![self isReady]) {
+    if (self.status != ChessSearchStatusCompleted) {
         NSLog(@"Unable to start search with UCI parameters %@", uciParams);
         if (completionBlock) completionBlock(nil, ChessSearchStatusInProgress);
         return;
     }
     [logger logDebug:@"Starting search with UCI parameters %@", uciParams];
 
+    self.status = ChessSearchStatusInProgress;
     self.isSearching = YES;
     self.shouldCancelSearch = NO;
 
+    self.updateCallback = updateBlock;
+    self.completionCallback = completionBlock;
+    
     // Extract common UCI parameters
     int uci_depth = (int)[uciParams[@"depth"] integerValue];
     int uci_nodes = (int)[uciParams[@"nodes"] integerValue];
     int64_t time_limit_ms = [uciParams[@"movetime"] integerValue];
     if (uci_depth > 0) {
-        self.depth_limit = uci_depth;
-        self.node_limit = -1;
-        self.time_limit = -1;
+        depth_limit = uci_depth;
+        node_limit = -1;
+        time_limit = -1;
     }
     if (uci_nodes > 0) {
-        self.node_limit = uci_nodes;
-        self.time_limit = -1;
-        self.depth_limit = -1;
+        node_limit = uci_nodes;
+        time_limit = -1;
+        depth_limit = -1;
     }
     if (time_limit_ms > 0) {
-        self.time_limit = (double)time_limit_ms / MSEC_PER_SEC;
-        self.node_limit = -1;
-        self.depth_limit = -1;
+        time_limit = (double)time_limit_ms / MSEC_PER_SEC;
+        node_limit = -1;
+        depth_limit = -1;
     }
-    self.infinite = [uciParams[@"infinite"] boolValue];
+    infinite = [uciParams[@"infinite"] boolValue];
 
     if (!transTable) {
         [self initializeTranspositionTable];
@@ -606,22 +612,21 @@ Logger *logger;
 
     myMove = [ChessMove nullMove];
 
-    self.status = ChessSearchStatusInProgress;
+    self.reportInfo = [NSMutableDictionary new];
     NSInteger score = [board.activePlayer evaluate];
-    self.depth = 1;
+    int depth = 1;
     ChessMove *bestMove;
-    NSMutableDictionary *info = [NSMutableDictionary new];
-    dispatch_queue_t dispatch_queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
     ply = 0;
     [historyTable clear];
     [transTable clear];
 
-    self.startTime = [[NSDate date] timeIntervalSince1970];
-    self.time_spent = 0;
+    startTime = [[NSDate date] timeIntervalSince1970];
     nodesVisited = previousNodeCount = ttHits = alphaBetaCuts = 0;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
+
+    self.dispatch_queue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0);
 
     if ([board hasUserAgent]) {
         [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
@@ -631,24 +636,26 @@ Logger *logger;
     while (status == ChessSearchStatusInProgress) {
         
         @try {
-            ChessMove *theMove = [self negaScout:board depth:_depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+            ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+
             if (theMove == nil) {
                 self.status = ChessSearchStatusStopped;
-                info[@"stop_reason"] = @"no more moves";
+                self.reportInfo[@"stop_reason"] = @"no more moves";
             }
             // don't cancel until we have a move
             else if (self.shouldCancelSearch) {
                 if (myMove && ![myMove isNullMove]) {
                     self.status = ChessSearchStatusStopped;
-                    info[@"stop_reason"] = @"search stopped";
+                    self.reportInfo[@"stop_reason"] = @"search stopped";
                 }
             }
             else {
                 score = theMove.value;
+                self.reportInfo[@"score"] = @{ @"cp": @(score) }; // centipawns
                 myMove = [theMove copy];
                 [self assignBestVariation];
                 
-                _depth++;
+                depth++;
             }
         }
         @catch (NSException *exception) {
@@ -657,62 +664,73 @@ Logger *logger;
                 [logger logDebug:@"%@: %@\n%@", [exception name], [exception reason], callStack];
                 @throw;
             }
-            info[@"stop_reason"] = [exception reason];
+            self.reportInfo[@"stop_reason"] = [exception reason];
             [logger logDebug:@"search terminated: %@", [exception reason]];
-        }
-        
-        NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-        self.time_spent = now - startTime;
-        long currentNPS = (double)nodesVisited / _time_spent;
-        NSArray *pvMoves = [self pvMoves];
-        
-        // TODO: this should be processed deeper in the search
-        // Prepare UCI info
-        info[@"depth"] = @(MAX(_depth, ply));
-        info[@"score"] = @{ @"cp": @(score) }; // centipawns
-        info[@"nodes"] = @(nodesVisited);
-        info[@"time"] = @((int)(_time_spent * MSEC_PER_SEC));   // convert seconds to ms
-        info[@"nps"] = @(currentNPS);
-        info[@"pv"] = pvMoves;
-        info[@"hashfull"] = [transTable hashfull];
-        
-        // Send periodic update
-        if (updateCallback) {
-            dispatch_async(dispatch_queue, ^{
-                updateCallback([info copy]);
-            });
         }
     }
 
     [logger logDebug:@"Completed search with UCI parameters %@", uciParams];
 
     bestMove = myMove ? [myMove copy] : [ChessMove nullMove];
-    info[@"bestmove"] = [bestMove uciString];
-
-    // Final completion
-    self.isSearching = NO;
-    self.shouldCancelSearch = NO;
+    self.reportInfo[@"bestmove"] = [bestMove uciString];
 
     if (completionBlock) {
         dispatch_async(dispatch_queue, ^{
-            completionBlock([info copy], status);
+            completionBlock([self.reportInfo copy], status);
             if ([board hasUserAgent]) {
               [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
             }
         });
     }
+
+    // Final completion
+    self.isSearching = NO;
+    self.shouldCancelSearch = NO;
+    self.status = ChessSearchStatusCompleted;
+}
+
+-(void)printUCIReport {
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval time_spent = now - startTime;
+
+    long currentNPS = (double)nodesVisited / time_spent;
+    NSArray *pvMoves = [self pvMoves];
+    
+    NSTimeInterval lastReport = [self.reportInfo[@"lastReport"] doubleValue];
+    
+    BOOL report_needed = now - lastReport > 0.100;
+    
+    // Prepare UCI self.reportInfo
+    self.reportInfo[@"depth"] = @(ply);
+    self.reportInfo[@"nodes"] = @(nodesVisited);
+    self.reportInfo[@"time"] = @((int)(time_spent * MSEC_PER_SEC));   // convert seconds to ms
+    self.reportInfo[@"nps"] = @(currentNPS);
+    self.reportInfo[@"pv"] = pvMoves;
+    self.reportInfo[@"hashfull"] = [transTable hashfull];
+    self.reportInfo[@"lastReport"] = @(now);
+    
+    // Send periodic update
+    if (updateCallback && report_needed) {
+        NSDictionary *info = [self.reportInfo copy];
+        dispatch_async(dispatch_queue, ^{
+            updateCallback(info);
+        });
+    }
 }
 
 -(void)checkForCancellation {
+
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval time_spent = now - startTime;
     BOOL stop_nodes = (node_limit > 0) && (nodesVisited > node_limit);
-    BOOL stop_depth = (depth_limit > 0) && ((_depth > depth_limit) || (ply > depth_limit));
-    BOOL stop_time = ((time_limit > 0) && (self.time_spent > time_limit));
+    BOOL stop_depth = (depth_limit > 0) && (ply > depth_limit);
+    BOOL stop_time = ((time_limit > 0) && (time_spent > time_limit));
     
-    if (!_infinite && (stop_nodes || stop_depth || stop_time)) {
+    if (!infinite && (stop_nodes || stop_depth || stop_time)) {
         NSString *reason;
             
         if (stop_time) {
-            reason = [NSString stringWithFormat: @"time limit exceeded (time spent = %d)", (int)(_time_spent * 1000)];
+            reason = [NSString stringWithFormat: @"time limit exceeded (time spent = %d)", (int)(time_spent * 1000)];
         }
         else if (stop_depth) {
             reason = @"depth limit exceeded";

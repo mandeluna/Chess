@@ -37,6 +37,9 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     int variations[VARIATIONS_SIZE][VARIATIONS_SIZE];
     int activeVariation[VARIATIONS_SIZE];
     int bestVariation[VARIATIONS_SIZE];
+
+    // reporting status
+    NSMutableDictionary *reportInfo;
     long nodesVisited;
     long previousNodeCount;
     int ttHits;
@@ -44,14 +47,23 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     int alphaBetaCuts;
     NSTimeInterval startTime;
     int ply;
+
     ChessMove *myMove;
     BOOL isSearching;
     BOOL shouldCancelSearch;
     ChessSearchStatus status;
-    int depth_limit;                // maximum number of plies to recurse
+
+    dispatch_queue_t dispatch_queue;
+    UpdateCallback updateCallback;
+    CompletionCallback completionCallback;
+    
+    // UCI options
+    NSDictionary *uciOptions;
+    int depth_limit;                 // maximum number of plies to recurse
     long node_limit;                 // maximum number of nodes to visit
-    NSTimeInterval time_limit;      // maximum number of seconds of searching
-    int max_depth;                  // furthest depth traversed
+    NSTimeInterval time_limit;       // maximum number of seconds of searching
+    BOOL infinite;                   // ignore depth, time & node limits
+    int max_depth;                   // furthest depth traversed
     long max_nodes;                  // total nodes visited
 }
 
@@ -62,20 +74,13 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 @property(nonatomic, readonly) ChessHistoryTable *historyTable;
 @property(atomic, copy) ChessMove *myMove;
 
-@property(nonatomic, assign) int depth_limit;
-@property(nonatomic, assign) long node_limit;
-@property(nonatomic, assign) NSTimeInterval time_limit;
+@property(nonatomic, retain) NSDictionary *uciOptions;
+@property(nonatomic, retain) NSMutableDictionary *reportInfo;
 
-@property(nonatomic, assign) int ply;
-@property(nonatomic, assign) int depth;
-@property(nonatomic, assign) BOOL infinite;
-@property(nonatomic, assign) NSTimeInterval time_spent;
-@property(nonatomic, assign) NSTimeInterval startTime;
-@property(nonatomic, assign) long nodesVisited;
-@property(nonatomic, assign) long previousNodeCount;
-@property(nonatomic, assign) int ttHits;
-@property(nonatomic, assign) int alphaBetaCuts;
-@property(nonatomic, assign) int currentNPS;
+@property(nonatomic, retain) dispatch_queue_t dispatch_queue;
+@property(nonatomic, copy) UpdateCallback updateCallback;
+@property(nonatomic, copy) CompletionCallback completionCallback;
+
 @property(atomic, assign) BOOL isSearching;
 @property(atomic, assign) BOOL shouldCancelSearch;
 @property(atomic, assign) ChessSearchStatus status;
@@ -110,6 +115,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 
 -(NSString *)statusString;
 -(void)printUCIInfo:(NSDictionary *)info;
+-(void)printUCIReport;
 -(void)printCompletionInfo:(NSDictionary *)info;
 -(void)initializeTranspositionTable;
 -(void)initializeBestVariation;

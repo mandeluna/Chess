@@ -1,7 +1,6 @@
 uci
 ucinewgame
 isready
-debug on
 stop
 position startpos
 go movetime 100

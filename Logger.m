@@ -79,12 +79,13 @@ id lock = @[];
 - (void) logMessage:(NSString *)message {
     char timestamp[32];
 
+    // log level Info or greater
     if (level == None) {
         return;
     }
 
     @synchronized (lock) {
-        NSError *error;
+        NSError *error = nil;
 
         NSFileManager *filemanager = [NSFileManager defaultManager];
         if (![filemanager fileExistsAtPath: debug_path]) {
@@ -101,13 +102,69 @@ id lock = @[];
         [log writeData: [report dataUsingEncoding:NSUTF8StringEncoding]];
 
         if (![log synchronizeAndReturnError:&error]) {
-            NSLog(@"%@", error);
+            if (error) {
+                NSLog(@"Sync failed: %@", error.localizedDescription);
+            } else {
+                NSLog(@"Sync failed with unknown error");
+            }
             return;
         }
+
+        [log closeFile];
     }
 }
 
+- (void) log:(NSString *)message level:(enum LogLevel) level {
+    if (self.level < level) {
+        return;
+    }
+    [self logMessage:message];
+}
+
+- (void) logInfo:(NSString *)format, ... {
+    // log level Info or greater
+    if (level < Info) {
+        return;
+    }
+    va_list args;
+    va_start(args, format);
+    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self logMessage:formattedString];
+}
+
 - (void) logDebug:(NSString *)format, ... {
+    // log level Debug or greater
+    if (level < Debug) {
+        return;
+    }
+    va_list args;
+    va_start(args, format);
+    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self logMessage:formattedString];
+}
+
+- (void) logError:(NSString *)format, ... {
+    // log level Error or greater
+    if (level < Error) {
+        return;
+    }
+    va_list args;
+    va_start(args, format);
+    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self logMessage:formattedString];
+}
+
+- (void) logVerbose:(NSString *)format, ... {
+    // log level Verbose or greater
+    if (level < Verbose) {
+        return;
+    }
     va_list args;
     va_start(args, format);
     NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
@@ -118,7 +175,7 @@ id lock = @[];
 
 - (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason {
     NSArray *callStack = [NSThread callStackSymbols];
-    [self logDebug:@"%@: %@", name, callStack];
+    [self logError:@"%@: %@", name, callStack];
     NSLog(@"%@: %@", name, callStack);
 
     NSException *exception = [NSException exceptionWithName:name

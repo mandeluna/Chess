@@ -7,17 +7,19 @@
 
 #import <Foundation/Foundation.h>
 
-enum DebugLevel {
+enum LogLevel {
     None,
+    Info,
+    Debug,
     Error,
     Verbose
 };
 
 @interface Logger : NSObject {
-    enum DebugLevel level;
+    enum LogLevel level;
 }
 
-@property (nonatomic, assign) enum DebugLevel level;
+@property (nonatomic, assign) enum LogLevel level;
 
 // The shared instance accessor
 + (instancetype)defaultLogger;
@@ -28,8 +30,13 @@ enum DebugLevel {
 - (instancetype)copy NS_UNAVAILABLE;
 - (instancetype)mutableCopy NS_UNAVAILABLE;
 
-- (void) logDebug:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logMessage:(NSString *)message;
+- (void) log:(NSString *)message level:(enum LogLevel) level;
+- (void) logDebug:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logInfo:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logError:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logVerbose:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+
 - (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason;
 - (NSString *) timestamp;
 
