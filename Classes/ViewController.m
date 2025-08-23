@@ -465,7 +465,7 @@ static NSString *imageNames[12] = {
   
   // true if it's the computer's move
   // TODO: check if it's the online opponent's move
-  if ([board.searchAgent isReady])
+  if (![board.searchAgent isReady])
       return;
   
   [board movePieceFrom:sourceSquare to:destSquare];
@@ -638,7 +638,7 @@ static NSString *imageNames[12] = {
 //
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     
-    if ([board.searchAgent isReady])
+    if (![board.searchAgent isReady])
         return;
         
     UITouch *theTouch = [touches anyObject];
@@ -861,13 +861,13 @@ static NSString *imageNames[12] = {
 
 // notification callback for think thread
 //
--(void)stoppedThinking {
+-(void)stoppedThinking: (NSNotification *)notification {
     
   [hintButton setEnabled:YES];
   [playButton setEnabled:YES];
   
-  ChessMove *move = board.searchAgent.myMove;
-  
+  int encodedMode = [notification.object intValue];
+  ChessMove *move = [ChessMove decodeFrom:encodedMode];
   NSLog(@"Stopped thinking: move = %@", move);
   
   if (!moveExpected) {
@@ -917,7 +917,7 @@ static NSString *imageNames[12] = {
   NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
   
   [notificationCenter addObserver:self selector:@selector(startedThinking) name:@"StartedThinking" object:nil];
-  [notificationCenter addObserver:self selector:@selector(stoppedThinking) name:@"StoppedThinking" object:nil];
+  [notificationCenter addObserver:self selector:@selector(stoppedThinking:) name:@"StoppedThinking" object:nil];
 
   [notificationCenter addObserver:self selector:@selector(gameReset) name:@"GameReset" object:nil];
   [notificationCenter addObserver:self selector:@selector(addedPiece:) name:@"AddedPiece" object:nil];

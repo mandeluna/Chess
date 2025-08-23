@@ -366,8 +366,14 @@ Logger *logger;
         }
 
         [logger logVerbose:@"ngSearch: depth=%d, ply=%d, alpha=%d, beta=%d", depth, ply, initialAlpha, initialBeta];
-        [self checkForCancellation];
-//        [self printUCIReport];
+
+        @try {
+            [self checkForCancellation];
+        }
+        @catch (NSException *exception) {
+            [generator recycleMoveList:moveList];
+            @throw;
+        }
 
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
@@ -513,8 +519,13 @@ Logger *logger;
         // search recursively
         ply++;
         [logger logVerbose:@"quiesce: ply=%d, alpha=%d, beta=%d", ply, initialAlpha, initialBeta];
-        [self checkForCancellation];
-//        [self printUCIReport];
+        @try {
+            [self checkForCancellation];
+        }
+        @catch (NSException *exception) {
+            [generator recycleMoveList:moveList];
+            @throw;
+        }
 
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
 
@@ -815,6 +826,7 @@ Logger *logger;
     if (self.isSearching || self.shouldCancelSearch) {
       return;
     }
+    self.status = ChessSearchStatusInProgress;
     self.isSearching = YES;
     self.shouldCancelSearch = NO;
 
@@ -836,37 +848,39 @@ Logger *logger;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
 
-    while (nodesVisited < node_limit) {
+    while (status == ChessSearchStatusInProgress) {
 
-      ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+        @try {
+            ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
+            score = theMove.value;
+            myMove = [theMove copy];
 
-      if (!theMove || self.shouldCancelSearch) {
-        // the clock has run out. take the best move we have
-        if ([board hasUserAgent]) {
-          [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+            if (theMove == nil) {
+                [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+                self.status = ChessSearchStatusStopped;
+                break;
+            }
+            [self assignBestVariation];
+
+            depth++;
         }
-        self.isSearching = NO;
-        self.shouldCancelSearch = NO;
-        break;
-      }
-      score = theMove.value;
-      myMove = [theMove copy];
-      memcpy(bestVariation, activeVariation, VARIATIONS_SIZE * sizeof(int));
 
-      depth++;
-
-      NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-      NSTimeInterval time_spent = now - startTime;
-
-      if ((time_spent > time_limit) || (max_depth > depth_limit)) {
-        break;
-      }
+        @catch (NSException *exception) {
+            if (![exception.name isEqualToString:CancelExceptionName]) {
+                NSArray *callStack = [NSThread callStackSymbols];
+                [logger logDebug:@"%@: %@\n%@", [exception name], [exception reason], callStack];
+                @throw;
+            }
+        }
     }
+
     self.isSearching = NO;
     self.shouldCancelSearch = NO;
     if ([board hasUserAgent]) {
-      [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
+        int encoded = [myMove encodedMove];
+        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:@(encoded)];
     }
+    self.status = ChessSearchStatusCompleted;
   }
 }
 
