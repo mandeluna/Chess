@@ -282,9 +282,9 @@ static int PieceCenterScores[7][64] = {
 }
 
 -(void)applyDoublePushMove:(ChessMove *)move {
-
     // calculate the field between start and destination (bitShift: -1)
     enpassantSquare = (move.sourceSquare + move.destinationSquare) >> 1;
+    board.enpassantSquare = enpassantSquare;
 
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
 }
@@ -301,6 +301,7 @@ static int PieceCenterScores[7][64] = {
 -(void)applyMove:(ChessMove *)move {
 
     int type = [move moveType] & kBasicMoveMask;
+    [board updateMoveCounters:move];
 
     switch(type) {
         case kMoveNormal:
@@ -581,7 +582,7 @@ static int PieceCenterScores[7][64] = {
 
   int total = materialValue + omv;
   int diff = materialValue - omv;
-  
+
   int pawns = [self numPawns];
   if (pawns < 0) pawns = 0;   // "happens - a bug somewhere"
 
@@ -818,7 +819,7 @@ static int PieceCenterScores[7][64] = {
 #pragma mark Printing
 
 -(NSString *)description {
-  
+
   NSMutableString *pieces_string = [NSMutableString stringWithString:@"["];
   for (int square = 0; square < 64; square++) {
     [pieces_string appendFormat:@"%d", pieces[square]];
@@ -827,9 +828,9 @@ static int PieceCenterScores[7][64] = {
     }
   }
   [pieces_string appendString:@"]"];
-  
+
   NSString *color = board.whitePlayer == self ? @"White" : @"Black";
-  
+
   return [NSString stringWithFormat:@"ChessPlayer (%@)\n  pieces: %@", color, pieces_string];
 }
 

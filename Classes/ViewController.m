@@ -18,6 +18,8 @@
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
 
+#import <Chamonix-Swift.h>
+
 
 const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
 const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
@@ -121,7 +123,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 		message = @"Stalemate";
 	}
 	
-	gameStatusLabel.text = message;
+	self.gameStatusLabel.text = message;
 }
 
 -(void)removeLabels {
@@ -374,12 +376,13 @@ static NSString *imageNames[12] = {
 }
 
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer {
-    
-    if (!board)
-        return;
-    
-    [redoList addObject:move];
-    [redoButton setEnabled:YES];
+  if (!board)
+      return;
+      
+  [redoList addObject:move];
+  [redoButton setEnabled:YES];
+
+  [self updateBoardLabels:isWhitePlayer];
 }
 
 #pragma mark ===
@@ -403,7 +406,7 @@ static NSString *imageNames[12] = {
 //
 -(IBAction)findBestMove {
     
-    if ([board.searchAgent isReady])
+    if (![board.searchAgent isReady])
         return;
     
     moveExpected = NO;
@@ -595,7 +598,7 @@ static NSString *imageNames[12] = {
     if (!board)
         return;
     
-    if ([board.searchAgent isReady])
+    if (![board.searchAgent isReady])
         return;
     
     // if human player is black, don't show moves for white pieces, and vice-versa

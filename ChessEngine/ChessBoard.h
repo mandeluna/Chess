@@ -25,7 +25,10 @@
 @property(nonatomic, assign) int hashLock;
 @property(nonatomic, assign) BOOL hasUserAgent;
 @property(nonatomic, assign) int halfmoveClock;
-@property(nonatomic, assign) int fullmoveClock;
+@property(nonatomic, assign) int halfmoveUndo;
+@property(nonatomic, assign) int fullmoveNumber;
+@property(nonatomic, assign) int enpassantSquare;
+@property(nonatomic, assign) int enpassantUndo;
 
 // initialize
 -(void)initializeSearch;
@@ -47,6 +50,8 @@
 -(void)nextMove:(ChessMove *)aMove;
 -(void)nullMove;
 -(void)undoMove:(ChessMove *)aMove;
+-(void)updateMoveCounters:(ChessMove *)move;
+-(void)undoMoveCounters:(ChessMove *)move;
 
 // printing
 -(NSString *)description;

@@ -49,7 +49,6 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     int ply;
 
     ChessMove *myMove;
-    BOOL isSearching;
     BOOL shouldCancelSearch;
     ChessSearchStatus status;
 
@@ -81,7 +80,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 @property(nonatomic, copy) UpdateCallback updateCallback;
 @property(nonatomic, copy) CompletionCallback completionCallback;
 
-@property(atomic, assign) BOOL isSearching;
+@property(atomic, readonly) BOOL isSearching;
 @property(atomic, assign) BOOL shouldCancelSearch;
 @property(atomic, assign) ChessSearchStatus status;
 
@@ -115,7 +114,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 
 -(NSString *)statusString;
 -(void)printUCIInfo:(NSDictionary *)info;
--(void)printUCIReport;
+-(void)invokeUpdateCallback;
 -(void)printCompletionInfo:(NSDictionary *)info;
 -(void)initializeTranspositionTable;
 -(void)initializeBestVariation;

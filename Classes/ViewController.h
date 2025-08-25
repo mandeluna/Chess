@@ -127,17 +127,6 @@ typedef struct {
     int gameState;
     int playerRandomChoice;
     int opponentRandomChoice;
-    
-    IBOutlet UILabel    *gameStatusLabel;
-    IBOutlet UILabel    *whiteGameClockLabel;
-    IBOutlet UILabel    *blackGameClockLabel;
-    IBOutlet UILabel    *moveListLabel;
-    IBOutlet UIButton   *whitePlayerOnlineButton;
-    IBOutlet UIButton   *blackPlayerOnlineButton;
-    IBOutlet UIButton   *whitePlayerChatStatusButton;
-    IBOutlet UIButton   *blackPlayerChatStatusButton;
-    IBOutlet UIView     *whitePlayerChatVolumeView;
-    IBOutlet UIView     *blackPlayerChatVolumeView;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
@@ -145,6 +134,10 @@ typedef struct {
 @property(nonatomic, retain) ChessBoard *board;
 @property(nonatomic, assign) BOOL usePopoverController;
 @property(nonatomic, retain) NSString *remoteInstanceName;
+@property(nonatomic, retain) IBOutlet UILabel *gameStatusLabel;
+@property(nonatomic, retain) IBOutlet UILabel *whiteGameClock;
+@property(nonatomic, retain) IBOutlet UILabel *blackGameClock;
+@property(nonatomic, retain) IBOutlet UILabel *moveListLabel;
 
 typedef enum {
     kSegmentIndexNew = 0,

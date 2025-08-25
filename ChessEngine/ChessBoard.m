@@ -52,7 +52,8 @@ int halfmoveClock;
 
 -(void)resetGame {
     _hashKey = _hashLock = 0;
-    halfmoveClock = fullmoveClock = 0;
+    _halfmoveClock = _halfmoveUndo = _enpassantSquare = _enpassantUndo = 0;
+    _fullmoveNumber = 1;
 
 #if !__has_feature(objc_arc)
   self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];
@@ -96,17 +97,22 @@ int halfmoveClock;
 // shallow copy constructor
 // we don't want to reallocate the generator & search agent in this case
 -(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
-  if (self = [super init]) {
-    self.whitePlayer = aBoard.whitePlayer;
-    self.blackPlayer = aBoard.blackPlayer;
-    self.activePlayer = aBoard.activePlayer;
-    self.generator = aBoard.generator;
-    self.searchAgent = aBoard.searchAgent;
-    self.hashKey = aBoard.hashKey;
-    self.hashLock = aBoard.hashLock;
-  }
+    if (self = [super init]) {
+        self.whitePlayer = aBoard.whitePlayer;
+        self.blackPlayer = aBoard.blackPlayer;
+        self.activePlayer = aBoard.activePlayer;
+        self.generator = aBoard.generator;
+        self.searchAgent = aBoard.searchAgent;
+        self.hashKey = aBoard.hashKey;
+        self.hashLock = aBoard.hashLock;
+        self.enpassantSquare = aBoard.enpassantSquare;
+        self.enpassantUndo = aBoard.enpassantUndo;
+        self.fullmoveNumber = aBoard.fullmoveNumber;
+        self.halfmoveClock = aBoard.halfmoveClock;
+        self.halfmoveUndo = aBoard.halfmoveUndo;
+    }
 
-  return self;
+    return self;
 }
 
 #if !__has_feature(objc_arc)
@@ -123,24 +129,30 @@ int halfmoveClock;
 
 // Copy all volatile state from the given board
 -(ChessBoard *)copyBoard:(ChessBoard *)aBoard {
-  [_whitePlayer copyPlayer:aBoard.whitePlayer];
-  [_blackPlayer copyPlayer:aBoard.blackPlayer];
-  _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
-  _hashKey = [aBoard hashKey];
-  _hashLock = [aBoard hashLock];
-  _hasUserAgent = NO;  
+    [_whitePlayer copyPlayer:aBoard.whitePlayer];
+    [_blackPlayer copyPlayer:aBoard.blackPlayer];
+    _activePlayer = [aBoard.activePlayer isWhitePlayer] ? _whitePlayer : _blackPlayer;
+    _hashKey = [aBoard hashKey];
+    _hashLock = [aBoard hashLock];
+    _hasUserAgent = NO;
 #if !__has_feature(objc_arc)
-  _searchAgent = [aBoard.searchAgent retain];
-  _generator = [aBoard.generator retain];
+    _searchAgent = [aBoard.searchAgent retain];
+    _generator = [aBoard.generator retain];
 #else
-  self.searchAgent = aBoard.searchAgent;
-  self.generator = aBoard.generator;
+    self.searchAgent = aBoard.searchAgent;
+    self.generator = aBoard.generator;
 #endif
   
-  self.halfmoveClock = aBoard.halfmoveClock;
-  self.fullmoveClock = aBoard.fullmoveClock;
-  
-  return self;
+    self.halfmoveClock = aBoard.halfmoveClock;
+    self.halfmoveUndo = aBoard.halfmoveUndo;
+    self.fullmoveNumber = aBoard.fullmoveNumber;
+    self.enpassantSquare = aBoard.enpassantSquare;
+    self.enpassantUndo = aBoard.enpassantUndo;
+    self.fullmoveNumber = aBoard.fullmoveNumber;
+    self.halfmoveClock = aBoard.halfmoveClock;
+    self.halfmoveUndo = aBoard.halfmoveUndo;
+
+    return self;
 }
 
 -(void)postCopy {
@@ -187,6 +199,38 @@ int halfmoveClock;
 }
 
 #pragma mark Moving
+
+-(void)updateMoveCounters:(ChessMove *)move {
+    // reset en passant square
+    self.enpassantSquare = 0;
+
+    self.halfmoveUndo = self.halfmoveClock;
+    self.halfmoveClock++;
+    if (self.activePlayer == self.blackPlayer) {
+        self.fullmoveNumber++;
+    }
+    if ((move.movingPiece == kPawn) || (move.capturedPiece != 0)) {
+        self.halfmoveClock = 0;
+    }
+}
+
+-(void)undoMoveCounters:(ChessMove *)move {
+    // reset en passant square
+    self.enpassantSquare = self.enpassantUndo;
+
+    // TODO: test behaviour of half move clock undo and redo
+
+    NSLog(@"Undo halfmove clock from %d to %d", _halfmoveUndo, _halfmoveClock);
+    self.halfmoveClock = self.halfmoveUndo;
+    if (self.activePlayer == self.blackPlayer) {
+        self.fullmoveNumber--;
+        NSLog(@"Undo fullmove number to %d", _fullmoveNumber);
+    }
+    if ((move.movingPiece == kPawn) || (move.capturedPiece != 0)) {
+        NSLog(@"Undo halfmove clock to zero");
+        self.halfmoveClock = 0;
+    }
+}
 
 -(ChessMove *)movePieceFrom:(int)sourceSquare to:(int)destSquare {
   if (![_searchAgent isReady]) {

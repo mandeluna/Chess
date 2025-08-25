@@ -491,11 +491,11 @@ static PossibleMoveList KnightMoves[64];
 }
 
 -(ChessMove *)nextMove {
-    if (lastMoveIndex < NUM_MOVES) {
+    if (lastMoveIndex < NUM_MOVES - 1) {
         return [moveList objectAtIndex:++lastMoveIndex];
     }
     NSLog(@"MoveList is out of space -- this shouldn't happen");
-    return [ChessMove nullMove];
+    return nil;
 }
 
 -(void)profileGenerationFor:(ChessPlayer *)player {
@@ -503,17 +503,23 @@ static PossibleMoveList KnightMoves[64];
 }
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
+    
+    if (streamListIndex >= NUM_PLIES) {
+        NSLog(@"recycleMoveList: streamListIndex is out of range %d", streamListIndex);
+        NSException *exception = [NSException exceptionWithName:@"Invalid Stream List Index"
+                                                         reason:@"Exceeded maximum search depth" userInfo:nil];
+        [exception raise];
+    }
 
-//    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-//        NSLog(@"recycleMoveList is confused: index was %d but is actually %lu", streamListIndex, [streamList indexOfObject:aChessMoveList]);
-//        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-//                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-//        [exception raise];
-//    }
+    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
+        NSLog(@"recycleMoveList is confused: index was %d but is actually %ld",
+              streamListIndex, [streamList indexOfObject:aChessMoveList]);
+        NSException *exception = [NSException exceptionWithName:@"Index corruption"
+                                                         reason:@"Move indexes are out of sync" userInfo:nil];
+        [exception raise];
+    }
     streamListIndex--;
     firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
-
-    //NSLog(@"recycled move list. streamListIndex is now %d", streamListIndex);
 }
 
 -(float)moveListUsage {
