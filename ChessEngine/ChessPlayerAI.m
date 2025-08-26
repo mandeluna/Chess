@@ -549,7 +549,7 @@ Logger *logger;
                    completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
 {
     if (self.status != ChessSearchStatusCompleted) {
-        NSLog(@"Unable to start search with UCI parameters %@", uciParams);
+        [logger logError:@"Unable to start search with UCI parameters %@", uciParams];
         if (completionBlock) completionBlock(nil, ChessSearchStatusInProgress);
         return;
     }
@@ -643,9 +643,6 @@ Logger *logger;
     if (completionBlock) {
         dispatch_async(dispatch_queue, ^{
             completionBlock([self.reportInfo copy], status);
-            if ([board hasUserAgent]) {
-              [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
-            }
         });
     }
 
@@ -837,9 +834,13 @@ Logger *logger;
     NSString *info_string = [NSString stringWithFormat: @"info string %@", info[@"stop_reason"]];
     printf("%s\n", [info_string UTF8String]);
     printf("bestmove %s\n", [info[@"bestmove"] UTF8String]);
+    fflush(stdout);
     [logger logDebug: @"> %@", info_string];
     [logger logDebug: @"> bestmove %@", info[@"bestmove"]];
-    fflush(stdout);
+
+    if ([board hasUserAgent]) {
+      [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info[@"bestmove"]];
+    }
 }
 
 - (void)printUCIInfo:(NSDictionary *)info {

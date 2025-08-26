@@ -108,7 +108,6 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 -(void)cancelSearch;
 -(void)searchThread;
 -(void)findMove: (void (^)(NSString *move))completion;
--(ChessMove *)bestMove;
 
 // engine
 
