@@ -64,6 +64,7 @@ extension ChessBoard {
      *
      * 6. Fullmove number: The number of the full moves. It starts at 1 and is incremented after Black's move.
      */
+    @objc
     func initializeFromFEN(_ fen: String) {
         let components = fen.split(separator: " ")
         let ranks = String(components[0])
@@ -257,7 +258,7 @@ extension ChessBoard {
     }
     
     public func generateEnPassantString() -> String {
-        if enpassantSquare == 0 {
+        if enpassantSquare == -1 {
             return "-"
         }
 

@@ -39,6 +39,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 - (void)switchSides;
 - (void)playOnline;
 - (void)startNewGame;
+- (void)editFENString;
 - (void)applyStartNewGame;
 - (void)applyUndoMove;
 - (void)receivedGameEvent:(GameEvent)gameEvent;
@@ -414,28 +415,58 @@ static NSString *imageNames[12] = {
 }
 
 
+-(void)editFENString {
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Edit board positions"
+                                                                             message:@"Enter positions in Forsyth-Edward Notation"
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"FEN";
+        textField.text = [board generateFEN];
+        textField.keyboardType = UIKeyboardTypeDefault;
+        // Further customization like secureTextEntry, delegate, etc.
+    }];
+    
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * action) {
+        UITextField *inputTextField = alertController.textFields.firstObject;
+        NSString *enteredText = inputTextField.text;
+        [board initializeSearch];
+        [board initializeNewBoard];
+        [board initializeFromFEN: enteredText];
+        [self applyStartNewGame];
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:nil];
+    
+    [alertController addAction:cancelAction];
+    [alertController addAction:okAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
 -(void)startNewGame {
+    if (!board) {
+      ChessBoard *newBoard = [[ChessBoard alloc] init];
+      [newBoard resetGame];
+      newBoard.hasUserAgent = YES;
+      self.board = newBoard;
+      [newBoard release];
+    }
+    [board initializeSearch];
+    [board initializeNewBoard];
+
     [self applyStartNewGame];
 }
 
 -(void)applyStartNewGame {
     
-  if (!board) {
-    ChessBoard *newBoard = [[ChessBoard alloc] init];
-    [newBoard resetGame];
-    newBoard.hasUserAgent = YES;
-    self.board = newBoard;
-    [newBoard release];
-  }
-  [board initializeSearch];
-  [board initializeNewBoard];
   label.text = @"";
   autoPlay = NO;
   self.history = [NSMutableArray array];
   self.redoList = [NSMutableArray array];
-  
-  playerRandomChoice = 0;
-  opponentRandomChoice = 0;
   
   [undoButton setEnabled:NO];
   [redoButton setEnabled:NO];
@@ -456,6 +487,9 @@ static NSString *imageNames[12] = {
   [alert addAction:[UIAlertAction actionWithTitle:@"Restart Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
     [self startNewGame];
   }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Edit Board" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+      [self editFENString];
+    }]];
   [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
   
   [self presentViewController:alert animated:YES completion:nil];
@@ -935,7 +969,6 @@ static NSString *imageNames[12] = {
   boardDirection = 1.0;
   gameScale = 1.0;
   boardScale = 0.925;
-  gameState = kGameStateNotStarted;
   
   [self addBoardLayer];
   [self addSquares];

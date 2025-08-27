@@ -121,12 +121,6 @@ typedef struct {
     CGFloat boardScale;             // board is scaled down to display labels
     
     ChessMove *moveHint;
-    
-    BOOL usePopoverController;      // true if we are running on an iPad
-    
-    int gameState;
-    int playerRandomChoice;
-    int opponentRandomChoice;
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
