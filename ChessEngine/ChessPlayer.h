@@ -75,8 +75,14 @@
 
 // testing
 
+// false if active player's castling is permanently disabled (e.g. by a king or rook move or capture)
+-(BOOL)isCastlingEnabledKingSide;
+-(BOOL)isCastlingEnabledQueenSide;
+
+// false if active player's castling is permanently or temporarily disabled (e.g. by a king or rook move or capture)
 -(BOOL)canCastleKingSide;
 -(BOOL)canCastleQueenSide;
+
 -(BOOL)isValidMove:(ChessMove *)move;
 -(BOOL)isValidMoveFrom:(int)sourceSquare to:(int)destSquare;
 -(BOOL)isWhitePlayer;

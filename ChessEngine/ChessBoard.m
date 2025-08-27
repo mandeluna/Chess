@@ -52,8 +52,9 @@ int halfmoveClock;
 
 -(void)resetGame {
     _hashKey = _hashLock = 0;
-    _halfmoveClock = _halfmoveUndo = _enpassantSquare = _enpassantUndo = 0;
-    _fullmoveNumber = 1;
+    _halfmoveClock = _halfmoveUndo = 0;         // starts at 0, resets to 0 with pawn move or capture
+    _fullmoveNumber = 1;                        // starts at 1 and increments with black moves
+    _enpassantSquare = _enpassantUndo = -1;     // set when pawn double-push, resets on subsequent moves
 
 #if !__has_feature(objc_arc)
   self.whitePlayer = [[[ChessPlayer alloc] init] autorelease];

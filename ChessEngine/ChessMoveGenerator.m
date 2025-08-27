@@ -731,6 +731,7 @@ static PossibleMoveList KnightMoves[64];
 #pragma mark support
 // TODO: consider a better representation of these guys (e.g. BitBoard)
 
+// false if castling is temporarily disabled (e.g. by a blocked row or en prise)
 -(BOOL)canCastleBlackKingSide {
 
     if (0 != (castlingStatus & kCastlingEnableKingSide))

@@ -16,6 +16,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
   
   override func setUpWithError() throws {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    ChessMoveGenerator.initialize()
     ChessBoard.initialize()
     board = ChessBoard()
     board.initializeSearch()
@@ -184,5 +185,24 @@ func testQuicksort() {
     generator.recycleMoveList(moveList)
     XCTAssertTrue(moveList.count() == 20)
   }
-  
+
+  func testFENGeneration() throws {
+    let fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"
+
+    let board = ChessBoard()
+    board.initializeSearch()
+    board.initializeNewBoard()
+    board.initializeFromFEN(fen)
+    
+    // need this to initialize the generator
+    let _ = board.generator.findPossibleMoves(for: board.activePlayer)
+    
+    XCTAssertEqual(board.generateCastlingString(), "KQkq", "Castling string incorrect")
+    XCTAssertEqual(Int(board.enpassantSquare), board.square("d6")!, "En passant square incorrect")
+    XCTAssertEqual(board.generateEnPassantString(), "d6", "En passant string incorrect")
+    
+    let fen2 = board.generateFEN()
+    XCTAssertEqual(fen2, fen, "FEN string is incorrect")
+  }
+    
 }

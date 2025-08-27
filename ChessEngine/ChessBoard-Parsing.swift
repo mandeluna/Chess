@@ -96,11 +96,11 @@ extension ChessBoard {
     }
     
     func initializeEnPassant(enpassant: String) {
-        let enpassant_square = Int32(enpassant)
-        if (enpassant == "" || enpassant_square == nil) {
+        let enpassant_square = self.square(enpassant)
+        if (enpassant_square == nil) {
             return
         }
-        self.activePlayer.enpassantSquare = enpassant_square!
+        self.enpassantSquare = Int32(enpassant_square!)
     }
     
     func initializeCastling(castling: String) {
@@ -192,7 +192,7 @@ extension ChessBoard {
     }
     
     // Gets the board FEN (e.g.``rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR``)
-    private func generatePiecePlacement() -> String {
+    public func generatePiecePlacement() -> String {
         var ranks: [String] = []
         
         // Process ranks from top (rank 7 = 8th rank) to bottom (rank 0 = 1st rank)
@@ -225,7 +225,7 @@ extension ChessBoard {
         return ranks.joined(separator: "/")
     }
     
-    private func getPieceCharacter(at index: Int32) -> String? {
+    public func getPieceCharacter(at index: Int32) -> String? {
         // Check white pieces
         if self.whitePlayer.piece(at: index) > 0 {
             guard let symbol = ChessMove.BoardCodesToNotation[Int(whitePlayer.piece(at: index))] else {
@@ -245,28 +245,41 @@ extension ChessBoard {
         return nil // Empty square
     }
     
-    private func generateCastlingString() -> String {
+    public func generateCastlingString() -> String {
         var castling = ""
         
-        if generator.canCastleWhiteKingSide() { castling += "K" }
-        if generator.canCastleWhiteQueenSide() { castling += "Q" }
-        if generator.canCastleBlackKingSide() { castling += "k" }
-        if generator.canCastleBlackQueenSide() { castling += "q" }
+        if self.whitePlayer.isCastlingEnabledKingSide() { castling += "K" }
+        if self.whitePlayer.isCastlingEnabledQueenSide() { castling += "Q" }
+        if self.blackPlayer.isCastlingEnabledKingSide() { castling += "k" }
+        if self.blackPlayer.isCastlingEnabledQueenSide() { castling += "q" }
         
         return castling.isEmpty ? "-" : castling
     }
     
-    private func generateEnPassantString() -> String {
+    public func generateEnPassantString() -> String {
         if enpassantSquare == 0 {
             return "-"
         }
 
         // Convert board coordinates to algebraic notation
         let files = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        let rankNumber = enpassantSquare % 8 + 1 // Convert 0-7 to 1-8
+        let fileIndex = enpassantSquare % 8
+        let rankNumber = enpassantSquare / 8 + 1
 
         // En passant target is always on the 3rd or 6th rank
-        return "\(files[Int(enpassantSquare) / 8])\(rankNumber)"
+        return "\(files[Int(fileIndex)])\(rankNumber)"
     }
 
+    public func square(_ algebraic: String) -> Int? {
+        guard algebraic.count == 2 else { return nil }
+        let chars = Array(algebraic.lowercased())
+        guard let fileChar = chars.first, let rankChar = chars.last,
+              let fileIndex = "abcdefgh".firstIndex(of: fileChar),
+              let rank = Int(String(rankChar)) else { return nil }
+        
+        let file = "abcdefgh".distance(from: "abcdefgh".startIndex, to: fileIndex)
+        guard (1...8).contains(rank) else { return nil }
+        return (rank - 1) * 8 + file
+    }
+    
 }

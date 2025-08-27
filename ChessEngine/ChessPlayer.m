@@ -448,6 +448,15 @@ static int PieceCenterScores[7][64] = {
 
 #pragma mark testing
 
+// false if active player's castling is permanently disabled (e.g. by a king or rook move or capture)
+-(BOOL)isCastlingEnabledKingSide {
+    return (castlingStatus & kCastlingEnableKingSide) == 0;
+}
+
+-(BOOL)isCastlingEnabledQueenSide {
+    return (castlingStatus & kCastlingEnableQueenSide) == 0;
+}
+
 -(BOOL)canCastleKingSide {
 
     if (castlingStatus & kCastlingEnableKingSide) {

@@ -97,6 +97,7 @@ typedef struct {
 
 // support
 
+// false if castling is temporarily disabled (e.g. by a blocked row or en prise)
 -(BOOL)canCastleBlackKingSide;
 -(BOOL)canCastleBlackQueenSide;
 -(BOOL)canCastleWhiteKingSide;
