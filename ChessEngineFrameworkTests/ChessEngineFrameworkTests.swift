@@ -21,7 +21,10 @@ final class ChessEngineFrameworkTests: XCTestCase {
     board = ChessBoard()
     board.initializeSearch()
     board.initializeNewBoard()
-  }
+    // need this to initialize the generator
+    let list = board.generator.findPossibleMoves(for: board.activePlayer)
+    board.generator.recycleMoveList(list)
+}
   
   override func tearDownWithError() throws {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
@@ -131,9 +134,6 @@ func testQuicksort() {
   
   // 9cPIk,2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38,a6a7 d4f3 h2h1 g8h8,1491,75,97,23349,endgame mate mateIn2 short,https://lichess.org/gzskFpDu#75,
   func testCheckmateIn2() async throws {
-    let board = ChessBoard()
-    board.initializeSearch()
-    board.initializeNewBoard()
     
     let fen = "2k3r1/8/P4p2/2P5/3n1n2/8/5P1K/RR6 w - - 0 38"
     board.initializeFromFEN(fen)
@@ -165,37 +165,25 @@ func testQuicksort() {
   }
   
   func testMoveEnumeration() throws {
-    let board = ChessBoard()
-    let generator = ChessMoveGenerator()
-    
-    board.initializeNewBoard()
-    
-    guard let moveList = generator.findAllPossibleMoves(for: board.activePlayer) else {
+    guard let moveList = board.generator.findAllPossibleMoves(for: board.activePlayer) else {
       XCTFail("Could not generate move list")
       return
     }
     
-    XCTAssertTrue(moveList.count() == 20, "There should be 20 moves")
+    XCTAssertEqual(moveList.count(), 20, "There should be 20 moves")
     
     for _ in 0..<20 {
       let move = moveList.next()
       XCTAssertNotNil(move)
     }
     
-    generator.recycleMoveList(moveList)
+    board.generator.recycleMoveList(moveList)
     XCTAssertTrue(moveList.count() == 20)
   }
 
   func testFENGeneration() throws {
     let fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"
-
-    let board = ChessBoard()
-    board.initializeSearch()
-    board.initializeNewBoard()
     board.initializeFromFEN(fen)
-    
-    // need this to initialize the generator
-    let _ = board.generator.findPossibleMoves(for: board.activePlayer)
     
     XCTAssertEqual(board.generateCastlingString(), "KQkq", "Castling string incorrect")
     XCTAssertEqual(Int(board.enpassantSquare), board.square("d6")!, "En passant square incorrect")
@@ -203,6 +191,24 @@ func testQuicksort() {
     
     let fen2 = board.generateFEN()
     XCTAssertEqual(fen2, fen, "FEN string is incorrect")
+  }
+  
+  func testCastleThroughCheck() throws {
+    let fen = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5P1N/PPPP2PP/RNBQK2R w KQkq - 0 1"
+    board.initializeFromFEN(fen)
+    // attempt to castle through check (Bc4 threatens f1)
+    let moves = board.whitePlayer.findValidMoves()!
+    let move = ChessMove(san: "e1g1")
+    XCTAssertFalse(moves.contains(where: {ea in move.isEqual(ea) }))
+  }
+
+  func testCastleRookUnderThreat() throws {
+    let fen = "r2qk2r/ppp2ppp/3p1n2/n1b1p1N1/2B5/1QP1PbP1/PP1P1P1P/RNB1K2R w KQkq - 0 1"
+    board.initializeFromFEN(fen)
+    // attempt to castle through check (Bc4 threatens f1)
+    let moves = board.whitePlayer.findValidMoves()!
+    let move = ChessMove(san: "e1g1")
+    XCTAssertFalse(moves.contains(where: {ea in move.isEqual(ea) }))
   }
     
 }
