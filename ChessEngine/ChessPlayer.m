@@ -213,19 +213,15 @@ static int PieceCenterScores[7][64] = {
     materialValue -= PieceValues[piece];
     positionalValue -= PieceCenterScores[piece][square];
 
-    if (kPawn == piece) {
-        numPawns--;
-        if (board.hasUserAgent) {
-          NSLog(@"black has %d pawns, white has %d pawns", board.blackPlayer->numPawns, board.whitePlayer->numPawns);
-        }
-    }
-
     [board updateHash:piece at:square from:self];
 
-  if ([self hasUserAgent]) {
-    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square] };
-    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"RemovedPiece" object:description];
-  }
+    if ([self hasUserAgent]) {
+        NSDictionary *description = @{
+            @"piece": [NSNumber numberWithInt:piece],
+            @"square" : [NSNumber numberWithInt:square]
+        };
+        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"RemovedPiece" object:description];
+    }
 }
 
 -(void)removeAllPieces {
@@ -622,6 +618,12 @@ static int PieceCenterScores[7][64] = {
         return nil;
 
     NSMutableArray *moves = [NSMutableArray array];
+
+    // 50 move rule
+    if (board.halfmoveClock >= 100) {
+        return moves;
+    }
+    
     NSArray *contentsCopy = [moveList copyContents];
 
     for (ChessMove *move in contentsCopy) {

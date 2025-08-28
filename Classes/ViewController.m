@@ -27,32 +27,9 @@ const int kMovingPieceMask = 0x070000;          // lower three bits of third byt
 const int kCapturedPieceMask = 0x07000000;      // lower three bits of most significant byte is captured piece (0-6)
 const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most significant byte is move type (0-15)
 
-@interface ViewController(Private)
-- (void)addGameLayer;
-- (float)boardWidth;
-- (float)cellWidth;
-- (float)playerWidth;
-- (int)squareIndexForLayerLocation:(CGPoint)screenLoc;
-- (CGPoint)centerPointOfCellForBoardIndex:(CGPoint)boardPoint;
-- (void)updateBoardTransforms;
-- (void)updatePlayerLabels;
-- (void)switchSides;
-- (void)playOnline;
-- (void)startNewGame;
-- (void)editFENString;
-- (void)applyStartNewGame;
-- (void)applyUndoMove;
-- (void)receivedGameEvent:(GameEvent)gameEvent;
-- (void)resolvePlayerSides;
-
-@end
-
-#pragma mark ===
 @implementation ViewController
 
 @synthesize history, redoList, board, usePopoverController, remoteInstanceName;
-
-#pragma mark Action Sheet delegate
 
 #pragma mark initialize
 
@@ -85,46 +62,58 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     }
 }
 
--(void)updatePlayerLabels {
-    
-    BOOL localPlayerHasGameKitAlias = NO;   // todo: check if GKLocalPlayer is authenticated
-    
-    NSString *localPlayerLabel = localPlayerHasGameKitAlias ? @"alias" : NSUserName();
-    NSString *opponentLabel = @"Computer";
-
-    if (boardDirection > 0) {
-        blackPlayerLabel.text = opponentLabel;
-        whitePlayerLabel.text = localPlayerLabel;
-    }
-    else {
-        whitePlayerLabel.text = opponentLabel;
-        blackPlayerLabel.text = localPlayerLabel;
-    }
-}
-
 //
 // the argument is the color of the last player to move
 //
 -(void)updateBoardLabels:(BOOL)white {
 	
-	NSString *message = white ? @"Black to move" : @"White to move";
-	NSArray *moves;
-	
-	if (white) {
-		moves = [board.blackPlayer findValidMoves];
-	}
-	else {
-		moves = [board.whitePlayer findValidMoves];
-	}
-	
-	if (moves == nil) {
-		message = @"Checkmate";
-	}
+  NSArray *whiteMoves = [board.whitePlayer findPossibleMoves];
+	NSArray *blackMoves = [board.blackPlayer findPossibleMoves];
+  NSArray *moves = (board.activePlayer == board.whitePlayer) ? whiteMoves : blackMoves;
+
+  NSString *statusMessage;
+  
+  if ((blackMoves == nil) || (whiteMoves == nil)) {
+    // if blackmoves is nil, black has checkmated white
+    // if whitemoves is nil, white has checkmated black
+
+    statusMessage = @"Checkmate";
+    // TODO: highlight stricken king
+    autoPlay = NO;
+    [board.searchAgent cancelSearch];
+    [self.playButton setEnabled:NO];
+  }
 	else if ([moves count] == 0) {
-		message = @"Stalemate";
+		statusMessage = @"Draw";
+    autoPlay = NO;
+    [board.searchAgent cancelSearch];
+    [self.playButton setEnabled:NO];
 	}
+  else {
+    statusMessage = white ? @"White to move" : @"Black to move";
+  }
 	
-	self.gameStatusLabel.text = message;
+  statusMessage = [statusMessage stringByAppendingFormat:@"\n(Move %d, ½ move [%d/100])", board.fullmoveNumber, board.halfmoveClock];
+
+  self.gameStatusLabel.text = statusMessage;
+  self.moveListLabel.text = [self formatMoveHistory];
+
+}
+
+-(NSString *)formatMoveHistory {
+  NSString *result = @"";
+  
+// TODO: fix incorrect move number when loading FEN string
+// int startIndex = board.fullmoveNumber - (int)[history count];
+
+  for (int i=0; i < [history count]; i++) {
+    ChessMove *move = history[i];
+    result = [result stringByAppendingFormat:@"%d. %@", i + 1, [move sanString]];
+    if (i < [history count] - 1) {
+      result = [result stringByAppendingString:@" "];
+    }
+  }
+  return result;
 }
 
 -(void)removeLabels {
@@ -157,9 +146,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
         labelLayer.alignmentMode = kCAAlignmentCenter;
         labelLayer.fontSize = 12.0f;
         
-//        labelLayer.borderColor = [UIColor greenColor].CGColor;
-//        labelLayer.borderWidth = 1.0;
-        
         [boardLayer addSublayer:labelLayer];
         [labels addObject:labelLayer];
     }
@@ -178,9 +164,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
         labelLayer.alignmentMode = kCAAlignmentCenter;
         labelLayer.fontSize = 12.0f;
        
-//        labelLayer.borderColor = [UIColor yellowColor].CGColor;
-//        labelLayer.borderWidth = 1.0;
-        
         [boardLayer addSublayer:labelLayer];
         [labels addObject:labelLayer];
     }
@@ -251,7 +234,6 @@ static NSString *imageNames[12] = {
     return m;
 }
 
-#pragma mark ===
 #pragma mark ChessUserAgent protocol
 
 -(void)gameReset {
@@ -266,7 +248,7 @@ static NSString *imageNames[12] = {
             [square setNeedsDisplay];
             square.pieceLayer = nil;
         }
-        square.borderWidth = 0;
+        [self removeMoveIndicationLayerFrom:square];
     }
     
     [CATransaction commit];
@@ -281,7 +263,6 @@ static NSString *imageNames[12] = {
 }
 
 -(void)addedPiece:(int)piece at:(int)square white:(BOOL)isWhite {
-    
     ChessPieceLayer *m = [[self newPiece:piece white:isWhite] autorelease];
     m.chessBoard = self;
     SquareLayer *s = [squares objectAtIndex:square];
@@ -290,29 +271,50 @@ static NSString *imageNames[12] = {
 }
 
 -(void)completedMove:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  ChessMove *move = [description objectForKey:@"move"];
-  NSNumber *white = [description objectForKey:@"white"];
-  [self completedMove:move white:[white boolValue]];
+    NSDictionary *description = notification.object;
+    ChessMove *move = [description objectForKey:@"move"];
+    NSNumber *white = [description objectForKey:@"white"];
+    [self completedMove:move white:[white boolValue]];
+}
+
+-(ChessMove *)kingAttack {
+    [board.whitePlayer findPossibleMoves];
+    if ([board.generator kingAttack]) {
+        return [board.generator kingAttack];
+    }
+
+    [board.blackPlayer findPossibleMoves];
+    if ([board.generator kingAttack]) {
+        return [board.generator kingAttack];
+    }
+    return nil;
 }
 
 -(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
+    if (board == nil) {
+        return;
+    }
     
-  if (!board)
-      return;
-  
-  [history addObject:move];
-  [undoButton setEnabled:YES];
-
-	[self updateBoardLabels:aBool];
+    [history addObject:move];
+    [self.undoButton setEnabled:YES];
+    [self updateBoardLabels:aBool];
+    
+    ChessMove *attack = [self kingAttack];
+    
+    if (attack != nil) {
+        [self addKingAttackIndicatorTo:attack.destinationSquare];
+    }
+    else {
+        [self removeAttackIndicationLayers];
+    }
 }
 
 -(void)movedPiece:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  NSNumber *piece = [description objectForKey:@"piece"];
-  NSNumber *from = [description objectForKey:@"from"];
-  NSNumber *to = [description objectForKey:@"to"];
-  [self movedPiece:[piece intValue] from:[from intValue] to:[to intValue]];
+    NSDictionary *description = notification.object;
+    NSNumber *piece = [description objectForKey:@"piece"];
+    NSNumber *from = [description objectForKey:@"from"];
+    NSNumber *to = [description objectForKey:@"to"];
+    [self movedPiece:[piece intValue] from:[from intValue] to:[to intValue]];
 }
 
 -(void)movedPiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
@@ -381,30 +383,21 @@ static NSString *imageNames[12] = {
       return;
       
   [redoList addObject:move];
-  [redoButton setEnabled:YES];
+  [self.playButton setEnabled:YES];
 
   [self updateBoardLabels:isWhitePlayer];
 }
 
-#pragma mark ===
 #pragma mark playing
 
 -(IBAction)autoPlay {
     
     autoPlay = !autoPlay;
     if (autoPlay) {
-        [self thinkAndMove];
+        [self play];
     }
 }
 
--(IBAction)play {
-    
-    [self thinkAndMove];
-}
-
-//
-// hint
-//
 -(IBAction)findBestMove {
     
     if (![board.searchAgent isReady])
@@ -462,18 +455,17 @@ static NSString *imageNames[12] = {
 }
 
 -(void)applyStartNewGame {
-    
-  label.text = @"";
-  autoPlay = NO;
-  self.history = [NSMutableArray array];
-  self.redoList = [NSMutableArray array];
-  
-  [undoButton setEnabled:NO];
-  [redoButton setEnabled:NO];
-  
-  if (board.activePlayer == board.whitePlayer && boardDirection < 0) {
-    [board.searchAgent startSearchThread];
-  }
+    autoPlay = NO;
+    self.history = [NSMutableArray array];
+    self.redoList = [NSMutableArray array];
+
+    [self.undoButton setEnabled:NO];
+    [self.playButton setEnabled:YES];
+    [self removeAttackIndicationLayers];
+
+    elapsedTimeBlack = elapsedTimeWhite = 0.0;
+
+    [self updateBoardLabels:YES];
 }
 
 -(IBAction)newGame {
@@ -481,7 +473,8 @@ static NSString *imageNames[12] = {
   [alert addAction:[UIAlertAction actionWithTitle:@"Switch Sides" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     [self switchSides];
   }]];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Auto Play" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+  NSString *autoPlayLabel = autoPlay ? @"Human Plays" : @"Computer Plays";
+  [alert addAction:[UIAlertAction actionWithTitle:autoPlayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     [self autoPlay];
   }]];
   [alert addAction:[UIAlertAction actionWithTitle:@"Restart Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
@@ -499,9 +492,7 @@ static NSString *imageNames[12] = {
     
   if (!board)
       return;
-  
-  // true if it's the computer's move
-  // TODO: check if it's the online opponent's move
+
   if (![board.searchAgent isReady])
       return;
   
@@ -511,40 +502,9 @@ static NSString *imageNames[12] = {
   [board.searchAgent startSearchThread];
 }
 
-//
-// redo the last undone move
-//
--(IBAction)redoMove {
-    
-    if (0 == [redoList count])
-        return;
-    
-    ChessMove *move = [redoList lastObject];
-    [move retain];
-    [redoList removeLastObject];
-    
-    if ([redoList count] == 0) {
-        [redoButton setEnabled:NO];
-    }
-    
-    [board nextMove:move];
-    [move release];
-}
-
-//
-// play
-//
--(IBAction)thinkAndMove {
-    
-    if ([board.searchAgent isReady])
-        return;
-    
+-(IBAction)play {
     moveExpected = YES;
     [board.searchAgent startSearchThread];
-}
-
--(NSString *)myColorLabel {
-    return (boardDirection > 0) ? @"White" : @"Black";
 }
 
 //
@@ -562,16 +522,25 @@ static NSString *imageNames[12] = {
 }
 
 -(void)applyUndoMove {
-    
     ChessMove *move = [history lastObject];
     [move retain];
     [history removeLastObject];
     
     if ([history count] == 0) {
-        [undoButton setEnabled:NO];
+        [self.undoButton setEnabled:NO];
     }
     
     [board undoMove:move];
+
+    ChessMove *attack = [self kingAttack];
+    
+    if (attack != nil) {
+        [self addKingAttackIndicatorTo:attack.destinationSquare];
+    }
+    else {
+        [self removeAttackIndicationLayers];
+    }
+
     [move release];
 }
 
@@ -583,11 +552,10 @@ static NSString *imageNames[12] = {
   boardDirection *= -1;
   
   [self updateBoardTransforms];
-  [self updatePlayerLabels];
   
   if ((board.activePlayer == board.whitePlayer && boardDirection < 0) ||
       (board.activePlayer == board.blackPlayer && boardDirection > 0)) {
-    [self thinkAndMove];
+    [self play];
   }
 }
 
@@ -627,11 +595,87 @@ static NSString *imageNames[12] = {
 
 #pragma mark user feedback
 
+-(UIColor *)highlightColor {
+    return [UIColor colorWithRed:0.2 green:0.6 blue:0.2 alpha:0.5];
+}
+
+-(UIColor *)kingCheckColor {
+    return [UIColor colorWithRed:0.6 green:0.2 blue:0.2 alpha:1.0];
+}
+
+-(void)addMoveStartIndicationLayerTo:(CALayer *)square {
+    CALayer *spot = [CALayer layer];
+    spot.bounds = square.bounds;
+    spot.backgroundColor = [[self highlightColor] CGColor];
+    spot.name = @"spot";
+    
+    [spot setPosition:(CGPointMake(square.bounds.size.width / 2, square.bounds.size.height / 2))];
+    [square addSublayer:spot];
+}
+
+-(void)addMoveIndicationLayerTo:(CALayer *)square {
+    CGSize squareRect = square.bounds.size;
+    CALayer *spot = [CALayer layer];
+    spot.bounds = CGRectMake(0, 0, squareRect.width / 3, squareRect.height / 3);
+    spot.cornerRadius = square.bounds.size.width / 6;
+    spot.backgroundColor = [[self highlightColor] CGColor];
+    spot.name = @"spot";
+    
+    [spot setPosition:(CGPointMake(squareRect.width / 2, squareRect.height / 2))];
+    [square addSublayer:spot];
+}
+
+-(void)removeMoveIndicationLayers {
+    for (int i=0; i<64; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        [self removeMoveIndicationLayerFrom:squareLayer];
+    }
+}
+
+-(void)removeAttackIndicationLayers {
+    for (int i=0; i<64; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        [self removeAttackIndicationLayerFrom:squareLayer];
+    }
+}
+
+-(void)removeMoveIndicationLayerFrom:(CALayer *)square {
+    CALayer *sublayer = [square.sublayers firstObject];
+    if ([sublayer.name isEqualToString:@"spot"]) {
+        [sublayer removeFromSuperlayer];
+    }
+}
+
+-(void)removeAttackIndicationLayerFrom:(CALayer *)square {
+    CALayer *sublayer = [square.sublayers firstObject];
+    if ([sublayer.name isEqualToString:@"attack"]) {
+        [sublayer removeFromSuperlayer];
+    }
+}
+
+-(void)addKingAttackIndicatorTo:(int)destination {
+    // radial-gradient(ellipse at center, rgb(255, 0, 0) 0%, rgb(231, 0, 0) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%)
+    CALayer *square = squares[destination];
+    CGSize squareRect = square.bounds.size;
+    CAGradientLayer *attack = [CAGradientLayer layer];
+    attack.frame = square.bounds;
+    attack.type = kCAGradientLayerRadial;
+    attack.colors = @[
+        (__bridge id)[[UIColor colorWithRed:1.0 green:0 blue:0 alpha:1.0] CGColor],
+        (__bridge id)[[UIColor colorWithRed:(231.0/255.0) green:0 blue:0 alpha:1.0] CGColor],
+        (__bridge id)[[UIColor colorWithRed:(169/255.0) green:0 blue:0 alpha:0.0] CGColor],
+        (__bridge id)[[UIColor colorWithRed:(158.0/255.0) green:0 blue:0 alpha:0.0] CGColor],
+    ];
+    attack.locations = @[@(0), @(0.25), @(0.89), @(1.0)];
+    attack.startPoint = CGPointMake(0.5, 0.5);
+    attack.endPoint = CGPointMake(1.15, 1.15);
+    attack.name = @"attack";
+    
+    [attack setPosition:(CGPointMake(squareRect.width / 2, squareRect.height / 2))];
+    [square addSublayer:attack];
+}
+
 -(void)showMovesAt:(int)square {
-    
-    if (!board)
-        return;
-    
     if (![board.searchAgent isReady])
         return;
     
@@ -639,28 +683,24 @@ static NSString *imageNames[12] = {
     if ((![board.activePlayer isWhitePlayer] && boardDirection > 0) ||
         ([board.activePlayer isWhitePlayer] && boardDirection < 0))
         return;
-    
-    for (int i=0; i<64; i++) {
-        SquareLayer *squareLayer = [squares objectAtIndex:i];
-        squareLayer.borderWidth = 0;
-    }
-    
+
+    [self removeMoveIndicationLayers];
+
     NSArray *list = [board.activePlayer findValidMovesAt:square];
     
     if (0 == [list count])
         return;
     
     SquareLayer *thisLayer = [squares objectAtIndex:square];
-    thisLayer.borderWidth = 1.0;
-    
+    [self addMoveStartIndicationLayerTo:thisLayer];
+
     for (ChessMove *move in list) {
         SquareLayer *destLayer = [squares objectAtIndex:move.destinationSquare];
-        destLayer.borderWidth = 1.0;
+        [self addMoveIndicationLayerTo:destLayer];
     }
 }
 
 -(void)showMovesFrom:(SquareLayer *)squareLayer {
-    
     [self showMovesAt:squareLayer.squarePosition];
 }
 
@@ -674,7 +714,6 @@ static NSString *imageNames[12] = {
 // only support single touch for now
 //
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    
     if (![board.searchAgent isReady])
         return;
         
@@ -695,7 +734,7 @@ static NSString *imageNames[12] = {
     // clear previous move indicators
     for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
-        squareLayer.borderWidth = 0;
+        [self removeMoveIndicationLayerFrom:squareLayer];
     }
     
     [self selectPlayer:nil];
@@ -708,8 +747,6 @@ static NSString *imageNames[12] = {
     candidate.sourceSquare = squareLayer.squarePosition;
     
     [self showMovesFrom:squareLayer];
-    
-    label.text = [NSString stringWithFormat:@"%d", selectionIndex];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -778,7 +815,7 @@ static NSString *imageNames[12] = {
         // clear move indicators
         for (int i=0; i<64; i++) {
             SquareLayer *squareLayer = [squares objectAtIndex:i];
-            squareLayer.borderWidth = 0;
+            [self removeMoveIndicationLayerFrom:squareLayer];
         }
         
         // clear the selection
@@ -825,15 +862,12 @@ static NSString *imageNames[12] = {
 // Add the layer representing the chessboard
 //
 - (void)addBoardLayer {
-    
     boardLayer = [CALayer layer];
-    
+
     float width = [self boardWidth] * boardScale;
     CGRect bounds = CGRectMake(0, 0, width, width);
     boardLayer.bounds = bounds;
     boardLayer.geometryFlipped = YES;
-//    boardLayer.borderColor = [UIColor magentaColor].CGColor;
-//    boardLayer.borderWidth = 1.0;
     
     // position the board in the center of the parent view
     [boardLayer setPosition:(CGPointMake([self view].bounds.size.width/2, [self view].bounds.size.height/2))];
@@ -891,8 +925,8 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)startedThinking {
-    [hintButton setEnabled:NO];
-    [playButton setEnabled:NO];
+    [self.hintButton setEnabled:NO];
+    [self.playButton setEnabled:NO];
     [self.view setNeedsDisplay];
 }
 
@@ -900,12 +934,17 @@ static NSString *imageNames[12] = {
 //
 -(void)stoppedThinking: (NSNotification *)notification {
     
-  [hintButton setEnabled:YES];
-  [playButton setEnabled:YES];
+  [self.hintButton setEnabled:YES];
+  [self.playButton setEnabled:YES];
   
-  int encodedMode = [notification.object intValue];
+  NSDictionary *info = notification.object;
+  if (info[@"bestmove"] == nil) {
+    self.gameStatusLabel = info[@"reason"];
+    [board.searchAgent cancelSearch];
+    autoPlay = NO;
+  }
+  int encodedMode = [info[@"bestmove"] intValue];
   ChessMove *move = [ChessMove decodeFrom:encodedMode];
-  NSLog(@"Stopped thinking: move = %@", move);
   
   if (!moveExpected) {
     moveHint = [move retain];
@@ -929,11 +968,31 @@ static NSString *imageNames[12] = {
   }
 }
 
+-(NSString *)formatDuration:(NSTimeInterval)duration {
+  int hours = (int)duration / 3600;
+  int minutes = (int)duration / 60;
+  int seconds = (int)duration % 60;
+  if (hours > 0) {
+    minutes = minutes % 60;
+    return [NSString stringWithFormat:@"%0d:%02d:%02d", hours, minutes, seconds];
+  }
+  return [NSString stringWithFormat:@"%02d:%02d", minutes, seconds];
+}
+
 //
 // Callback for display link to show search agent progress and to progress autoPlay mode
 //
 -(void)updateStatus:(CADisplayLink *)sender {
-  label.text = [board.searchAgent statusString];
+  self.engineInfoLabel.text = [board.searchAgent statusString];
+  NSTimeInterval duration = sender.targetTimestamp - sender.timestamp;
+  if (board.whitePlayer == board.activePlayer) {
+    elapsedTimeWhite += duration;
+    self.whiteGameClock.text = [@"White " stringByAppendingString:[self formatDuration:elapsedTimeWhite]];
+  }
+  else {
+    elapsedTimeBlack += duration;
+    self.blackGameClock.text = [@"Black " stringByAppendingString:[self formatDuration:elapsedTimeBlack]];
+  }
 }
 
 #pragma mark view loading

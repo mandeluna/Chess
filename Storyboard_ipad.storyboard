@@ -4,7 +4,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -20,13 +19,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="820" height="1180"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="SnV-iU-Gwh" userLabel="UCI Info Label">
-                                <rect key="frame" x="20" y="1096" width="780" height="34"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XX1-uP-VoZ">
                                 <rect key="frame" x="0.0" y="1130" width="820" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -36,18 +28,15 @@
                                             <action selector="newGame" destination="K20-VQ-fbd" id="QzT-a1-7lx"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem width="12" style="plain" systemItem="fixedSpace" id="B2N-HR-SQb"/>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="RfI-aG-6eG"/>
-                                    <barButtonItem title="Undo" style="plain" id="g8i-h4-K9b">
-                                        <imageReference key="image" image="arrow.uturn.backward" catalog="system" symbolScale="default"/>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="hD5-kh-DeC"/>
+                                    <barButtonItem title="Undo" image="arrowshape.backward.circle" catalog="system" style="plain" id="aoK-hH-or5">
                                         <connections>
-                                            <action selector="undoMove" destination="K20-VQ-fbd" id="wcT-Q4-cZ2"/>
+                                            <action selector="undoMove" destination="K20-VQ-fbd" id="oNM-MK-kOe"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem title="Redo" style="plain" id="nC4-Iy-N8U">
-                                        <imageReference key="image" image="arrow.uturn.forward" catalog="system" symbolScale="default"/>
+                                    <barButtonItem title="Play" image="arrowshape.forward.circle" catalog="system" style="plain" id="Q57-iH-5s4">
                                         <connections>
-                                            <action selector="redoMove" destination="K20-VQ-fbd" id="jdr-f8-TBs"/>
+                                            <action selector="play" destination="K20-VQ-fbd" id="ODk-tV-oT7"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="2l0-kX-EqY"/>
@@ -58,30 +47,37 @@
                                     </barButtonItem>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Move List" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fcA-id-wqC">
-                                <rect key="frame" x="20" y="1004" width="800" height="97"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White 00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="luA-Rz-BDo">
-                                <rect key="frame" x="20" y="17" width="189" height="21"/>
+                                <rect key="frame" x="20" y="17" width="127" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Black 00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VRe-XW-IwQ">
-                                <rect key="frame" x="611" y="17" width="189" height="21"/>
+                                <rect key="frame" x="673" y="17" width="127" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJQ-hM-avp">
-                                <rect key="frame" x="274" y="17" width="273" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Vo-Vm-bXK" userLabel="Move List">
+                                <rect key="frame" x="20" y="1027" width="780" height="103"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="info string" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P5f-Xz-tGD" userLabel="Info Label">
+                                <rect key="frame" x="155" y="93" width="510" height="25"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJQ-hM-avp">
+                                <rect key="frame" x="155" y="17" width="510" height="68"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
@@ -91,13 +87,13 @@
                     </view>
                     <connections>
                         <outlet property="blackGameClock" destination="VRe-XW-IwQ" id="0pi-Vo-jUh"/>
+                        <outlet property="engineInfoLabel" destination="P5f-Xz-tGD" id="CxY-2E-KgZ"/>
                         <outlet property="gameStatusLabel" destination="eJQ-hM-avp" id="RXy-oy-yTC"/>
                         <outlet property="hintButton" destination="dRl-qK-mir" id="r13-Ig-z7f"/>
-                        <outlet property="label" destination="SnV-iU-Gwh" id="zXE-UT-yMR"/>
-                        <outlet property="moveListLabel" destination="fcA-id-wqC" id="zNd-1e-BmZ"/>
-                        <outlet property="newGameButton" destination="eQt-yb-Epo" id="cj1-7l-RjO"/>
-                        <outlet property="redoButton" destination="nC4-Iy-N8U" id="bs2-C2-NkF"/>
-                        <outlet property="undoButton" destination="g8i-h4-K9b" id="MIg-5R-56F"/>
+                        <outlet property="moveListLabel" destination="0Vo-Vm-bXK" id="S8O-7y-kSU"/>
+                        <outlet property="playButton" destination="Q57-iH-5s4" id="ESn-qO-ayJ"/>
+                        <outlet property="startButton" destination="eQt-yb-Epo" id="cj1-7l-RjO"/>
+                        <outlet property="undoButton" destination="aoK-hH-or5" id="Nrk-7Q-0Lq"/>
                         <outlet property="whiteGameClock" destination="luA-Rz-BDo" id="rrP-ta-jax"/>
                     </connections>
                 </viewController>
@@ -107,8 +103,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="arrow.uturn.backward" catalog="system" width="128" height="113"/>
-        <image name="arrow.uturn.forward" catalog="system" width="128" height="113"/>
+        <image name="arrowshape.backward.circle" catalog="system" width="128" height="123"/>
+        <image name="arrowshape.forward.circle" catalog="system" width="128" height="123"/>
         <systemColor name="darkTextColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

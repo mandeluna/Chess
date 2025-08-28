@@ -308,11 +308,6 @@ static PossibleMoveList KnightMoves[64];
 
 #pragma mark public
 
--(char *)attackSquares {
-
-    return attackSquares;
-}
-
 //
 // Find all possible moves. This method does not check if the move is legal,
 // e.g., if the king of the player is under attack after the move.
@@ -324,8 +319,6 @@ static PossibleMoveList KnightMoves[64];
     ChessPlayer *opponent = [player opponent];
 
     myPlayer = player;
-//    memcpy(myPieces, [player pieces], 64*sizeof(char));
-//    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
     myPieces = [player pieces];
     itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];
@@ -343,21 +336,6 @@ static PossibleMoveList KnightMoves[64];
     self.kingAttack = nil;
 
     BOOL isWhite = [myPlayer isWhitePlayer];
-
-    if (isWhite) {
-        for (int i=0; i < 8; i++) {
-            if (1 == myPieces[i]) {
-                NSLog(@"White pawn in row 1. Illegal board state");
-            }
-        }
-    }
-    else {
-        for (int i=56; i < 64; i++) {
-            if (1 == myPieces[i]) {
-                NSLog(@"Black pawn in row 8. Illegal board state");
-            }
-        }
-    }
 
     for (int square = 0; square < 64; square++) {
         if (!myPieces[square])
@@ -416,8 +394,6 @@ static PossibleMoveList KnightMoves[64];
     forceCaptures = NO;
     myPlayer = player;
     ChessPlayer *opponent = [player opponent];
-//    memcpy(myPieces, [player pieces], 64*sizeof(char));
-//    memcpy(itsPieces, [opponent pieces], 64*sizeof(char));
     myPieces = [player pieces];
     itsPieces = [opponent pieces];
     castlingStatus = [player castlingStatus];

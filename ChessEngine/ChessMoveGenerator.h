@@ -64,7 +64,6 @@ typedef struct {
     int lastMoveIndex;
     NSMutableArray *streamList;
     int streamListIndex;
-    char attackSquares[64];
     ChessMove *kingAttack;
     Logger *logger;
 }
@@ -72,7 +71,6 @@ typedef struct {
 @property(nonatomic, assign) ChessMove *kingAttack;
 
 // public
--(char *)attackSquares;
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player;
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player;
 -(ChessMoveList *)findPossibleMovesFor:(ChessPlayer *)player at:(int)square;

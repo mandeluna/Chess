@@ -257,16 +257,15 @@ int halfmoveClock;
 
 -(void)nextMove:(ChessMove *)aMove {
 
-  [_activePlayer applyMove:aMove];
+    [_activePlayer applyMove:aMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer prepareNextMove];
 
-  if (self.hasUserAgent) {
+    if (self.hasUserAgent) {
     NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
     NSNotification *notification = [NSNotification notificationWithName:@"CompletedMove" object:description];
     [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
   }
-
-  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-  [_activePlayer prepareNextMove];
 }
 
 -(void)nullMove {
@@ -277,6 +276,7 @@ int halfmoveClock;
 -(void)undoMove:(ChessMove *)aMove {
   _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
   [_activePlayer undoMove:aMove];
+  [self undoMoveCounters:aMove];
 
   if (self.hasUserAgent) {
     NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};

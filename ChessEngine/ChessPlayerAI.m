@@ -238,6 +238,7 @@ Logger *logger;
     while ((nil != move) /* && (self.status == ChessSearchStatusInProgress) */) {
         if (ply >= [boardList count]) {
             NSString *reason = [NSString stringWithFormat:@"ply=%d", ply];
+            [generator recycleMoveList:moveList];
             [logger raiseExceptionName:@"invalid index into boardList" reason:reason];
         }
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
@@ -708,7 +709,6 @@ Logger *logger;
 }
 
 -(void)findMove: (void (^)(NSString *move))completion {
-
     if (![self isReady]) {
         [logger logDebug: @"findmove: Search already in progress" ];
         return;
@@ -727,70 +727,22 @@ Logger *logger;
 }
 
 -(void)startSearchThread {
-    if (self.isSearching) {
-      return;
-    }
-
-    @synchronized (self) {
-        if (!transTable) {
-            [self initializeTranspositionTable];
-        }
-
-        [self setActivePlayer:board.activePlayer];
-
-        myMove = [ChessMove nullMove];
-        [NSThread detachNewThreadSelector:@selector(searchThread) toTarget:self withObject:nil];
-    }
-}
-
-// TODO: remove this code
--(void)searchThread {
-    if (self.isSearching || self.shouldCancelSearch) {
-      return;
-    }
-    self.status = ChessSearchStatusInProgress;
-    self.shouldCancelSearch = NO;
-
-  if ([board hasUserAgent]) {
-    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
-  }
-
-  @autoreleasepool {
-
-    int score = [board.activePlayer evaluate];
-    int depth = 1;
-    stamp++;
-    ply = 0;
-    [historyTable clear];
-    [transTable clear];
-
-    startTime = [[NSDate date] timeIntervalSince1970];
-    nodesVisited = ttHits = alphaBetaCuts = 0;
-    bestVariation[0] = 0;
-    activeVariation[0] = 0;
-
-    while (status == ChessSearchStatusInProgress) {
-        ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
-        score = theMove.value;
-        myMove = [theMove copy];
-
-        if (theMove == nil) {
-            [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:nil];
-            self.status = ChessSearchStatusStopped;
-            break;
-        }
-        [self assignBestVariation];
-        [self invokeUpdateCallback];
-        depth++;
-    }
-
     if ([board hasUserAgent]) {
-        int encoded = [myMove encodedMove];
-        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:@(encoded)];
+        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
     }
-    self.shouldCancelSearch = NO;
-    self.status = ChessSearchStatusCompleted;
-  }
+    
+    NSDictionary *searchParameters = @{
+        // to be populated by UI settings, otherwise we just take the defaults
+    };
+
+    [self performSearchWithUCIParams: searchParameters
+                      updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
+                     completionBlock:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+        
+        NSMutableDictionary *info = [finalInfo mutableCopy];
+        info[@"bestmove"] = @([myMove encodedMove]);
+        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
+    }];
 }
 
 #pragma mark accessing
@@ -825,7 +777,9 @@ Logger *logger;
         }
     }
 
-    resultString = [resultString stringByAppendingFormat:@"[%ld]", nodesVisited];
+    if (nodesVisited > 0) {
+        resultString = [resultString stringByAppendingFormat:@"nodes [%ld]", nodesVisited];
+    }
 
     return resultString;
 }

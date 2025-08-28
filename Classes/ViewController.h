@@ -103,16 +103,9 @@ typedef struct {
     BOOL animateMove;
     BOOL autoPlay;
     BOOL moveExpected;  // YES if the AI should execute the move, otherwise just display a hint
-    
-    IBOutlet UILabel *label;
-    IBOutlet UIBarButtonItem *newGameButton;
-    IBOutlet UIBarButtonItem *playButton;
-    IBOutlet UIBarButtonItem *undoButton;
-    IBOutlet UIBarButtonItem *redoButton;
-    IBOutlet UIBarButtonItem *hintButton;
-    
-    IBOutlet UILabel *whitePlayerLabel;
-    IBOutlet UILabel *blackPlayerLabel;
+
+    NSTimeInterval elapsedTimeWhite;
+    NSTimeInterval elapsedTimeBlack;
     
     CATransform3D boardTransform;   // for scaling to display/hide labels and flipping board to switch sides
     CATransform3D playerTransform;  // for flipping pieces to compensate for flipping board
@@ -132,6 +125,12 @@ typedef struct {
 @property(nonatomic, retain) IBOutlet UILabel *whiteGameClock;
 @property(nonatomic, retain) IBOutlet UILabel *blackGameClock;
 @property(nonatomic, retain) IBOutlet UILabel *moveListLabel;
+@property(nonatomic, retain) IBOutlet UILabel *engineInfoLabel;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *startButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *playButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *undoButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *hintButton;
+
 
 typedef enum {
     kSegmentIndexNew = 0,
@@ -163,15 +162,15 @@ typedef enum {
 
 -(IBAction)autoPlay;
 -(IBAction)play;
--(IBAction)findBestMove;    // hint
+-(IBAction)findBestMove;
 -(IBAction)newGame;
--(IBAction)redoMove;
--(IBAction)thinkAndMove;    // play
 -(IBAction)undoMove;
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 
 -(BOOL)isPlayerWhite;
+
+-(NSString *)formatMoveHistory;
 
 @end
 

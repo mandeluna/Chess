@@ -24,7 +24,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
     // need this to initialize the generator
     let list = board.generator.findPossibleMoves(for: board.activePlayer)
     board.generator.recycleMoveList(list)
-}
+  }
   
   override func tearDownWithError() throws {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
@@ -72,7 +72,7 @@ final class ChessEngineFrameworkTests: XCTestCase {
     }
   }
   
-func testQuicksort() {
+  func testQuicksort() {
     var array: NSMutableArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     var expectedArray: NSMutableArray = [1, 2, 3, 4, 10, 9, 8, 7, 6, 5, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     array.sortSubArray(from:4, to:9, using:reverseBlock)
@@ -108,7 +108,7 @@ func testQuicksort() {
     board.applyMove(san: "d4e6")
     
     let nextMove = await board.searchAgent.findMove()
-
+    
     if let move = nextMove {
       XCTAssertEqual(move, "d6h2", "The move \(move) is incorrect")
     }
@@ -180,7 +180,7 @@ func testQuicksort() {
     board.generator.recycleMoveList(moveList)
     XCTAssertTrue(moveList.count() == 20)
   }
-
+  
   func testFENGeneration() throws {
     let fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2"
     board.initializeFromFEN(fen)
@@ -201,14 +201,28 @@ func testQuicksort() {
     let move = ChessMove(san: "e1g1")
     XCTAssertFalse(moves.contains(where: {ea in move.isEqual(ea) }))
   }
-
+  
   func testCastleRookUnderThreat() throws {
     let fen = "r2qk2r/ppp2ppp/3p1n2/n1b1p1N1/2B5/1QP1PbP1/PP1P1P1P/RNB1K2R w KQkq - 0 1"
     board.initializeFromFEN(fen)
     // attempt to castle through check (Bc4 threatens f1)
-    let moves = board.whitePlayer.findValidMoves()!
-    let move = ChessMove(san: "e1g1")
-    XCTAssertFalse(moves.contains(where: {ea in move.isEqual(ea) }))
+    let moves : [ChessMove] = board.whitePlayer.findValidMoves() as! [ChessMove]
+    XCTAssertFalse(moves.contains(where: {ea in ea.uciString().isEqual("e1g1") }))
   }
+  
+  func testFindWayToInevitableCheckmate() throws {
+    let fen = "3k4/1R6/p4n2/2p5/R1Pb4/3P2r1/8/5K1q w - - 1 46"
+    board.initializeFromFEN(fen)
+    // inevitably Kf1e2 rg3g2 Ke2f3 qh1f1#
     
+    // in this case, white's only escape (temporarily) is e2
+    let whiteMoves = board.whitePlayer.findValidMoves()
+    
+    XCTAssertNotNil(whiteMoves)
+    XCTAssertEqual(whiteMoves!.count, 1, "incorrect number of moves")
+    
+    let move = whiteMoves!.first as! ChessMove
+    XCTAssertEqual(move.uciString(), "f1e2", "That is not the right move")
+  }
+  
 }
