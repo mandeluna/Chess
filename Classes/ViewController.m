@@ -518,6 +518,8 @@ static NSString *imageNames[12] = {
 
 -(IBAction)play {
     moveExpected = YES;
+    [self selectPiece:nil];
+    [self removeMoveIndicationLayers];
     [board.searchAgent startSearchThread];
 }
 
@@ -525,14 +527,12 @@ static NSString *imageNames[12] = {
 // undo the last move
 //
 -(IBAction)undoMove {
-    
-    if (!board)
-        return;
-    
     if (0 == [history count])
         return;
     
-  [self applyUndoMove];
+    [self selectPiece:nil];
+    [self removeMoveIndicationLayers];
+    [self applyUndoMove];
 }
 
 -(void)applyUndoMove {
@@ -583,7 +583,6 @@ static NSString *imageNames[12] = {
 - (void)selectPiece:(ChessPieceLayer *)pieceLayer {
     if (selectedPiece)
     {
-        selectedPiece.shadowOpacity = 0.0;
         selectedPiece.zPosition -= 1;
         [selectedPiece needsDisplay];
     }
@@ -591,7 +590,6 @@ static NSString *imageNames[12] = {
     
     if (selectedPiece)
     {
-        selectedPiece.shadowOpacity = 1.0;
         selectedPiece.zPosition += 1;
         [selectedPiece needsDisplay];
     }
@@ -797,9 +795,19 @@ static NSString *imageNames[12] = {
     ChessPieceLayer *candidate = squareLayer.pieceLayer;
 
     // support two tap placement of pieces instead of forcing drag and drop
-    if (selectedPiece && (selectedPiece != candidate)) {
-        [self dropPieceAt:selectionIndex];
-        return;
+    if (selectedPiece != nil) {
+        // if the pieces are on the same side, select and highlight the new piece without requiring a second tap
+        if ((selectedPiece != candidate) &&
+            ((candidate.isWhite && selectedPiece.isWhite) || (!candidate.isWhite && !selectedPiece.isWhite))) {
+            [self selectPiece:candidate];
+            candidate.sourceSquare = squareLayer.squarePosition;
+            [self showMovesFrom:squareLayer];
+            return;
+        }
+        else if (selectedPiece != candidate) {
+            [self dropPieceAt:selectionIndex];
+            return;
+        }
     }
 
     // second tap on a piece should clear selection
@@ -813,7 +821,6 @@ static NSString *imageNames[12] = {
     
     // need to be able to return piece to original position for invalid moves
     candidate.sourceSquare = squareLayer.squarePosition;
-    
     [self showMovesFrom:squareLayer];
 }
 
