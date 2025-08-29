@@ -47,18 +47,18 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     
     boardTransform = CATransform3DMakeRotation(boardRotation, 0.0, 0.0, 1.0);
     boardTransform = CATransform3DScale(boardTransform, boardScale, boardScale, 1.0);
-    playerTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0);    
+    piecesTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0);    
     
     boardLayer.transform = boardTransform;
     
     for (int i=0; i < 64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
-        squareLayer.pieceLayer.transform = playerTransform;
+        squareLayer.pieceLayer.transform = piecesTransform;
     }
 
     for (int i=0; i < 16; i++) {
         CATextLayer *labelLayer = [labels objectAtIndex:i];
-        labelLayer.transform = playerTransform;
+        labelLayer.transform = piecesTransform;
     }
 }
 
@@ -67,37 +67,35 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 //
 -(void)updateBoardLabels:(BOOL)white {
 	
-  NSArray *whiteMoves = [board.whitePlayer findPossibleMoves];
-	NSArray *blackMoves = [board.blackPlayer findPossibleMoves];
-  NSArray *moves = (board.activePlayer == board.whitePlayer) ? whiteMoves : blackMoves;
+    NSArray *whiteMoves = [board.whitePlayer findValidMoves];
+    NSArray *blackMoves = [board.blackPlayer findValidMoves];
+    NSArray *moves = (board.activePlayer == board.whitePlayer) ? whiteMoves : blackMoves;
 
-  NSString *statusMessage;
+    NSString *statusMessage;
   
-  if ((blackMoves == nil) || (whiteMoves == nil)) {
-    // if blackmoves is nil, black has checkmated white
-    // if whitemoves is nil, white has checkmated black
-
-    statusMessage = @"Checkmate";
-    // TODO: highlight stricken king
-    autoPlay = NO;
-    [board.searchAgent cancelSearch];
-    [self.playButton setEnabled:NO];
-  }
+    if ((blackMoves == nil) || (whiteMoves == nil)) {
+        statusMessage = @"Checkmate";
+        autoPlay = NO;
+        isClockTicking = NO;
+        [board.searchAgent cancelSearch];
+        [self.playButton setEnabled:NO];
+    }
 	else if ([moves count] == 0) {
 		statusMessage = @"Draw";
-    autoPlay = NO;
-    [board.searchAgent cancelSearch];
-    [self.playButton setEnabled:NO];
+        autoPlay = NO;
+        isClockTicking = NO;
+        [board.searchAgent cancelSearch];
+        [self.playButton setEnabled:NO];
 	}
-  else {
-    statusMessage = white ? @"White to move" : @"Black to move";
-  }
-	
-  statusMessage = [statusMessage stringByAppendingFormat:@"\n(Move %d, ½ move [%d/100])", board.fullmoveNumber, board.halfmoveClock];
+    else {
+        statusMessage = white ? @"White to move" : @"Black to move";
+    }
 
-  self.gameStatusLabel.text = statusMessage;
-  self.moveListLabel.text = [self formatMoveHistory];
+    statusMessage = [statusMessage stringByAppendingFormat:@"\n(Move %d, ½ move [%d/100])",
+                     board.fullmoveNumber, board.halfmoveClock];
 
+    self.gameStatusLabel.text = statusMessage;
+    self.moveListLabel.text = [self formatMoveHistory];
 }
 
 -(NSString *)formatMoveHistory {
@@ -227,7 +225,7 @@ static NSString *imageNames[12] = {
     CGFloat w = [self cellWidth];
     m.bounds = CGRectMake(0,0, w, w);
     m.shadowColor = [UIColor blackColor].CGColor;
-    m.transform = playerTransform;
+    m.transform = piecesTransform;
     
     [boardLayer addSublayer:m];
     
@@ -288,6 +286,21 @@ static NSString *imageNames[12] = {
         return [board.generator kingAttack];
     }
     return nil;
+}
+
+-(NSArray *)captureSquares {
+    NSArray *moves = board.activePlayer == board.whitePlayer ?
+        [board.whitePlayer findPossibleMoves] :
+        [board.blackPlayer findPossibleMoves];
+
+    NSMutableArray *result = [NSMutableArray array];
+    for (ChessMove *move in moves) {
+        if (move.capturedPiece != 0) {
+            [result addObject:@(move.destinationSquare)];
+        }
+    }
+    
+    return result;
 }
 
 -(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
@@ -464,6 +477,7 @@ static NSString *imageNames[12] = {
     [self removeAttackIndicationLayers];
 
     elapsedTimeBlack = elapsedTimeWhite = 0.0;
+    isClockTicking = YES;
 
     [self updateBoardLabels:YES];
 }
@@ -566,27 +580,27 @@ static NSString *imageNames[12] = {
 
 #pragma mark Private
 
-- (void)selectPlayer:(ChessPieceLayer *)playerLayer {
-    if (selectedPlayer)
+- (void)selectPiece:(ChessPieceLayer *)pieceLayer {
+    if (selectedPiece)
     {
-        selectedPlayer.shadowOpacity = 0.0;
-        selectedPlayer.zPosition -= 1;
-        [selectedPlayer needsDisplay];
+        selectedPiece.shadowOpacity = 0.0;
+        selectedPiece.zPosition -= 1;
+        [selectedPiece needsDisplay];
     }
-    selectedPlayer = playerLayer;
+    selectedPiece = pieceLayer;
     
-    if (selectedPlayer)
+    if (selectedPiece)
     {
-        selectedPlayer.shadowOpacity = 1.0;
-        selectedPlayer.zPosition += 1;
-        [selectedPlayer needsDisplay];
+        selectedPiece.shadowOpacity = 1.0;
+        selectedPiece.zPosition += 1;
+        [selectedPiece needsDisplay];
     }
 }
 
 - (ChessPieceLayer *)playerLayerAtTouchPoint:(CGPoint)touchPoint {
     for (SquareLayer *squareLayer in squares) {
         ChessPieceLayer *candidate = squareLayer.pieceLayer;
-        if ((candidate != selectedPlayer) && [candidate hitTest:touchPoint]) {
+        if ((candidate != selectedPiece) && [candidate hitTest:touchPoint]) {
             return candidate;
         }
     }
@@ -601,6 +615,51 @@ static NSString *imageNames[12] = {
 
 -(UIColor *)kingCheckColor {
     return [UIColor colorWithRed:0.6 green:0.2 blue:0.2 alpha:1.0];
+}
+
+- (CALayer *)createCaptureIndicationLayer:(CGFloat)width color:(UIColor *)color {
+    // Create the content layer
+    CALayer *contentLayer = [CALayer layer];
+    contentLayer.frame = CGRectMake(0, 0, width, width);
+    contentLayer.backgroundColor = color.CGColor;
+    
+    // Create the inverse mask
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(width, width), NO, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Fill entire context with black (opaque)
+    CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
+    CGContextFillRect(context, CGRectMake(0, 0, width, width));
+    
+    // Clear the rounded rectangle area (make it transparent)
+    CGContextSetBlendMode(context, kCGBlendModeClear);
+    CGContextSetFillColorWithColor(context, [UIColor clearColor].CGColor);
+    
+    UIBezierPath *roundedPath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, width, width)
+                                                           cornerRadius:width/4.0];
+    CGContextAddPath(context, roundedPath.CGPath);
+    CGContextFillPath(context);
+    
+    UIImage *maskImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    // Create and apply the mask layer
+    CALayer *maskLayer = [CALayer layer];
+    maskLayer.frame = contentLayer.bounds;
+    maskLayer.contents = (__bridge id)maskImage.CGImage;
+    
+    contentLayer.mask = maskLayer;
+    
+    return contentLayer;
+}
+
+-(void)addMoveCaptureIndicationLayerTo:(CALayer *)square {
+    CGFloat width = square.bounds.size.width;
+    CALayer *spot = [self createCaptureIndicationLayer:width color:[self highlightColor]];
+    spot.name = @"spot";
+    
+    [spot setPosition:(CGPointMake(square.bounds.size.width / 2, square.bounds.size.height / 2))];
+    [square addSublayer:spot];
 }
 
 -(void)addMoveStartIndicationLayerTo:(CALayer *)square {
@@ -687,6 +746,7 @@ static NSString *imageNames[12] = {
     [self removeMoveIndicationLayers];
 
     NSArray *list = [board.activePlayer findValidMovesAt:square];
+    NSArray *captureSquares = [self captureSquares];
     
     if (0 == [list count])
         return;
@@ -696,7 +756,12 @@ static NSString *imageNames[12] = {
 
     for (ChessMove *move in list) {
         SquareLayer *destLayer = [squares objectAtIndex:move.destinationSquare];
-        [self addMoveIndicationLayerTo:destLayer];
+        if ([captureSquares containsObject:@(move.destinationSquare)]) {
+            [self addMoveCaptureIndicationLayerTo:destLayer];
+        }
+        else {
+            [self addMoveIndicationLayerTo:destLayer];
+        }
     }
 }
 
@@ -704,15 +769,8 @@ static NSString *imageNames[12] = {
     [self showMovesAt:squareLayer.squarePosition];
 }
 
--(void)enteredSquare:(SquareLayer *)squareLayer {
-    // TODO: wantsDroppedMorph
-}
-
 #pragma mark UITouch events
 
-//
-// only support single touch for now
-//
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (![board.searchAgent isReady])
         return;
@@ -723,25 +781,35 @@ static NSString *imageNames[12] = {
 
     CGPoint touchPoint = [theTouch locationInView:theTouch.view];
     touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
-    int startIndex = [self squareIndexForLayerLocation:touchPoint];
+    int selectionIndex = [self squareIndexForLayerLocation:touchPoint];
     
     // touch down outside of board
-    if (startIndex < 0)
+    if (selectionIndex < 0)
         return;
-    
-    selectionIndex = startIndex;
     
     // clear previous move indicators
     for (int i=0; i<64; i++) {
         SquareLayer *squareLayer = [squares objectAtIndex:i];
         [self removeMoveIndicationLayerFrom:squareLayer];
     }
-    
-    [self selectPlayer:nil];
-    
+
     SquareLayer *squareLayer = [squares objectAtIndex:selectionIndex];
     ChessPieceLayer *candidate = squareLayer.pieceLayer;
-    [self selectPlayer:candidate];
+
+    // support two tap placement of pieces instead of forcing drag and drop
+    if (selectedPiece && (selectedPiece != candidate)) {
+        [self dropPieceAt:selectionIndex];
+        return;
+    }
+
+    // second tap on a piece should clear selection
+    if (selectedPiece == candidate) {
+        [self selectPiece:nil];
+        [self removeMoveIndicationLayers];
+        return;
+    }
+
+    [self selectPiece:candidate];
     
     // need to be able to return piece to original position for invalid moves
     candidate.sourceSquare = squareLayer.squarePosition;
@@ -755,14 +823,14 @@ static NSString *imageNames[12] = {
     if (nil == theTouch)
         return;
     
-    if (selectedPlayer) {
+    if (selectedPiece) {
         CGPoint touchPoint = [theTouch locationInView:theTouch.view];
         touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
         
         // disable animations for tracking the movement of pieces
         [CATransaction begin];
         [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-        selectedPlayer.position = touchPoint;
+        selectedPiece.position = touchPoint;
         [CATransaction commit];
         
         int squareIndex = [self squareIndexForLayerLocation:touchPoint];
@@ -770,57 +838,64 @@ static NSString *imageNames[12] = {
         // stop tracking outside of board
         if (squareIndex < 0)
             return;
-        
-        SquareLayer *squareBelow = [squares objectAtIndex:squareIndex];
-        
-        [self enteredSquare:squareBelow];
     }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    
     UITouch *theTouch = [touches anyObject];
     if (nil == theTouch)
         return;
     
-    if (selectedPlayer) {
-        CGPoint touchPoint = [theTouch locationInView:theTouch.view];
-        touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
-        
-        int destIndex = [self squareIndexForLayerLocation:touchPoint];
-        
-        BOOL moveIsValid = NO;
-        SquareLayer *destinationCell = nil;
-        
-        if (destIndex >= 0) {
-            destinationCell = [squares objectAtIndex:destIndex];
-            moveIsValid = (([board.activePlayer isWhitePlayer] && boardDirection > 0) ||
-                           (![board.activePlayer isWhitePlayer] && boardDirection < 0));
-            moveIsValid = (moveIsValid && [board.activePlayer isValidMoveFrom:selectedPlayer.sourceSquare
-                                                                           to:destinationCell.squarePosition]);
-        }        
-        
-        // if the move is not valid, animate the piece back to its original position
-        if ((destIndex < 0) || (!moveIsValid))
-        {
-            destIndex = selectionIndex;
-            destinationCell = [squares objectAtIndex:destIndex];
-            // animate the player to the center point of the destination cell
-            selectedPlayer.position = destinationCell.position;
-        }
-        else {
-            [self movePieceFrom:selectionIndex to:destIndex];
-        }
-        
-        // clear move indicators
-        for (int i=0; i<64; i++) {
-            SquareLayer *squareLayer = [squares objectAtIndex:i];
-            [self removeMoveIndicationLayerFrom:squareLayer];
-        }
-        
-        // clear the selection
-        [self selectPlayer:nil];
+    if (!selectedPiece) {
+        return;
     }
+    CGPoint touchPoint = [theTouch locationInView:theTouch.view];
+    touchPoint = [boardLayer convertPoint:touchPoint fromLayer:theTouch.view.layer];
+    
+    int destIndex = [self squareIndexForLayerLocation:touchPoint];
+
+    if (destIndex != selectedPiece.sourceSquare) {
+        [self dropPieceAt:destIndex];
+    }
+    else {
+        // animate the piece to its original position
+        SquareLayer *originLayer = squares[selectedPiece.sourceSquare];
+        selectedPiece.position = originLayer.position;
+    }
+}
+
+- (void)dropPieceAt:(int)destIndex {
+    BOOL moveIsValid = NO;
+    SquareLayer *destinationCell = nil;
+    
+    if (destIndex >= 0) {
+        destinationCell = [squares objectAtIndex:destIndex];
+        moveIsValid = (([board.activePlayer isWhitePlayer] && boardDirection > 0) ||
+                       (![board.activePlayer isWhitePlayer] && boardDirection < 0));
+        moveIsValid = (moveIsValid && [board.activePlayer isValidMoveFrom:selectedPiece.sourceSquare
+                                                                       to:destinationCell.squarePosition]);
+    }
+    
+    // if the move is not valid, animate the piece back to its original position
+    if ((destIndex < 0) || (!moveIsValid))
+    {
+        destIndex = selectedPiece.sourceSquare;
+        destinationCell = [squares objectAtIndex:destIndex];
+        // animate the piece to the center point of the destination cell
+        selectedPiece.position = destinationCell.position;
+    }
+    else if (moveIsValid) {
+        [self movePieceFrom:selectedPiece.sourceSquare to:destIndex];
+    }
+    
+    // clear move indicators
+    for (int i=0; i<64; i++) {
+        SquareLayer *squareLayer = [squares objectAtIndex:i];
+        [self removeMoveIndicationLayerFrom:squareLayer];
+    }
+    
+    // clear the selection
+    [self selectPiece:nil];
 }
 
 // reposition the board in the center of the screen
@@ -983,16 +1058,19 @@ static NSString *imageNames[12] = {
 // Callback for display link to show search agent progress and to progress autoPlay mode
 //
 -(void)updateStatus:(CADisplayLink *)sender {
-  self.engineInfoLabel.text = [board.searchAgent statusString];
-  NSTimeInterval duration = sender.targetTimestamp - sender.timestamp;
-  if (board.whitePlayer == board.activePlayer) {
-    elapsedTimeWhite += duration;
-    self.whiteGameClock.text = [@"White " stringByAppendingString:[self formatDuration:elapsedTimeWhite]];
-  }
-  else {
-    elapsedTimeBlack += duration;
-    self.blackGameClock.text = [@"Black " stringByAppendingString:[self formatDuration:elapsedTimeBlack]];
-  }
+    self.engineInfoLabel.text = [board.searchAgent statusString];
+    NSTimeInterval duration = sender.targetTimestamp - sender.timestamp;
+
+    if (isClockTicking) {
+        if ((board.whitePlayer == board.activePlayer)) {
+            elapsedTimeWhite += duration;
+            self.whiteGameClock.text = [@"White " stringByAppendingString:[self formatDuration:elapsedTimeWhite]];
+        }
+        else {
+            elapsedTimeBlack += duration;
+            self.blackGameClock.text = [@"Black " stringByAppendingString:[self formatDuration:elapsedTimeBlack]];
+        }
+    }
 }
 
 #pragma mark view loading

@@ -2,7 +2,7 @@
 //  ViewController.h
 //  
 //
-//  Created by Steve Wart on 10-08-15.
+//  Created by Steve Wart on 2010-08-15.
 //  Copyright Steven Wart 2010. All rights reserved.
 //
 
@@ -14,7 +14,6 @@
 @class SquareLayer;
 @class ChessMove;
 @class ViewController;
-@class WaitingAlertView;
 
 enum {
 	kVoicePacketType = 0,
@@ -73,29 +72,12 @@ enum {
     kGameStateUndoRequested     // waiting for confirmation to undo a move
 };
 
-typedef struct {
-    uint8_t eventType;
-    uint32_t encodedMove;
-} GameEvent;
-
-typedef struct {
-	uint16_t length;
-	uint8_t type;
-} VoiceMessageHeader;
-
-typedef struct {
-    VoiceMessageHeader header;
-    GameEvent move;
-} GameMessage;
-
-
 @interface ViewController : UIViewController <UIActionSheetDelegate, UIPopoverControllerDelegate>
 {
     CALayer *boardLayer;
     NSMutableArray *squares;
     NSMutableArray *labels;
-    ChessPieceLayer *selectedPlayer;
-    int selectionIndex;
+    ChessPieceLayer *selectedPiece;
     
     ChessBoard *board;
     NSMutableArray *history;
@@ -106,9 +88,10 @@ typedef struct {
 
     NSTimeInterval elapsedTimeWhite;
     NSTimeInterval elapsedTimeBlack;
+    BOOL isClockTicking;
     
     CATransform3D boardTransform;   // for scaling to display/hide labels and flipping board to switch sides
-    CATransform3D playerTransform;  // for flipping pieces to compensate for flipping board
+    CATransform3D piecesTransform;  // for flipping pieces to compensate for flipping board
     CGFloat boardDirection;         // white is at the top of the screen if this is 1
     CGFloat gameScale;              // game is scaled down for landscape display
     CGFloat boardScale;             // board is scaled down to display labels
@@ -121,6 +104,7 @@ typedef struct {
 @property(nonatomic, retain) ChessBoard *board;
 @property(nonatomic, assign) BOOL usePopoverController;
 @property(nonatomic, retain) NSString *remoteInstanceName;
+
 @property(nonatomic, retain) IBOutlet UILabel *gameStatusLabel;
 @property(nonatomic, retain) IBOutlet UILabel *whiteGameClock;
 @property(nonatomic, retain) IBOutlet UILabel *blackGameClock;
