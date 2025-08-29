@@ -84,7 +84,6 @@ enum {
     NSMutableArray *redoList;
     BOOL animateMove;
     BOOL autoPlay;
-    BOOL moveExpected;  // YES if the AI should execute the move, otherwise just display a hint
 
     NSTimeInterval elapsedTimeWhite;
     NSTimeInterval elapsedTimeBlack;

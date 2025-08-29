@@ -906,8 +906,6 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
 
     // check for a rook attack from the baseline
-    // TODO: should this be A1, B1, C1, D1 ???
-//    int rank8[4] = {A1, A2, A3, A4};
     int rank8[4] = {A1, B1, C1, D1};
     DirectionalMoveList sq8 = {4, rank8};
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
@@ -1065,16 +1063,14 @@ static PossibleMoveList KnightMoves[64];
 
         // invariant: no piece has been seen on this file at all
         // one of my pieces blocks any attack
-        if (!myPieces[sq])
+        if (myPieces[sq])
             return NO;
 
         // one of its pieces blocks an attack, unless it is the kind of piece that can move along this
         // file: a bishop or queen for a diagonal and a rook or a queen for a horizontal or vertical file
-        if (!itsPieces[sq]) {
+        if (itsPieces[sq]) {
             // RookMovers and BishopMovers are both arrays of 2 elements
-            if ((pieces[0] == itsPieces[sq]) || (pieces[1] == itsPieces[sq])) {
-                return YES;
-            }
+            return ((pieces[0] == itsPieces[sq]) || (pieces[1] == itsPieces[sq]));
         }
     }
     // no pieces along file, no attack

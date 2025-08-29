@@ -112,17 +112,17 @@ extension ChessBoard {
             self.blackPlayer.setCastlingFlags(kCastlingDisableKingSide)
         }
         else {
-            if (castling.contains("q")) {
-                self.blackPlayer.clearCastlingFlags(kCastlingDone | kCastlingDisableQueenSide)
+            if (!castling.contains("q")) {
+                self.blackPlayer.setCastlingFlags(kCastlingDisableQueenSide)
             }
-            if (castling.contains("Q")) {
-                self.whitePlayer.clearCastlingFlags(kCastlingDone | kCastlingDisableQueenSide)
+            if (!castling.contains("Q")) {
+                self.whitePlayer.setCastlingFlags(kCastlingDisableQueenSide)
             }
-            if (castling.contains("k")) {
-                self.blackPlayer.clearCastlingFlags(kCastlingDone | kCastlingDisableKingSide)
+            if (!castling.contains("k")) {
+                self.blackPlayer.setCastlingFlags(kCastlingDisableKingSide)
             }
-            if (castling.contains("K")) {
-                self.whitePlayer.clearCastlingFlags(kCastlingDone | kCastlingDisableKingSide)
+            if (!castling.contains("K")) {
+                self.whitePlayer.setCastlingFlags(kCastlingDisableKingSide)
             }
         }
     }

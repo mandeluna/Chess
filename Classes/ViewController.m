@@ -73,28 +73,26 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
     NSString *statusMessage;
   
-    if ((blackMoves == nil) || (whiteMoves == nil)) {
+    // no moves for the active player (findValidMoves returns an empty array, but findPossibleMoves returns nil)
+    if ([moves count] == 0) {
         statusMessage = @"Checkmate";
         autoPlay = NO;
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
         [self.playButton setEnabled:NO];
     }
-	else if ([moves count] == 0) {
-		statusMessage = @"Draw";
+	else if (board.halfmoveClock >= 100) {
+		statusMessage = @"Draw (50 move rule)";
         autoPlay = NO;
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
         [self.playButton setEnabled:NO];
 	}
     else {
-        statusMessage = white ? @"White to move" : @"Black to move";
+        statusMessage = white ? @"White‘s move" : @"Black‘s move";
     }
 
-    statusMessage = [statusMessage stringByAppendingFormat:@"\n(Move %d, ½ move [%d/100])",
-                     board.fullmoveNumber, board.halfmoveClock];
-
-    self.gameStatusLabel.text = statusMessage;
+    self.gameStatusLabel.text = [NSString stringWithFormat:@"%@", statusMessage];
     self.moveListLabel.text = [self formatMoveHistory];
 }
 
@@ -303,15 +301,7 @@ static NSString *imageNames[12] = {
     return result;
 }
 
--(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
-    if (board == nil) {
-        return;
-    }
-    
-    [history addObject:move];
-    [self.undoButton setEnabled:YES];
-    [self updateBoardLabels:aBool];
-    
+-(void)updateKingAttackIndicator {
     ChessMove *attack = [self kingAttack];
     
     if (attack != nil) {
@@ -320,6 +310,17 @@ static NSString *imageNames[12] = {
     else {
         [self removeAttackIndicationLayers];
     }
+}
+
+-(void)completedMove:(ChessMove *)move white:(BOOL)aBool {
+    if (board == nil) {
+        return;
+    }
+    
+    [history addObject:move];
+    [self.undoButton setEnabled:YES];
+    [self updateBoardLabels:aBool];
+    [self updateKingAttackIndicator];
 }
 
 -(void)movedPiece:(NSNotification *)notification {
@@ -416,7 +417,6 @@ static NSString *imageNames[12] = {
     if (![board.searchAgent isReady])
         return;
     
-    moveExpected = NO;
     [board.searchAgent startSearchThread];
 }
 
@@ -440,7 +440,9 @@ static NSString *imageNames[12] = {
         [board initializeSearch];
         [board initializeNewBoard];
         [board initializeFromFEN: enteredText];
+        [self updateBoardLabels:board.activePlayer == board.whitePlayer];
         [self applyStartNewGame];
+        [self updateKingAttackIndicator];
     }];
     
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
@@ -487,7 +489,7 @@ static NSString *imageNames[12] = {
   [alert addAction:[UIAlertAction actionWithTitle:@"Switch Sides" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     [self switchSides];
   }]];
-  NSString *autoPlayLabel = autoPlay ? @"Human Plays" : @"Computer Plays";
+  NSString *autoPlayLabel = autoPlay ? @"Manual play" : @"Autoplay";
   [alert addAction:[UIAlertAction actionWithTitle:autoPlayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     [self autoPlay];
   }]];
@@ -512,12 +514,10 @@ static NSString *imageNames[12] = {
   
   [board movePieceFrom:sourceSquare to:destSquare];
     
-  moveExpected = YES;
   [board.searchAgent startSearchThread];
 }
 
 -(IBAction)play {
-    moveExpected = YES;
     [self selectPiece:nil];
     [self removeMoveIndicationLayers];
     [board.searchAgent startSearchThread];
@@ -533,6 +533,7 @@ static NSString *imageNames[12] = {
     [self selectPiece:nil];
     [self removeMoveIndicationLayers];
     [self applyUndoMove];
+    [self updateKingAttackIndicator];
 }
 
 -(void)applyUndoMove {
@@ -545,15 +546,6 @@ static NSString *imageNames[12] = {
     }
     
     [board undoMove:move];
-
-    ChessMove *attack = [self kingAttack];
-    
-    if (attack != nil) {
-        [self addKingAttackIndicatorTo:attack.destinationSquare];
-    }
-    else {
-        [self removeAttackIndicationLayers];
-    }
 
     [move release];
 }
@@ -1015,39 +1007,24 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)stoppedThinking: (NSNotification *)notification {
-    
-  [self.hintButton setEnabled:YES];
-  [self.playButton setEnabled:YES];
-  
-  NSDictionary *info = notification.object;
-  if (info[@"bestmove"] == nil) {
-    self.gameStatusLabel = info[@"reason"];
-    [board.searchAgent cancelSearch];
-    autoPlay = NO;
-  }
-  int encodedMode = [info[@"bestmove"] intValue];
-  ChessMove *move = [ChessMove decodeFrom:encodedMode];
-  
-  if (!moveExpected) {
-    moveHint = [move retain];
-    
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Suggested move" message:[move description] preferredStyle:UIAlertControllerStyleActionSheet];
-    [alert addAction:[UIAlertAction actionWithTitle:@"No thanks" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action){
-      // cancel action
-    }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Accept" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-      // accept action
-    }]];
+    [self.hintButton setEnabled:YES];
+    [self.playButton setEnabled:YES];
 
-    moveExpected = YES;
-  }
-  else {
+    NSDictionary *info = notification.object;
+    if (info[@"bestmove"] == nil) {
+        self.gameStatusLabel = info[@"reason"];
+        [board.searchAgent cancelSearch];
+        autoPlay = NO;
+    }
+    int encodedMode = [info[@"bestmove"] intValue];
+    ChessMove *move = [ChessMove decodeFrom:encodedMode];
+
     [board movePieceFrom:move.sourceSquare to:move.destinationSquare];
-  }
 
-  if (autoPlay) {
-    [board.searchAgent startSearchThread];
-  }
+    if (autoPlay) {
+        // wait before starting another search so things don't get too crazy
+        [board.searchAgent performSelector:@selector(startSearchThread) withObject:nil afterDelay:0.5];
+    }
 }
 
 -(NSString *)formatDuration:(NSTimeInterval)duration {
@@ -1087,44 +1064,43 @@ static NSString *imageNames[12] = {
     [super viewDidLoad];
     
 #if __has_feature(objc_arc)
-  NSLog(@"ARC is enabled");
+    NSLog(@"ARC is enabled");
 #else
-  NSLog(@"ARC is not enabled");
+    NSLog(@"ARC is not enabled");
 #endif
 
-  CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
-  [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateStatus:)];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
-  NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  
-  [notificationCenter addObserver:self selector:@selector(startedThinking) name:@"StartedThinking" object:nil];
-  [notificationCenter addObserver:self selector:@selector(stoppedThinking:) name:@"StoppedThinking" object:nil];
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
-  [notificationCenter addObserver:self selector:@selector(gameReset) name:@"GameReset" object:nil];
-  [notificationCenter addObserver:self selector:@selector(addedPiece:) name:@"AddedPiece" object:nil];
-  [notificationCenter addObserver:self selector:@selector(completedMove:) name:@"CompletedMove" object:nil];
-  [notificationCenter addObserver:self selector:@selector(movedPiece:) name:@"MovedPiece" object:nil];
-  [notificationCenter addObserver:self selector:@selector(removedPiece:) name:@"RemovedPiece" object:nil];
-  [notificationCenter addObserver:self selector:@selector(replacedPiece:) name:@"ReplacedPiece" object:nil];
-  [notificationCenter addObserver:self selector:@selector(finishedGame:) name:@"FinishedGame" object:nil];
-  [notificationCenter addObserver:self selector:@selector(undoMove:) name:@"UndoMove" object:nil];
-  [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
-  
-  boardDirection = 1.0;
-  gameScale = 1.0;
-  boardScale = 0.925;
-  
-  [self addBoardLayer];
-  [self addSquares];
-  [self addLabels];
+    [notificationCenter addObserver:self selector:@selector(startedThinking) name:@"StartedThinking" object:nil];
+    [notificationCenter addObserver:self selector:@selector(stoppedThinking:) name:@"StoppedThinking" object:nil];
 
-  [self updateBoardTransforms];
-  [self startNewGame];
+    [notificationCenter addObserver:self selector:@selector(gameReset) name:@"GameReset" object:nil];
+    [notificationCenter addObserver:self selector:@selector(addedPiece:) name:@"AddedPiece" object:nil];
+    [notificationCenter addObserver:self selector:@selector(completedMove:) name:@"CompletedMove" object:nil];
+    [notificationCenter addObserver:self selector:@selector(movedPiece:) name:@"MovedPiece" object:nil];
+    [notificationCenter addObserver:self selector:@selector(removedPiece:) name:@"RemovedPiece" object:nil];
+    [notificationCenter addObserver:self selector:@selector(replacedPiece:) name:@"ReplacedPiece" object:nil];
+    [notificationCenter addObserver:self selector:@selector(finishedGame:) name:@"FinishedGame" object:nil];
+    [notificationCenter addObserver:self selector:@selector(undoMove:) name:@"UndoMove" object:nil];
+    [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
+
+    boardDirection = 1.0;
+    gameScale = 1.0;
+    boardScale = 0.925;
+
+    [self addBoardLayer];
+    [self addSquares];
+    [self addLabels];
+
+    [self updateBoardTransforms];
+    [self startNewGame];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
 }
 
 // Override to allow orientations other than the default portrait orientation.

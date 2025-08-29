@@ -20,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XX1-uP-VoZ">
-                                <rect key="frame" x="0.0" y="1130" width="820" height="44"/>
+                                <rect key="frame" x="0.0" y="1136" width="820" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
                                     <barButtonItem tag="1" style="plain" systemItem="add" id="eQt-yb-Epo">
@@ -61,22 +61,15 @@
                                 <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Vo-Vm-bXK" userLabel="Move List">
-                                <rect key="frame" x="20" y="1027" width="780" height="103"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="info string" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P5f-Xz-tGD" userLabel="Info Label">
-                                <rect key="frame" x="155" y="93" width="510" height="25"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oDf-bR-UDy" userLabel="Move List Label">
+                                <rect key="frame" x="20" y="46" width="780" height="147"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJQ-hM-avp">
-                                <rect key="frame" x="155" y="17" width="510" height="68"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="White to move" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eJQ-hM-avp">
+                                <rect key="frame" x="155" y="17" width="510" height="21"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" systemColor="darkTextColor"/>
@@ -87,10 +80,9 @@
                     </view>
                     <connections>
                         <outlet property="blackGameClock" destination="VRe-XW-IwQ" id="0pi-Vo-jUh"/>
-                        <outlet property="engineInfoLabel" destination="P5f-Xz-tGD" id="CxY-2E-KgZ"/>
                         <outlet property="gameStatusLabel" destination="eJQ-hM-avp" id="RXy-oy-yTC"/>
                         <outlet property="hintButton" destination="dRl-qK-mir" id="r13-Ig-z7f"/>
-                        <outlet property="moveListLabel" destination="0Vo-Vm-bXK" id="S8O-7y-kSU"/>
+                        <outlet property="moveListLabel" destination="oDf-bR-UDy" id="hCU-EQ-TMI"/>
                         <outlet property="playButton" destination="Q57-iH-5s4" id="ESn-qO-ayJ"/>
                         <outlet property="startButton" destination="eQt-yb-Epo" id="cj1-7l-RjO"/>
                         <outlet property="undoButton" destination="aoK-hH-or5" id="Nrk-7Q-0Lq"/>

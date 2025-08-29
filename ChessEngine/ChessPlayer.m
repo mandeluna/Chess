@@ -619,11 +619,6 @@ static int PieceCenterScores[7][64] = {
 
     NSMutableArray *moves = [NSMutableArray array];
 
-    // 50 move rule
-    if (board.halfmoveClock >= 100) {
-        return moves;
-    }
-    
     NSArray *contentsCopy = [moveList copyContents];
 
     for (ChessMove *move in contentsCopy) {

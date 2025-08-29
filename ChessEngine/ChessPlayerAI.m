@@ -748,7 +748,6 @@ Logger *logger;
 #pragma mark accessing
 
 -(NSString *)statusString {
-
     NSString *resultString = @"";
     if (myMove && ![myMove isNullMove]) {
         resultString = [resultString stringByAppendingFormat:@"%5.2f ", (myMove.value * 0.01)];
@@ -778,7 +777,11 @@ Logger *logger;
     }
 
     if (nodesVisited > 0) {
-        resultString = [resultString stringByAppendingFormat:@"nodes [%ld]", nodesVisited];
+        resultString = [resultString stringByAppendingFormat:@" [nodes %ld]", nodesVisited];
+    }
+
+    if (board.halfmoveClock > 50) {
+        resultString = [resultString stringByAppendingFormat:@" [halfmoves %d]", board.halfmoveClock];
     }
 
     return resultString;

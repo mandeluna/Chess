@@ -205,9 +205,42 @@ final class ChessEngineFrameworkTests: XCTestCase {
   func testCastleRookUnderThreat() throws {
     let fen = "r2qk2r/ppp2ppp/3p1n2/n1b1p1N1/2B5/1QP1PbP1/PP1P1P1P/RNB1K2R w KQkq - 0 1"
     board.initializeFromFEN(fen)
-    // attempt to castle through check (Bc4 threatens f1)
-    let moves : [ChessMove] = board.whitePlayer.findValidMoves() as! [ChessMove]
-    XCTAssertFalse(moves.contains(where: {ea in ea.uciString().isEqual("e1g1") }))
+    // attempt to castle through check (Bf3 threatens f1)
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+  }
+  
+  func testCastlingUnderThreats() throws {
+    board.initializeFromFEN("4kbnr/8/8/8/7P/8/8/R3K2R w KQk - 0 1")
+    XCTAssertTrue(board.generator.canCastleWhiteKingSide())
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4kbnr/7p/8/8/8/8/8/R3K2R w KQk - 0 1")
+    XCTAssertTrue(board.generator.canCastleWhiteKingSide())
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4kbnr/8/8/8/8/8/6p1/R3K2R w KQk - 0 1")
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4k1n1/8/8/8/8/3b4/8/R3K2R w KQ - 0 1")
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+    XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4k3/8/8/8/8/4n3/8/R3K2R w KQ - 0 1")
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+    XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4k3/8/8/8/4q3/3p4/4P1P1/R3K2R w KQ - 0 1")
+    XCTAssertTrue(board.generator.canCastleWhiteKingSide())
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
+    board.initializeFromFEN("4k3/8/8/8/4q3/8/4P3/R3K2R w KQha - 0 1")
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+    XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
+  }
+  
+  func testCastlingDisabledFEN() throws {
+    // legal dynamic castling situation, but FEN string disables castling for white
+    board.initializeFromFEN("4k3/8/8/8/4q3/3p4/4P1P1/R3K2R w kq - 0 1")
+    XCTAssertFalse(board.whitePlayer.isCastlingEnabledKingSide())
+    XCTAssertFalse(board.whitePlayer.isCastlingEnabledQueenSide())
+    XCTAssertTrue(board.activePlayer == board.whitePlayer)
+    board.initializeFromFEN("4k3/8/8/8/4q3/3p4/4P1P1/R3K2R b kq - 0 1")
+    XCTAssertTrue(board.activePlayer == board.blackPlayer)
   }
   
   func testFindWayToInevitableCheckmate() throws {
