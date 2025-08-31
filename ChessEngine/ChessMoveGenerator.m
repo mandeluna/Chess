@@ -916,7 +916,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
 
     int b2[6] = {F2, E3, D4, C5, B6, A7};
-    DirectionalMoveList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
 
     int b3[5] = {E2, D3, C4, B5, A6};

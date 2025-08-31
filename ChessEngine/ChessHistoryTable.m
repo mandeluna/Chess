@@ -16,11 +16,11 @@
 @implementation ChessHistoryTable
 
 
-// accessing
--(void)addMove:(ChessMove *)move {
+-(void)addMove:(ChessMove *)move ply:(int)ply {
     int index = (move.sourceSquare << 6) + move.destinationSquare;
-    //NSLog(@"adding entry with index %d", index);
-    entries[index] = entries[index+1];
+    if (ply >= 0) {
+        entries[index] = 1 << ply;
+    }
 }
 
 -(NSString *)description {

@@ -52,10 +52,6 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     BOOL shouldCancelSearch;
     ChessSearchStatus status;
 
-    dispatch_queue_t dispatch_queue;
-    UpdateCallback updateCallback;
-    CompletionCallback completionCallback;
-    
     // UCI options
     NSDictionary *uciOptions;
     int depth_limit;                 // maximum number of plies to recurse
@@ -74,9 +70,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 @property(atomic, copy) ChessMove *myMove;
 
 @property(nonatomic, retain) NSDictionary *uciOptions;
-@property(nonatomic, retain) NSMutableDictionary *reportInfo;
 
-@property(nonatomic, retain) dispatch_queue_t dispatch_queue;
 @property(nonatomic, copy) UpdateCallback updateCallback;
 @property(nonatomic, copy) CompletionCallback completionCallback;
 
@@ -93,8 +87,8 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 // searching
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
-                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateCallback
-                   completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock;
+                    updateCallback:(UpdateCallback) updateCallback
+                completionCallback:(CompletionCallback)completionBlock;
 -(void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams;
 -(void)copyVariation:(ChessMove *)move;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta;
@@ -112,7 +106,6 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 
 -(NSString *)statusString;
 -(void)printUCIInfo:(NSDictionary *)info;
--(void)invokeUpdateCallback;
 -(void)printCompletionInfo:(NSDictionary *)info;
 -(void)initializeTranspositionTable;
 -(void)initializeBestVariation;

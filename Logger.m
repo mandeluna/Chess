@@ -13,6 +13,10 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include <signal.h>
+void (*signal(int signum, void (*sighandler)(int)))(int);
+void initializeSignalHandlers(void);
+
 // NSDate only offers millisecond precision
 void get_microsecond_timestamp(char *buffer, size_t buffer_size) {
     struct timeval tv;
@@ -37,16 +41,30 @@ void get_microsecond_timestamp(char *buffer, size_t buffer_size) {
              microsec_part);
 }
 
-NSString *debug_path = @"/tmp/engine_debug.log";
-id lock = @[];
+void
+clean_exit_on_sig(int sig_num)
+{
+    NSArray *callStack = [NSThread callStackSymbols];
+    [[Logger defaultLogger] logError:@"Signal %d received: %@", sig_num, callStack];
+    NSLog(@"Signal %d received: %@", sig_num, callStack);
+    exit(sig_num);
+}
 
+void initializeSignalHandlers(void) {
+    signal(SIGABRT , clean_exit_on_sig);
+    signal(SIGILL , clean_exit_on_sig);
+    signal(SIGFPE , clean_exit_on_sig);
+    signal(SIGSEGV, clean_exit_on_sig);
+}
+
+id lock = @[];
 
 @implementation Logger {
     NSDateFormatter *formatter;
     struct timeval time;
 }
 
-@synthesize level;
+@synthesize level, sessionId;
 
 + (instancetype)defaultLogger {
     static Logger *sharedInstance = nil;
@@ -66,11 +84,30 @@ id lock = @[];
     if (self = [super init]) {
         formatter = [[NSDateFormatter alloc] init];
         [formatter setDateFormat:@"dd:MM:yy HH:mm:ss"];
+        sessionId = [self initializeSessionId];
+        initializeSignalHandlers();
     }
     return self;
 }
 
-- (NSString *) timestamp {
+- (NSString *)base64randomString {
+    unsigned long long session;
+    arc4random_buf(&session, sizeof(session));
+    NSData *data = [NSData dataWithBytes:&session length:sizeof(session)];
+    return [data base64EncodedStringWithOptions:0];
+}
+
+- (NSString *)initializeSessionId {
+    NSCharacterSet *filter = [NSCharacterSet characterSetWithCharactersInString:@"=<>:\"/\\|?*"];
+    NSString *base64 = [self base64randomString];
+    return [[base64 componentsSeparatedByCharactersInSet:filter] componentsJoinedByString:@""];
+}
+
+- (NSString *)debug_path {
+    return [NSString stringWithFormat:@"/tmp/engine_debug_%@.log", sessionId];
+}
+
+- (NSString *)timestamp {
     char timestamp[32];
     get_microsecond_timestamp(timestamp, sizeof(timestamp));
     return [NSString stringWithFormat:@"%s", timestamp];
@@ -78,6 +115,7 @@ id lock = @[];
 
 - (void) logMessage:(NSString *)message {
     char timestamp[32];
+    NSString *debug_path = [self debug_path];
 
     // log level Info or greater
     if (level == None) {
@@ -105,7 +143,7 @@ id lock = @[];
             if (error) {
                 NSLog(@"Sync failed: %@", error.localizedDescription);
             } else {
-                NSLog(@"Sync failed with unknown error");
+                NSLog(@"Sync failed with unknown error initializing log file: %@", debug_path);
             }
             return;
         }
@@ -173,13 +211,16 @@ id lock = @[];
     [self logMessage:formattedString];
 }
 
-- (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason {
+- (void) logException: (NSException *)exception {
     NSArray *callStack = [NSThread callStackSymbols];
-    [self logError:@"%@: %@", name, callStack];
-    NSLog(@"%@: %@", name, callStack);
+    [self logError:@"%@: %@", exception.name, callStack];
+    NSLog(@"%@: %@", exception.name, callStack);
+}
 
+- (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason {
     NSException *exception = [NSException exceptionWithName:name
                                                      reason:reason userInfo:nil];
+    [self logException:exception];
     [exception raise];
 }
 

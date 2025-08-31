@@ -18,7 +18,7 @@
 }
 
 // accessing
--(void)addMove:(ChessMove *)move;
+-(void)addMove:(ChessMove *)move ply:(int)ply;
 
 // initialize
 -(void)atAllPut:(int)wordValue;

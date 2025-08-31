@@ -17,9 +17,11 @@ enum LogLevel {
 
 @interface Logger : NSObject {
     enum LogLevel level;
+    NSString *sessionId;
 }
 
 @property (nonatomic, assign) enum LogLevel level;
+@property (nonatomic, readonly) NSString *sessionId;
 
 // The shared instance accessor
 + (instancetype)defaultLogger;
@@ -36,6 +38,7 @@ enum LogLevel {
 - (void) logInfo:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logError:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logVerbose:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logException: (NSException *)exception;
 
 - (void) raiseExceptionName: (NSString *)name reason: (NSString *)reason;
 - (NSString *) timestamp;

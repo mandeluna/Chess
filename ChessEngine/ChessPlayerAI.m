@@ -34,7 +34,7 @@ NSString *CancelExceptionName = @"CancelSearchException";
 
 @implementation ChessPlayerAI
 
-@synthesize player, board, generator, myMove, transTable, historyTable, shouldCancelSearch, status, reportInfo, uciOptions, updateCallback, completionCallback, dispatch_queue;
+@synthesize player, board, generator, myMove, transTable, historyTable, shouldCancelSearch, status, uciOptions;
 
 #pragma mark derived properties
 
@@ -142,9 +142,9 @@ Logger *logger;
 //
 -(void)initializeTranspositionTable {
 
-    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 64k entries (maxes out at depth 7)
+//    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 64k entries (maxes out at depth 7)
 //    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 256k entries (~34Mb, max depth 8)
-//    transTable = [[ChessTranspositionTable alloc] initWithBits:20]; // 1024k entries (~86Mb, max depth 9)
+    transTable = [[ChessTranspositionTable alloc] initWithBits:20]; // 1024k entries (~86Mb, max depth 9)
     // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
     // timing on MacBook Air M1 (2021 model)
 }
@@ -274,7 +274,7 @@ Logger *logger;
                 a = score;
                 if (a >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move];
+                    [historyTable addMove:move ply:ply];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return goodMove;
@@ -372,7 +372,7 @@ Logger *logger;
                 a = score;
                 if (a >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move];
+                    [historyTable addMove:move ply:ply];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return score;
@@ -516,7 +516,7 @@ Logger *logger;
                 alpha = score;
                 if (score >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:0 stamp:stamp];
-                    [historyTable addMove:move];
+                    [historyTable addMove:move ply:ply];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return bestScore;
@@ -537,21 +537,21 @@ Logger *logger;
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams {
     [self performSearchWithUCIParams: uciParams
-                      updateCallback:^(NSDictionary<NSString *,id> *info) {
+                      updateCallback:^(NSDictionary *info) {
         [self printUCIInfo: info];
     }
-                     completionBlock:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+                     completionCallback:^(NSDictionary *finalInfo, ChessSearchStatus status) {
         [self printCompletionInfo: finalInfo];
     }];
 }
 
 - (void)performSearchWithUCIParams:(NSDictionary<NSString *, id> *)uciParams
-                    updateCallback:(void (^)(NSDictionary<NSString *, id> *info))updateBlock
-                   completionBlock:(void (^)(NSDictionary<NSString *, id> *finalInfo, ChessSearchStatus status))completionBlock
+                    updateCallback:(UpdateCallback)updateCallback
+                completionCallback:(CompletionCallback)completionCallback
 {
     if (self.status != ChessSearchStatusCompleted) {
         [logger logError:@"Unable to start search with UCI parameters %@", uciParams];
-        if (completionBlock) completionBlock(nil, ChessSearchStatusInProgress);
+        if (completionCallback) completionCallback(nil, ChessSearchStatusInProgress);
         return;
     }
     [logger logDebug:@"Starting search with UCI parameters %@", uciParams];
@@ -559,9 +559,6 @@ Logger *logger;
     self.status = ChessSearchStatusInProgress;
     self.shouldCancelSearch = NO;
 
-    self.updateCallback = updateBlock;
-    self.completionCallback = completionBlock;
-    
     // Extract common UCI parameters
     int uci_depth = (int)[uciParams[@"depth"] integerValue];
     int uci_nodes = (int)[uciParams[@"nodes"] integerValue];
@@ -591,7 +588,6 @@ Logger *logger;
 
     myMove = [ChessMove nullMove];
 
-    self.reportInfo = [NSMutableDictionary new];
     NSInteger score = [board.activePlayer evaluate];
     int depth = 1;
     ChessMove *bestMove;
@@ -605,7 +601,7 @@ Logger *logger;
     bestVariation[0] = 0;
     activeVariation[0] = 0;
 
-    self.dispatch_queue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0);
+    dispatch_queue_t dispatch_queue = dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0);
 
     if ([board hasUserAgent]) {
         [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StartedThinking" object:nil];
@@ -615,35 +611,44 @@ Logger *logger;
     while (status == ChessSearchStatusInProgress) {
         ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
 
+        NSMutableDictionary *updateInfo = [[self reportInfo] mutableCopy];
+        updateInfo[@"depth"] = @(depth);
+
         if (theMove == nil) {
             self.status = ChessSearchStatusStopped;
-            self.reportInfo[@"stop_reason"] = @"no more moves";
+            updateInfo[@"stop_reason"] = @"no more moves";
         }
         // don't cancel until we have a move
         else if (self.shouldCancelSearch) {
             if (myMove && ![myMove isNullMove]) {
                 self.status = ChessSearchStatusStopped;
-                self.reportInfo[@"stop_reason"] = @"search stopped";
+                updateInfo[@"stop_reason"] = @"search stopped";
             }
         }
         else {
             score = theMove.value;
-            self.reportInfo[@"score"] = @{ @"cp": @(score) }; // centipawns
+            updateInfo[@"score"] = @{ @"cp": @(score) };
             myMove = [theMove copy];
             [self assignBestVariation];
-            [self invokeUpdateCallback];
+            dispatch_async(dispatch_queue, ^{
+                updateCallback([updateInfo copy]);
+            });
             depth++;
         }
     }
 
     [logger logDebug:@"Completed search with UCI parameters %@", uciParams];
 
-    bestMove = myMove ? [myMove copy] : [ChessMove nullMove];
-    self.reportInfo[@"bestmove"] = [bestMove uciString];
+    NSMutableDictionary *completionInfo = [[self reportInfo] mutableCopy];
 
-    if (completionBlock) {
+    bestMove = myMove ? [myMove copy] : [ChessMove nullMove];
+    completionInfo[@"bestmove"] = [bestMove uciString];
+
+    if (completionCallback) {
         dispatch_async(dispatch_queue, ^{
-            completionBlock([self.reportInfo copy], status);
+            // send one final batch of update info
+            if (updateCallback) { updateCallback([completionInfo copy]); }
+            completionCallback([completionInfo copy], status);
         });
     }
 
@@ -652,29 +657,21 @@ Logger *logger;
     self.status = ChessSearchStatusCompleted;
 }
 
--(void)invokeUpdateCallback {
+-(NSDictionary *)reportInfo {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval time_spent = now - startTime;
 
     long currentNPS = (double)nodesVisited / time_spent;
     NSArray *pvMoves = [self pvMoves];
     
-    // Prepare UCI self.reportInfo
-    self.reportInfo[@"depth"] = @(ply);
-    self.reportInfo[@"nodes"] = @(nodesVisited);
-    self.reportInfo[@"time"] = @((int)(time_spent * MSEC_PER_SEC));   // convert seconds to ms
-    self.reportInfo[@"nps"] = @(currentNPS);
-    self.reportInfo[@"pv"] = pvMoves;
-    self.reportInfo[@"hashfull"] = [transTable hashfull];
-    self.reportInfo[@"lastReport"] = @(now);
-    
-    // Send periodic update
-    if (updateCallback) {
-        NSDictionary *info = [self.reportInfo copy];
-        dispatch_async(dispatch_queue, ^{
-            updateCallback(info);
-        });
-    }
+    return @{
+        @"nodes" : @(nodesVisited),
+        @"time" : @((int)(time_spent * MSEC_PER_SEC)),
+        @"nps" : @(currentNPS),
+        @"pv" : pvMoves,
+        @"hashfull" : [transTable hashfull],
+        @"lastReport" : @(now)
+    };
 }
 
 -(void)checkForCancellation {
@@ -717,7 +714,7 @@ Logger *logger;
                       updateCallback:^(NSDictionary *info) {
         [self printUCIInfo: info];
     }
-                     completionBlock:^(NSDictionary *info, ChessSearchStatus status) {
+                  completionCallback:^(NSDictionary *info, ChessSearchStatus status) {
         completion(info[@"bestmove"]);
     }];
 }
@@ -737,7 +734,7 @@ Logger *logger;
 
     [self performSearchWithUCIParams: searchParameters
                       updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
-                     completionBlock:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+                  completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
         
         NSMutableDictionary *info = [finalInfo mutableCopy];
         info[@"bestmove"] = @([myMove encodedMove]);

@@ -147,6 +147,7 @@ class ChessEngineController {
             }
             respond("id name \(displayName) \(version)")
             respond("id author \(author)")
+            respond("info string session id \(logger.sessionId!)")
         }
     }
     

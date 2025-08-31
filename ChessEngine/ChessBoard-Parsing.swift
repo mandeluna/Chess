@@ -67,12 +67,13 @@ extension ChessBoard {
     @objc
     func initializeFromFEN(_ fen: String) {
         let components = fen.split(separator: " ")
+        let len = components.count
         let ranks = String(components[0])
-        let color = String(components[1])
-        let castling = String(components[2])
-        let enpassant = String(components[3])
-        let halfmoves: Int32? = Int32(String(components[4]))
-        let fullmoves: Int32? = Int32(String(components[5]))
+        let color = len > 1 ? String(components[1]) : nil
+        let castling = len > 2 ? String(components[2]) : nil
+        let enpassant = len > 3 ? String(components[3]) : nil
+        let halfmoves: Int32? = len > 4 ? Int32(String(components[4])) : nil
+        let fullmoves: Int32? = len > 5 ? Int32(String(components[5])) : nil
         
         self.initializeFromFEN(
             ranks: ranks,
