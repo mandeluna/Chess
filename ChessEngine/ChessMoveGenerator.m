@@ -719,19 +719,19 @@ static PossibleMoveList KnightMoves[64];
 
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
-    int hRank[7] = {H7,H6,H5,H4,H3,H2,H1};
+    int hRank[7] = {H7, H6, H5, H4, H3, H2, H1};
     DirectionalMoveList sqH = {7, hRank};
     if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
 
-    int gRank[7] = {G7,G6,G5,G4,G3,G2,G1};
+    int gRank[7] = {G7, G6, G5, G4, G3, G2, G1};
     DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
 
-    int fRank[7] = {F7,F6,F5,F4,F3,F2,F1};
+    int fRank[7] = {F7, F6, F5, F4, F3, F2, F1};
     DirectionalMoveList sqF = {7, fRank};
     if ([self checkAttack:&sqF fromPieces:RookMovers]) return NO;
 
-    int eRank[7] = {E7,E6,E5,E4,E3,E2,E1};
+    int eRank[7] = {E7, E6, E5, E4, E3, E2, E1};
     DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
 
@@ -746,7 +746,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
 
     int b2[6] = {F7, E6, D5, C4, B3, A2};
-    DirectionalMoveList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
 
     int b3[5] = {E7, D6, C5, B4, A3};
@@ -798,23 +798,23 @@ static PossibleMoveList KnightMoves[64];
 
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
-    int aRank[7] = {A7,A6,A5,A4,A3,A2,A1};
+    int aRank[7] = {A7, A6, A5, A4, A3, A2, A1};
     DirectionalMoveList sqA = {7, aRank};
     if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
 
-    int bRank[7] = {B7,B6,B5,B4,B3,B2,B1};
+    int bRank[7] = {B7, B6, B5, B4, B3, B2, B1};
     DirectionalMoveList sqB = {7, bRank};
     if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
 
-    int cRank[7] = {C7,C6,C5,C4,C3,C2,C1};
+    int cRank[7] = {C7, C6, C5, C4, C3, C2, C1};
     DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
 
-    int dRank[7] = {D7,D6,D5,D4,D3,D2,D1};
+    int dRank[7] = {D7, D6, D5, D4, D3, D2, D1};
     DirectionalMoveList sqD = {7, dRank};
     if ([self checkAttack:&sqD fromPieces:RookMovers]) return NO;
 
-    int eRank[7] = {E7,E6,E5,E4,E3,E2,E1};
+    int eRank[7] = {E7, E6, E5, E4, E3, E2, E1};
     DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
 
@@ -829,7 +829,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
 
     int b2[6] = {C7, D6, E5, F4, G3, H2};
-    DirectionalMoveList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
 
     int b3[5] = {D7, E6, F5, G4, H3};
@@ -862,7 +862,7 @@ static PossibleMoveList KnightMoves[64];
 
     // check for a knight attack
     int k1[12] = {A7, B7, C7, D7, E7, F7, G7, A6, B6, D6, E6, F6};
-    DirectionalMoveList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {12, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
@@ -889,19 +889,19 @@ static PossibleMoveList KnightMoves[64];
 
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
-    int hRank[7] = {H2,H3,H4,H5,H6,H7,H8};
+    int hRank[7] = {H2, H3, H4, H5, H6, H7, H8};
     DirectionalMoveList sqH = {7, hRank};
     if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
 
-    int gRank[7] = {G2,G3,G4,G5,G6,G7,G8};
+    int gRank[7] = {G2, G3, G4, G5, G6, G7, G8};
     DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
 
-    int fRank[7] = {F2,F3,F4,F5,F6,F7,F8};
+    int fRank[7] = {F2, F3, F4, F5, F6, F7, F8};
     DirectionalMoveList sqF = {7, fRank};
     if ([self checkAttack:&sqF fromPieces:RookMovers]) return NO;
 
-    int eRank[7] = {E2,E3,E4,E5,E6,E7,E8};
+    int eRank[7] = {E2, E3, E4, E5, E6, E7, E8};
     DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
 
@@ -968,23 +968,23 @@ static PossibleMoveList KnightMoves[64];
 
     // check for castling squares under attack
     // first check for vertical (rook-like) attacks
-    int aRank[7] = {A2,A3,A4,A5,A6,A7,A8};
+    int aRank[7] = {A2, A3, A4, A5, A6, A7, A8};
     DirectionalMoveList sqA = {7, aRank};
     if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
 
-    int bRank[7] = {B2,B3,B4,B5,B6,B7,B8};
+    int bRank[7] = {B2, B3, B4, B5, B6, B7, B8};
     DirectionalMoveList sqB = {7, bRank};
     if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
 
-    int cRank[7] = {C2,C3,C4,C5,C6,C7,C8};
+    int cRank[7] = {C2, C3, C4, C5, C6, C7, C8};
     DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
 
-    int dRank[7] = {D2,D3,D4,D5,D6,D7,D8};
+    int dRank[7] = {D2, D3, D4, D5, D6, D7, D8};
     DirectionalMoveList sqD = {7, dRank};
     if ([self checkAttack:&sqD fromPieces:RookMovers]) return NO;
 
-    int eRank[7] = {E2,E3,E4,E5,E6,E7,E8};
+    int eRank[7] = {E2, E3, E4, E5, E6, E7, E8};
     DirectionalMoveList sqE = {7, eRank};
     if ([self checkAttack:&sqE fromPieces:RookMovers]) return NO;
 
@@ -999,7 +999,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
 
     int b2[6] = {C2, D3, E4, F5, G6, H7};
-    DirectionalMoveList sqb2 = {7, b2};
+    DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
 
     int b3[5] = {D2, E3, F4, G5, H6};
@@ -1032,7 +1032,7 @@ static PossibleMoveList KnightMoves[64];
 
     // check for a knight attack
     int k1[12] = {A2, B2, C2, D2, E2, F2, G2, A3, B3, D3, E3, F3};
-    DirectionalMoveList sqk1 = {11, k1};
+    DirectionalMoveList sqk1 = {12, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
