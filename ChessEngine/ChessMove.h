@@ -85,8 +85,6 @@ enum {
 
 // printing
 
--(NSString *)uciString;
--(NSString *)sanString;
 -(NSString *)description;
 
 @end

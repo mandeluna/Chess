@@ -18,6 +18,7 @@
 #import "ChessTTEntry.h"
 #import "ChessTranspositionTable.h"
 #import "NSNotificationCenter+MainThread.h"
+#import "ChessEngine-Swift.h"
 
 #define kAlphaBetaGiveUp        (-29990)
 #define kAlphaBetaIllegal       (-31000)
@@ -235,7 +236,7 @@ Logger *logger;
 
     ChessMove *move = [moveList next];
 
-    while ((nil != move) /* && (self.status == ChessSearchStatusInProgress) */) {
+    while (nil != move) {
         if (ply >= [boardList count]) {
             NSString *reason = [NSString stringWithFormat:@"ply=%d", ply];
             [generator recycleMoveList:moveList];
@@ -256,6 +257,11 @@ Logger *logger;
         notFirst = YES;
         ply--;
 
+//        if (self.status != ChessSearchStatusInProgress) {
+//            [generator recycleMoveList:moveList];
+//            return move;
+//        }
+        
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {

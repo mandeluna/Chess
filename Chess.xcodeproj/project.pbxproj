@@ -44,12 +44,13 @@
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
+		AA58A9252E67778E0005DE9C /* ChessConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = AA58A9242E67778E0005DE9C /* ChessConstants.h */; };
+		AA58A9272E6777AA0005DE9C /* ChessConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AA58A9262E6777A20005DE9C /* ChessConstants.m */; };
 		AA6C79702E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79712E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79722E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA8C18932E3D679700FCA8A7 /* Logger.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8C18912E3D676000FCA8A7 /* Logger.m */; };
-		AA8C189A2E425A0B00FCA8A7 /* ChessConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = AA8C18992E425A0700FCA8A7 /* ChessConstants.h */; };
 		AAAF98B42E3137780071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98BE2E3137780071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98BF2E3137780071E5C9 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -186,12 +187,13 @@
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		AA1B020E2E2830B3009FDDAC /* Chess.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Chess.xctestplan; sourceTree = "<group>"; };
+		AA58A9242E67778E0005DE9C /* ChessConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
+		AA58A9262E6777A20005DE9C /* ChessConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChessConstants.m; sourceTree = "<group>"; };
 		AA6C796F2E5E380800263171 /* todo.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = todo.md; sourceTree = "<group>"; };
 		AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+MainThread.h"; sourceTree = "<group>"; };
 		AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+MainThread.m"; sourceTree = "<group>"; };
 		AA8C18902E3D61D500FCA8A7 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		AA8C18912E3D676000FCA8A7 /* Logger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Logger.m; sourceTree = "<group>"; };
-		AA8C18992E425A0700FCA8A7 /* ChessConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
 		AAAF98A92E3137770071E5C9 /* ChessEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ChessEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98E72E3141FA0071E5C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -323,7 +325,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				AA8C18992E425A0700FCA8A7 /* ChessConstants.h */,
+				AA58A9262E6777A20005DE9C /* ChessConstants.m */,
+				AA58A9242E67778E0005DE9C /* ChessConstants.h */,
 				AA8C18912E3D676000FCA8A7 /* Logger.m */,
 				AA8C18902E3D61D500FCA8A7 /* Logger.h */,
 				32CA4F630368D1EE00C91783 /* Chess_Prefix.pch */,
@@ -435,7 +438,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA8C189A2E425A0B00FCA8A7 /* ChessConstants.h in Headers */,
+				AA58A9252E67778E0005DE9C /* ChessConstants.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -652,6 +655,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA8C18932E3D679700FCA8A7 /* Logger.m in Sources */,
+				AA58A9272E6777AA0005DE9C /* ChessConstants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

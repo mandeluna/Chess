@@ -7,7 +7,7 @@
 //
 
 #import "ChessMove.h"
-
+#import "ChessEngine-Swift.h"
 
 @implementation ChessMove
 
@@ -231,41 +231,6 @@ static ChessMove *NullMove = nil;
     NSUInteger th = [[NSNumber numberWithInt:type] hash];
 
     return (mh ^ ch ^ sh ^ dh ^ th);
-}
-
-#pragma mark Printing
-
-// TODO: look at the Python Chess library to determine consistent notation
-// not exactly SAN, which requires a lot of context to be optimally terse
--(NSString *)sanString {
-    if ([self isNullMove]) {
-        return @"0000";
-    }
-    
-    char *labels[] = { "", "", "N", "B", "R", "Q", "K" };
-    char *c1 = labels[movingPiece];
-    char c2 = 'a' + (sourceSquare & 7);
-    char c3 = '1' + (sourceSquare >> 3);
-    char *s4 = (capturedPiece == 0) ? "" : "x";
-    char *c5 = labels[capturedPiece];
-    char c6 = 'a' + (destinationSquare & 7);
-    char c7 = '1' + (destinationSquare >> 3);
-
-    return [NSString stringWithFormat:@"%s%c%c%s%s%c%c", c1, c2, c3, s4, c5, c6, c7];
-}
-
-// UCI expects a straightforward encoding of source and destination squares
--(NSString *)uciString {
-    if ([self isNullMove]) {
-        return @"0000";
-    }
-    
-    char c2 = 'a' + (sourceSquare & 7);
-    char c3 = '1' + (sourceSquare >> 3);
-    char c6 = 'a' + (destinationSquare & 7);
-    char c7 = '1' + (destinationSquare >> 3);
-
-    return [NSString stringWithFormat:@"%c%c%c%c", c2, c3, c6, c7];
 }
 
 -(NSString *)description {

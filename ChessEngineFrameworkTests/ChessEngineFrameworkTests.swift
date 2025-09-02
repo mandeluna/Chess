@@ -53,9 +53,9 @@ final class ChessEngineFrameworkTests: XCTestCase {
   
   func testRookMoveDescription() {
     var move = ChessMove(piece: Int32(kRook), start: 62, end: 63)
-    XCTAssertTrue(move.sanString() == "Rg8h8", "Move description is incorrect")
+    XCTAssertEqual(move.sanString(), "Rg8h8", "Move description is incorrect")
     move = ChessMove(piece: Int32(kRook), start: 62, end: 61)
-    XCTAssertTrue(move.sanString() == "Rg8f8", "Move description is incorrect")
+      XCTAssertEqual(move.sanString(), "Rg8f8", "Move description is incorrect")
   }
   
   var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
