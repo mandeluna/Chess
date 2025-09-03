@@ -80,6 +80,7 @@ enum {
     ChessPieceLayer *selectedPiece;
     
     ChessBoard *board;
+    ChessBoard *startingBoard;
     NSMutableArray *history;
     NSMutableArray *redoList;
     BOOL animateMove;

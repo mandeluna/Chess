@@ -97,19 +97,27 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 }
 
 -(NSString *)formatMoveHistory {
-  NSString *result = @"";
+    NSString *result = @"";
   
-// TODO: fix incorrect move number when loading FEN string
-// int startIndex = board.fullmoveNumber - (int)[history count];
+    int moveNumber = startingBoard.fullmoveNumber;
+    BOOL whiteToPlay = startingBoard.activePlayer == startingBoard.whitePlayer;
+    ChessBoard *workingBoard = [startingBoard copy];
 
-  for (int i=0; i < [history count]; i++) {
-    ChessMove *move = history[i];
-    result = [result stringByAppendingFormat:@"%d. %@", i + 1, [move sanString]];
-    if (i < [history count] - 1) {
-      result = [result stringByAppendingString:@" "];
+    for (int i = 0; i < [history count]; i++) {
+        // normally white starts, but if we loaded from a FEN string, the first move might be black
+        // increment the move number on black's move (full move number starts at 1 from starting position)
+        if ((whiteToPlay && (i % 2 == 0)) || (!whiteToPlay && (i % 2 == 1))) {
+            result = [result stringByAppendingFormat:@"%d. ", moveNumber];
+            moveNumber++;
+        }
+        ChessMove *move = history[i];
+        result = [result stringByAppendingString:[move sanStringForBoard:workingBoard unicodeGlyphs:YES]];
+        [workingBoard nextMove:move];
+        if (i < [history count] - 1) {
+            result = [result stringByAppendingString:@" "];
+        }
     }
-  }
-  return result;
+    return result;
 }
 
 -(void)removeLabels {
@@ -440,6 +448,9 @@ static NSString *imageNames[12] = {
         [board initializeSearch];
         [board initializeNewBoard];
         [board initializeFromFEN: enteredText];
+        
+        startingBoard = [board copy];
+        
         [self updateBoardLabels:board.activePlayer == board.whitePlayer];
         [self applyStartNewGame];
         [self updateKingAttackIndicator];
@@ -465,6 +476,7 @@ static NSString *imageNames[12] = {
     }
     [board initializeSearch];
     [board initializeNewBoard];
+    startingBoard = [board copy];
 
     [self applyStartNewGame];
 }
