@@ -154,7 +154,7 @@ typedef enum {
 
 -(BOOL)isPlayerWhite;
 
--(NSString *)formatMoveHistory;
+-(NSString *)formatMoveHistory:(BOOL)unicodeGlyphs;
 
 @end
 

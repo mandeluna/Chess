@@ -102,8 +102,9 @@ class ChessEngineController {
         }
     }
     
-    private func handleMoveCommand(_ shortSAN: String) {
-        board.applyMove(san: shortSAN)
+    private func handleMoveCommand(_ moveText: String) {
+        let move = board.move(uci: moveText)
+        board.nextMove(move)
     }
     
     private func handlePositionCommand(_ tokens: [String]) {
@@ -129,7 +130,8 @@ class ChessEngineController {
         }
         if let moveIndex = tokens.firstIndex(of: "moves") {
             for i in moveIndex + 1 ..< tokens.count {
-                self.board.applyMove(san: tokens[i])
+                let move = self.board.move(uci: tokens[i])
+                board.nextMove(move)
             }
         }
         logger.logMessage("position \(tokens.joined(separator:" "))")

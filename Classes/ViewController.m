@@ -93,10 +93,11 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     }
 
     self.gameStatusLabel.text = [NSString stringWithFormat:@"%@", statusMessage];
-    self.moveListLabel.text = [self formatMoveHistory];
+    self.moveListLabel.text = [self formatMoveHistory:YES];
+    NSLog(@"%@", [self formatMoveHistory:NO]);
 }
 
--(NSString *)formatMoveHistory {
+-(NSString *)formatMoveHistory:(BOOL)unicodeGlyphs {
     NSString *result = @"";
   
     int moveNumber = startingBoard.fullmoveNumber;
@@ -111,7 +112,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
             moveNumber++;
         }
         ChessMove *move = history[i];
-        result = [result stringByAppendingString:[move sanStringForBoard:workingBoard unicodeGlyphs:YES]];
+        result = [result stringByAppendingString:[move sanStringForBoard:workingBoard unicodeGlyphs:unicodeGlyphs]];
         [workingBoard nextMove:move];
         if (i < [history count] - 1) {
             result = [result stringByAppendingString:@" "];

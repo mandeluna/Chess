@@ -874,7 +874,7 @@ Logger *logger;
         }
         else {
             ChessMove *move = [ChessMove decodeFrom:array[i]];
-            results = [results stringByAppendingFormat:@"%@", [move sanString]];
+            results = [results stringByAppendingFormat:@"%@", [move sanStringForBoard:board]];
         }
         if (i < count - 1) {
             results = [results stringByAppendingString:@" "];

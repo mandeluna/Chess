@@ -51,12 +51,12 @@ enum {
 @property(nonatomic, assign) int value;
 
 // ARC support
--(ChessMove *)initializeWithMove:(ChessMove *)move;
+-(nonnull ChessMove *)initializeWithMove:(nonnull ChessMove *)move;
 
 // class methods
 
-+(ChessMove *)decodeFrom:(int)encodedMove;
-+(ChessMove *)nullMove;
++(nonnull ChessMove *)decodeFrom:(int)encodedMove;
++(nonnull ChessMove *)nullMove;
 
 // initialize
 -(void)captureEnPassant:(int)aPiece from:(int)startSquare to:(int)endSquare;
@@ -67,7 +67,7 @@ enum {
 -(void)moveCastlingKingSide:(int)aPiece from:(int)startSquare to:(int)endSquare;
 -(void)moveCastlingQueenSide:(int)aPiece from:(int)startSquare to:(int)endSquare;
 -(void)moveEncoded:(int)intValue;
--(void)promote:(ChessMove *)move to:(int)intValue;
+-(void)promote:(nonnull ChessMove *)move to:(int)intValue;
 -(void)staleMate:(int)aPiece;
 
 // encoding
@@ -77,17 +77,17 @@ enum {
 
 // copying
 
--(ChessMove *)copyWithZone:(NSZone *)zone;
+-(nonnull ChessMove *)copyWithZone:(nullable NSZone *)zone;
 
 // comparing
 
--(BOOL)isEqual:(id)object;
+-(BOOL)isEqual:(nullable id)object;
 -(NSInteger)hash;
 -(BOOL)isNullMove;
 
 // printing
 
--(NSString *)description;
+-(nonnull NSString *)description;
 -(nonnull NSString *)uciString;
 -(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board;
 -(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board unicodeGlyphs:(BOOL)useUnicode;

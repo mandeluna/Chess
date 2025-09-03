@@ -3,6 +3,7 @@
 //
 
 #import "Logger.h"
+#import "ChessConstants.h"
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"
