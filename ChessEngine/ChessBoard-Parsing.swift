@@ -7,32 +7,48 @@
 
 extension ChessBoard {
     
-    // similar to the constructor on ChessMove, but the short form of the notation
-    // permits the ASCII name of the piece to be omitted.
-    // TODO: It should be easy to internationalize this method & add unicode support
-    public func applyMove(san: String) {
-        var long_san: String? = nil
-        // an awful lot of work just to find out what piece is at the start location
-        let short_pattern = /^([abcdefgh])([1-8])-?([abcdefgh])([1-8])(x?)(#?)?$/
+    /**
+     * Return a fully initialized move based on the provided string in algebraic notation, using the abbreviated syntax used by UCI.
+     * The move should be legal on the board, otherwise this function will return nil.
+     *
+     * https://en.wikipedia.org/wiki/Universal_Chess_Interface
+     *
+     * A form of long algebraic notation (without piece names) is also used by the Universal Chess Interface (UCI) standard, which is a common way
+     * for graphical chess programs to communicate with chess engines, e.g. e2e4, e1g1 (castling), e7e8q (promotion).
+     *
+     */
+    public func move(uci: String) -> ChessMove? {
+        let pattern = /^([abcdefgh])([1-8])([abcdefgh])([1-8])([qbrn])?$/
+        let promotionLabels = ["q":kQueen, "r":kRook, "b":kBishop, "n":kKnight]
         do {
-            if  let match = try short_pattern.firstMatch(in: san) {
-                let originString = String(match.1) + String(match.2)
-                let origin = ChessMove.squareToIndex(originString)
-                let black = blackPlayer.piece(at: Int32(origin))
-                let white = whitePlayer.piece(at: Int32(origin))
-                let code = Int(black + white)
-                if let label = ChessMove.BoardCodesToNotation[code] {
-                    long_san = label + san
-                }
+            if let match = try pattern.firstMatch(in: uci) {
+               let origin = ChessMove.squareToIndex(String(match.1) + String(match.2))
+               let destination = ChessMove.squareToIndex(String(match.3) + String(match.4))
+               if let moveList = generator.findPossibleMoves(for: self.activePlayer) {
+                   defer { generator.recycleMoveList(moveList) }
+                   while let move = moveList.next() {
+                       if move.destinationSquare == destination && move.sourceSquare == origin {
+                           // if the move string contains a promotion, only return the one that matches
+                           if let promotion = match.5 {
+                               if let piece = promotionLabels[String(promotion)] {
+                                   if piece == move.promotion() {
+                                       return move.copy() as? ChessMove
+                                   }
+                               }
+                               continue
+                           }
+                           // always return a copy because the move list will be recycled
+                           return move.copy() as? ChessMove
+                       }
+                   }
+               }
             }
         }
         catch {
-            NSLog("unable to match SAN string: \(san)")
-            return
+            NSLog("Invalid move string: \(uci)")
+            return nil
         }
-        
-        let move = if (long_san != nil) { ChessMove(san: long_san!) } else { ChessMove(san: san) }
-        self.movePiece(from: move.sourceSquare, to: move.destinationSquare)
+        return nil
     }
     
     /**

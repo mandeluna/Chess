@@ -50,12 +50,75 @@ final class ChessEngineFrameworkTests: XCTestCase {
     XCTAssertTrue(ChessMove.squareToIndex("a2") == 8)
     XCTAssertTrue(ChessMove.squareToIndex("h8") == 63)
   }
-  
+
   func testRookMoveDescription() {
-    var move = ChessMove(piece: Int32(kRook), start: 62, end: 63)
-    XCTAssertEqual(move.sanString(), "Rg8h8", "Move description is incorrect")
-    move = ChessMove(piece: Int32(kRook), start: 62, end: 61)
-      XCTAssertEqual(move.sanString(), "Rg8f8", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R b KQkq - 0 1")
+    var move = board.move(uci: "h8g8")!
+    XCTAssertEqual(move.sanString(for:board), "Rg8", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R w KQkq - 0 1")
+    move = board.move(uci: "h1f1")!
+    XCTAssertEqual(move.sanString(for:board), "Rf1", "Move description is incorrect")
+  }
+
+  func testSAN_castling() {
+    // test SAN string for move castling king side
+    board.initializeFromFEN("r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R w KQkq - 0 1")
+    var move = board.move(uci:"e1g1")!
+    XCTAssertEqual(move.sanString(for:board), "O-O", "Move description is incorrect")
+    // test SAN string for move castling queen side
+    board.initializeFromFEN("r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R w KQkq - 0 1")
+    move = board.move(uci:"e1c1")!
+    XCTAssertEqual(move.sanString(for:board), "O-O-O", "Move description is incorrect")
+  }
+
+  // test SAN string for pawn promotion to bishop, knight, queen, rook, capture & check
+  func testSAN_promotion() {
+    board.initializeFromFEN("r2qk2r/p6p/1p1p4/2p1p3/8/7b/PP1QP1pP/R3K2R b KQkq - 0 1")
+    var move = board.move(uci:"g2h1b")!
+    // bishop and knight moves do not check the king
+    XCTAssertEqual(move.sanString(for:board), "gxh1=B", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p4/2p1p3/8/7b/PP1QP1pP/R3K2R b KQkq - 0 1")
+    move = board.move(uci:"g2h1n")!
+    XCTAssertEqual(move.sanString(for:board), "gxh1=N", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p4/2p1p3/8/7b/PP1QP1pP/R3K2R b KQkq - 0 1")
+    move = board.move(uci:"g2h1q")!
+    XCTAssertEqual(move.sanString(for:board), "gxh1=Q+", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p4/2p1p3/8/7b/PP1QP1pP/R3K2R b KQkq - 0 1")
+    move = board.move(uci:"g2h1r")!
+    XCTAssertEqual(move.sanString(for:board), "gxh1=R+", "Move description is incorrect")
+    board.initializeFromFEN("r2qk2r/p6p/1p1p4/2p1p3/8/7b/PP1QP1pP/R3K2R b KQkq - 0 1")
+    move = board.move(uci:"g2h1b")!
+  }
+
+  // test SAN string for checkmate
+  func testSAN_checkmate() {
+    board.initializeFromFEN("rnbqkbnr/pppp1ppp/4p3/8/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 1")
+    let move = board.move(uci:"d8h4")!
+    XCTAssertEqual(move.sanString(for:board), "Qh4#", "Move description is incorrect")
+  }
+
+  // test SAN string for ambiguous move (same piece name, different rank)
+  func testSAN_ambiguous_rank() {
+    board.initializeFromFEN("r5k1/5q1p/Q2p4/2p1p3/r7/7b/PP2P2P/R3K3 b Qq - 0 2")
+    var move = board.move(uci:"a8a6")!
+    var string = move.sanString(for:board)
+    XCTAssertEqual(string, "R8xa6", "Move description is incorrect")
+    board.initializeFromFEN("r5k1/5q1p/Q2p4/2p1p3/r7/7b/PP2P2P/R3K3 b Qq - 0 2")
+    move = board.move(uci:"a4a6")!
+    string = move.sanString(for:board)
+    XCTAssertEqual(string, "R4xa6", "Move description is incorrect")
+  }
+
+  // test SAN string for ambiguous move (same piece name, different file)
+  func testSAN_ambiguous_file() {
+    board.initializeFromFEN("r4qk1/7p/Q2p4/2p1p3/4r3/2N3Nb/PP2P2P/R3K3 w Qq - 0 2")
+    var move = board.move(uci:"c3e4")!
+    var string = move.sanString(for:board)
+    XCTAssertEqual(string, "Ncxe4", "Move description is incorrect")
+    board.initializeFromFEN("r4qk1/7p/Q2p4/2p1p3/4r3/2N3Nb/PP2P2P/R3K3 w Qq - 0 2")
+    move = board.move(uci:"g3e4")!
+    string = move.sanString(for:board)
+    XCTAssertEqual(string, "Ngxe4", "Move description is incorrect")
   }
   
   var reverseBlock = { (obj1: Any, obj2: Any) -> ComparisonResult in
@@ -105,7 +168,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
     let fen = "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13"
     board.initializeFromFEN(fen)
     
-    board.applyMove(san: "d4e6")
+    let move = board.move(uci: "d4e6")!
+    board.nextMove(move)
     
     let nextMove = await board.searchAgent.findMove()
     
@@ -139,8 +203,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
     board.initializeFromFEN(fen)
     
     // move 1w
-    var ourMove = ChessMove(san:"Pa6a7")
-    board.movePiece(from: ourMove.sourceSquare, to: ourMove.destinationSquare)
+    var ourMove = board.move(uci:"a6a7")!
+    board.nextMove(ourMove)
     print(ourMove)
     
     // move 1b
@@ -148,20 +212,20 @@ final class ChessEngineFrameworkTests: XCTestCase {
     
     print(theirMove!)
     XCTAssertEqual(theirMove!, "d4f3", "That move is incorrect")
-    var move = ChessMove(san:theirMove!)
-    board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
+    var move = board.move(uci:theirMove!)
+    board.nextMove(move)
     
     // move 2w
-    ourMove = ChessMove(san:"Kh2h1")
-    board.movePiece(from: ourMove.sourceSquare, to: ourMove.destinationSquare)
+    ourMove = board.move(uci:"h2h1")!
+    board.nextMove(ourMove)
     print(ourMove)
     
     // move 2b
     theirMove = await board.searchAgent.findMove()
     print(theirMove!)
     XCTAssertEqual(theirMove!, "g8h8", "That move is incorrect")
-    move = ChessMove(san:theirMove!)
-    board.movePiece(from: move.sourceSquare, to: move.destinationSquare)
+    move = board.move(uci:theirMove!)
+    board.nextMove(move)
   }
   
   func testMoveEnumeration() throws {
@@ -197,9 +261,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
     let fen = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5P1N/PPPP2PP/RNBQK2R w KQkq - 0 1"
     board.initializeFromFEN(fen)
     // attempt to castle through check (Bc4 threatens f1)
-    let moves = board.whitePlayer.findValidMoves()!
-    let move = ChessMove(san: "e1g1")
-    XCTAssertFalse(moves.contains(where: {ea in move.isEqual(ea) }))
+    let move = board.move(uci: "e1g1")
+    XCTAssertTrue(move == nil)
   }
   
   func testCastleRookUnderThreat() throws {

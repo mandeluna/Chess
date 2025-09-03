@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class ChessBoard;
+
 enum {
     kMoveNormal = 1,
     kMoveDoublePush,
@@ -75,7 +77,7 @@ enum {
 
 // copying
 
--(id)copyWithZone:(NSZone *)zone;
+-(ChessMove *)copyWithZone:(NSZone *)zone;
 
 // comparing
 
@@ -86,5 +88,8 @@ enum {
 // printing
 
 -(NSString *)description;
+-(nonnull NSString *)uciString;
+-(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board;
+-(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board unicodeGlyphs:(BOOL)useUnicode;
 
 @end
