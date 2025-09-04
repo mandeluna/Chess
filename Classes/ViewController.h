@@ -108,12 +108,12 @@ enum {
 @property(nonatomic, retain) IBOutlet UILabel *gameStatusLabel;
 @property(nonatomic, retain) IBOutlet UILabel *whiteGameClock;
 @property(nonatomic, retain) IBOutlet UILabel *blackGameClock;
-@property(nonatomic, retain) IBOutlet UILabel *moveListLabel;
 @property(nonatomic, retain) IBOutlet UILabel *engineInfoLabel;
+@property(nonatomic, retain) IBOutlet UITextView *moveListTextView;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem *startButton;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem *playButton;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem *undoButton;
-@property(nonatomic, retain) IBOutlet UIBarButtonItem *hintButton;
+@property (retain, nonatomic) IBOutlet UIButton *moveListExportButton;
 
 
 typedef enum {
@@ -149,6 +149,7 @@ typedef enum {
 -(IBAction)findBestMove;
 -(IBAction)newGame;
 -(IBAction)undoMove;
+-(IBAction)exportMoveList;
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;
 

@@ -298,8 +298,8 @@ static ChessMove *NullMove = nil;
 
 // avoid ambiguity if multiple pieces with the same name can move to the same destination
 -(NSString *)disambiguatingPrefix:(NSArray *)moves {
-    NSMutableArray *fileConflicts = [NSMutableArray array];
-    NSMutableArray *rankConflicts = [NSMutableArray array];
+    BOOL disambiguateFile = NO;
+    BOOL disambiguateRank = NO;
 
     char file = 'a' + (sourceSquare & 7);
     char rank = '1' + (sourceSquare >> 3);
@@ -315,21 +315,21 @@ static ChessMove *NullMove = nil;
         char move_file = 'a' + (move.sourceSquare & 7);
         char move_rank = '1' + (move.sourceSquare >> 3);
 
-        if (move_file == file) {
-            [fileConflicts addObject:move];
-        }
-        if (move_rank == rank) {
-            [rankConflicts addObject:move];
+        disambiguateRank = disambiguateRank || (move_file == file);
+        disambiguateFile = disambiguateFile || (move_rank == rank);
+        // Knights might be on a different rank and file, if so disambiguate by file
+        if ((move.movingPiece == kKnight) && !((move_file == file) || (move_rank == rank))) {
+            disambiguateFile = YES;
         }
     }
 
-    if (([fileConflicts count] > 0) && [rankConflicts count] > 0) {
+    if (disambiguateRank && disambiguateFile > 0) {
         return [NSString stringWithFormat:@"%c%c", file, rank];
     }
-    if ([rankConflicts count] > 0) {
+    if (disambiguateFile) {
         return [NSString stringWithFormat:@"%c", file];
     }
-    if ([fileConflicts count] > 0) {
+    if (disambiguateRank) {
         return [NSString stringWithFormat:@"%c", rank];
     }
 

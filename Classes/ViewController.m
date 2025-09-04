@@ -93,8 +93,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     }
 
     self.gameStatusLabel.text = [NSString stringWithFormat:@"%@", statusMessage];
-    self.moveListLabel.text = [self formatMoveHistory:YES];
-    NSLog(@"%@", [self formatMoveHistory:NO]);
+    self.moveListTextView.text = [self formatMoveHistory:YES];
 }
 
 -(NSString *)formatMoveHistory:(BOOL)unicodeGlyphs {
@@ -140,7 +139,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     for (int i = 0; i < 8; i++) {
         
         CATextLayer *labelLayer = [CATextLayer layer];
-        labelLayer.foregroundColor = [UIColor darkGrayColor].CGColor;
+        labelLayer.foregroundColor = [UIColor whiteColor].CGColor;
         
         CGPoint loc = [self centerPointOfCellForBoardIndex:CGPointMake(i, -1)];
         loc.y = loc.y + 9.0f;
@@ -158,7 +157,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     for (int i = 0; i < 8; i++) {
         
         CATextLayer *labelLayer = [CATextLayer layer];
-        labelLayer.foregroundColor = [UIColor darkGrayColor].CGColor;
+        labelLayer.foregroundColor = [UIColor whiteColor].CGColor;
         
         CGPoint loc = [self centerPointOfCellForBoardIndex:CGPointMake(-1, i)];
         loc.x = loc.x + w/2 - 9.0;
@@ -547,6 +546,10 @@ static NSString *imageNames[12] = {
     [self removeMoveIndicationLayers];
     [self applyUndoMove];
     [self updateKingAttackIndicator];
+}
+
+-(IBAction)exportMoveList {
+    [[UIPasteboard generalPasteboard] setString: [self formatMoveHistory:NO]];
 }
 
 -(void)applyUndoMove {
@@ -1012,7 +1015,6 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)startedThinking {
-    [self.hintButton setEnabled:NO];
     [self.playButton setEnabled:NO];
     [self.view setNeedsDisplay];
 }
@@ -1020,7 +1022,6 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)stoppedThinking: (NSNotification *)notification {
-    [self.hintButton setEnabled:YES];
     [self.playButton setEnabled:YES];
 
     NSDictionary *info = notification.object;
@@ -1103,7 +1104,7 @@ static NSString *imageNames[12] = {
     boardDirection = 1.0;
     gameScale = 1.0;
     boardScale = 0.925;
-
+    
     [self addBoardLayer];
     [self addSquares];
     [self addLabels];
@@ -1144,7 +1145,8 @@ static NSString *imageNames[12] = {
   
   [redoList release]; redoList = nil;
   [history release]; history = nil;
-  [super dealloc];
+    [_moveListExportButton release];
+    [super dealloc];
 }
 
 @end

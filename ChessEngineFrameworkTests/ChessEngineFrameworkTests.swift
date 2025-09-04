@@ -107,6 +107,10 @@ final class ChessEngineFrameworkTests: XCTestCase {
     move = board.move(uci:"a4a6")!
     string = move.sanString(for:board)
     XCTAssertEqual(string, "R4xa6", "Move description is incorrect")
+    board.initializeFromFEN("1rq1k3/ppp2rpp/2b1p1n1/7Q/2P2pP1/1P1K1n1P/P2P1P2/1RB2B1R b - - 1 33")
+    move = board.move(uci:"f3e5")!
+    string = move.sanString(for:board)
+    XCTAssertEqual(string, "Nfe5+", "Move description is incorrect")
   }
 
   // test SAN string for ambiguous move (same piece name, different file)

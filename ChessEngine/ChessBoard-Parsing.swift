@@ -84,6 +84,9 @@ extension ChessBoard {
     func initializeFromFEN(_ fen: String) {
         let components = fen.split(separator: " ")
         let len = components.count
+        if len == 0 {
+            return
+        }
         let ranks = String(components[0])
         let color = len > 1 ? String(components[1]) : nil
         let castling = len > 2 ? String(components[2]) : nil
