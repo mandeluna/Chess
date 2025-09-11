@@ -43,18 +43,18 @@
 
         array = [NSMutableArray arrayWithCapacity:capacity];
         used = [NSMutableArray array];
-#if !__has_feature(objc_arc)
-    [array retain];
-    [used retain];
-#endif
+        #if !__has_feature(objc_arc)
+        [array retain];
+        [used retain];
+        #endif
         ChessTTEntry *entry = [[ChessTTEntry alloc] init];
         [entry clear];
         for (int i=0; i<capacity; i++) {
             ChessTTEntry *copy = [entry copy];
             #if !__has_feature(objc_arc)
-                [copy autorelease];
+            [copy autorelease];
             #endif
-          array[i] = copy;
+            array[i] = copy;
         }
         #if !__has_feature(objc_arc)
         [entry release];
@@ -95,7 +95,6 @@
 
 #if !__has_feature(objc_arc)
 -(void)dealloc {
-
     [super dealloc];
     [array release];
     [used release];

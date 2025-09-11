@@ -81,14 +81,7 @@ static int PieceCenterScores[7][64] = {
 
 -(id)init {
     if (self = [super init]) {
-        //    bzero(pieces, 64 * sizeof(char));
         pieces = calloc(64, sizeof(unsigned char));
-
-        if (!pieces) {
-            NSLog(@"memory allocation failed");
-            return nil;
-        }
-
         materialValue = 0;
         positionalValue = 0;
         numPawns = 0;
@@ -99,29 +92,30 @@ static int PieceCenterScores[7][64] = {
     return self;
 }
 
--(ChessPlayer *)initializeWithPlayer:(ChessPlayer *)player {
-  [self init];
-
-  memcpy(pieces, player.pieces, 64 * sizeof(unsigned char));
-  opponent = player.opponent;
-  board = player.board;
-  materialValue = player.materialValue;
-  positionalValue = player.positionalValue;
-  numPawns = player.numPawns;
-  enpassantSquare = player.enpassantSquare;
-  castlingRookSquare = player.castlingRookSquare;
-  castlingStatus = player.castlingStatus;
+-(ChessPlayer *)initFromPlayer:(ChessPlayer *)player {
+    if (self = [super init]) {
+        pieces = calloc(64, sizeof(unsigned char));
+        memcpy(pieces, player.pieces, 64 * sizeof(unsigned char));
+        self.opponent = player.opponent;
+        self.board = player.board;
+        materialValue = player.materialValue;
+        positionalValue = player.positionalValue;
+        numPawns = player.numPawns;
+        enpassantSquare = player.enpassantSquare;
+        castlingRookSquare = player.castlingRookSquare;
+        castlingStatus = player.castlingStatus;
+    }
 
   return self;
 }
 
-#if !__has_feature(objc_arc)
 -(void)dealloc {
     free(pieces);
     pieces = nil;
+    #if !__has_feature(objc_arc)
     [super dealloc];
+    #endif
 }
-#endif
 
 //
 // Clear enpassant square and reset any pending extra kings
@@ -502,9 +496,9 @@ static int PieceCenterScores[7][64] = {
     [copy nextMove:move];
 
     NSArray *possibleMoves = [[copy activePlayer] findPossibleMoves];
-    #if !__has_feature(objc_arc)
+#if !__has_feature(objc_arc)
     [copy release];
-    #endif
+#endif
 
     return (nil != possibleMoves);
 }
@@ -531,7 +525,6 @@ static int PieceCenterScores[7][64] = {
 
     if (!piecesCopy) {
         NSLog(@"memory allocation error");
-        self = nil;
         return;
     }
 
@@ -543,7 +536,7 @@ static int PieceCenterScores[7][64] = {
 -(id)copyWithZone:(NSZone *)zone {
 
   // deep copy
-  id copy = [[ChessPlayer alloc] initializeWithPlayer:self];
+  id copy = [[ChessPlayer alloc] initFromPlayer:self];
   [copy postCopy];
 
   return copy;

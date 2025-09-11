@@ -166,20 +166,67 @@ Logger *logger;
     memcpy(activeVariation, variations[0], VARIATIONS_SIZE * sizeof(int));
 }
 
-#pragma mark searching
-
--(NSArray *)pvMoves {
-    int *pv = bestVariation;
+-(void)validateVariation:(int *)variation {
+    int *pv = variation;
     int count = pv[0];
     if (count < 1) {
-        return @[];
+        return;
     }
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
+    ChessBoard *board = [self.board copy];
+    
     count = pv[0];
     for (int i = 1; i < count + 1; i++) {
         ChessMove *move = [ChessMove decodeFrom:pv[i]];
-        result[i - 1] = [move uciString];
+        ChessMove *validatedMove = [board moveWithUci:[move uciString]];
+        if (validatedMove == nil) {
+            [logger logError:@"%@ is not a valid move", move];
+            break;
+        }
+        [board nextMove:validatedMove];
     }
+#if !__has_feature(objc_arc)
+    [board release];
+#endif
+}
+
+#pragma mark searching
+
+// used for generating principal variation report info -- this is I/O bound so presumably
+// we can take a little extra time to validate the moves. If one of them results in an illegal
+// move (e.g. due to a king attack), don't report any further results.
+// TODO: the real problem is that the engine is giving good scores to illegal moves
+-(NSArray *)pvMoves:(ChessBoard *)board {
+    NSMutableArray *result = [NSMutableArray array];
+
+    int *av = bestVariation;
+    int count = av[0];
+    if (count < 1) {
+        av = activeVariation;
+        count = av[0];
+    }
+    if (count < 1) {
+        [result addObject:@"***"];
+        av = variations[0];
+        count = av[0];
+        if (count > 3) {
+            count = 3;
+        }
+    }
+    ChessBoard *newBoard = [board copy];
+    count = av[0];
+    for (int i = 1; i < count; i++) {
+        ChessMove *move = [ChessMove decodeFrom:av[i]];
+        if (![newBoard.activePlayer isValidMove:move]) {
+            [logger logWarning:@"PV[%d] illegal move %@, pv=%@, board=%@",
+                i, [move sanStringForBoard:board], [self formatVariations:av size:count], [board generateFEN]];
+            break;
+        }
+        [newBoard nextMove:move];
+        [result addObject:[move uciString]];
+    }
+#if !__has_feature(objc_arc)
+    [newBoard release];
+#endif
     return result;
 }
 
@@ -190,7 +237,7 @@ Logger *logger;
     if (ply < 9) {
       int *mv = variations[ply + 1];
       count = mv[0];
-      for (int i = 1; i < count + 2; i++) {
+      for (int i = 1; i < count + 1; i++) {
           av[i + 1] = mv[i];
       }
     }
@@ -204,7 +251,6 @@ Logger *logger;
 -(ChessMove *)negaScout:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
 
     assert(initialAlpha < initialBeta);
-    [logger logVerbose:@"negaScout: depth=%d, alpha=%d, beta=%d", depth, initialAlpha, initialBeta];
     
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -357,8 +403,6 @@ Logger *logger;
         // search recursively
         ply++;
 
-        [logger logVerbose:@"ngSearch: depth=%d, ply=%d, alpha=%d, beta=%d", depth, ply, initialAlpha, initialBeta];
-
         int score = -[self ngSearch:newBoard depth:depth-1 alpha:-b beta:-a];
 
         if (notFirst && (score > a) && (score < beta) && (depth > 1)) {
@@ -442,18 +486,6 @@ Logger *logger;
     // Evaluate the current position, assuming that we have a non-capturing move.
     int bestScore = [theBoard.activePlayer evaluate];
 
-    // This method will recurse until it finds checkmate so we need to check early to see if the user agent
-    // has accepted an early result. This does not seem to be a problem in Squeak because the Smalltalk
-    // process is suspended and will be gc'd during the thinkStep (which is invoked from the Morphic
-    // animation step). In our case, we are emulating this in findMove() but NSThread does not have the
-    // ability to suspend/resume in the same as as invokers of Smalltalk processes
-    if (!self.isSearching || self.shouldCancelSearch) {
-        if (moveList) {
-            [generator recycleMoveList:moveList];
-        }
-        return bestScore;
-    }
-
     // TODO: What follows is clearly not the Right Thing to do. The score we just evaluated doesn't
     // take into account that we may be under attack at this point. I've seen it happening various times that
     // the static evaluation triggered a cut-off which was plain wrong in the position at hand.
@@ -503,9 +535,15 @@ Logger *logger;
         
         // search recursively
         ply++;
-        [logger logVerbose:@"quiesce: ply=%d, alpha=%d, beta=%d", ply, initialAlpha, initialBeta];
 
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
+
+//        if (status != ChessSearchStatusInProgress) {
+//            if (moveList) {
+//                [generator recycleMoveList:moveList];
+//            }
+//            return score;
+//        }
 
         ply--;
 
@@ -617,7 +655,7 @@ Logger *logger;
     while (status == ChessSearchStatusInProgress) {
         ChessMove *theMove = [self negaScout:board depth:depth alpha:kAlphaBetaMinVal beta:kAlphaBetaMaxVal];
 
-        NSMutableDictionary *updateInfo = [[self reportInfo] mutableCopy];
+        NSMutableDictionary *updateInfo = [[self reportInfo:board] mutableCopy];
         updateInfo[@"depth"] = @(depth);
 
         if (theMove == nil) {
@@ -633,28 +671,39 @@ Logger *logger;
         }
         else {
             score = theMove.value;
+            depth++;
             updateInfo[@"score"] = @{ @"cp": @(score) };
-            myMove = [theMove copy];
+            // copy semantics on myMove -- we should replace this with a Swift struct (how does interop work?)
+            self.myMove = theMove;
             [self assignBestVariation];
             dispatch_async(dispatch_queue, ^{
                 updateCallback([updateInfo copy]);
             });
-            depth++;
         }
     }
 
     [logger logDebug:@"Completed search with UCI parameters %@", uciParams];
 
-    NSMutableDictionary *completionInfo = [[self reportInfo] mutableCopy];
+    NSMutableDictionary *completionInfo = [[self reportInfo:board] mutableCopy];
+    completionInfo[@"depth"] = @(depth);
 
-    bestMove = myMove ? [myMove copy] : [ChessMove nullMove];
+    if (myMove != nil) {
+        bestMove = [myMove copy];
+#if !__has_feature(objc_arc)
+    [bestMove autorelease];
+#endif
+    }
+    else {
+        // TODO: what is the point of nullMove -- do we even use this for anything?
+        bestMove = [ChessMove nullMove];
+    }
     completionInfo[@"bestmove"] = [bestMove uciString];
 
     if (completionCallback) {
         dispatch_async(dispatch_queue, ^{
             // send one final batch of update info
             if (updateCallback) { updateCallback([completionInfo copy]); }
-            completionCallback([completionInfo copy], status);
+            completionCallback([completionInfo copy], self->status);
         });
     }
 
@@ -663,12 +712,12 @@ Logger *logger;
     self.status = ChessSearchStatusCompleted;
 }
 
--(NSDictionary *)reportInfo {
+-(NSDictionary *)reportInfo:(ChessBoard *)board {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval time_spent = now - startTime;
 
     long currentNPS = (double)nodesVisited / time_spent;
-    NSArray *pvMoves = [self pvMoves];
+    NSArray *pvMoves = [self pvMoves:board];
     
     return @{
         @"nodes" : @(nodesVisited),
@@ -743,7 +792,7 @@ Logger *logger;
                   completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
         
         NSMutableDictionary *info = [finalInfo mutableCopy];
-        info[@"bestmove"] = @([myMove encodedMove]);
+        info[@"bestmove"] = @([self->myMove encodedMove]);
         [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
     }];
 }
@@ -874,7 +923,7 @@ Logger *logger;
         }
         else {
             ChessMove *move = [ChessMove decodeFrom:array[i]];
-            results = [results stringByAppendingFormat:@"%@", [move sanStringForBoard:board]];
+            results = [results stringByAppendingFormat:@"%@", [move uciString]];
         }
         if (i < count - 1) {
             results = [results stringByAppendingString:@" "];

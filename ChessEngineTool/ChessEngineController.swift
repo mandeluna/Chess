@@ -87,7 +87,7 @@ class ChessEngineController {
         case "show":
             DispatchQueue.main.async {
                 self.waitForReady()
-                respond(self.board.description()!)
+                self.handleShowCommand(Array(parts.dropFirst()))
             }
         case "move":
             DispatchQueue.main.async {
@@ -105,6 +105,15 @@ class ChessEngineController {
     private func handleMoveCommand(_ moveText: String) {
         let move = board.move(uci: moveText)
         board.nextMove(move)
+    }
+    
+    private func handleShowCommand(_ tokens: [String]) {
+        if tokens.firstIndex(of: "fen") != nil {
+            respond(self.board.generateFEN())
+        }
+        else {
+            respond(self.board.description()!)
+        }
     }
     
     private func handlePositionCommand(_ tokens: [String]) {

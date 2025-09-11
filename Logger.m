@@ -160,55 +160,48 @@ id lock = @[];
 }
 
 - (void) logInfo:(NSString *)format, ... {
-    // log level Info or greater
-    if (level < Info) {
-        return;
-    }
     va_list args;
     va_start(args, format);
     NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self logMessage:formattedString];
+    [self log:formattedString level: Info];
 }
 
 - (void) logDebug:(NSString *)format, ... {
-    // log level Debug or greater
-    if (level < Debug) {
-        return;
-    }
     va_list args;
     va_start(args, format);
     NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self logMessage:formattedString];
+    [self log:formattedString level: Debug];
+}
+
+- (void) logWarning:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    [self log:formattedString level: Warning];
 }
 
 - (void) logError:(NSString *)format, ... {
-    // log level Error or greater
-    if (level < Error) {
-        return;
-    }
     va_list args;
     va_start(args, format);
     NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self logMessage:formattedString];
+    [self log:formattedString level: Error];
 }
 
 - (void) logVerbose:(NSString *)format, ... {
-    // log level Verbose or greater
-    if (level < Verbose) {
-        return;
-    }
     va_list args;
     va_start(args, format);
     NSString *formattedString = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     
-    [self logMessage:formattedString];
+    [self log:formattedString level: Verbose];
 }
 
 - (void) logException: (NSException *)exception {

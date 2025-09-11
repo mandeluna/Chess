@@ -1,26 +1,20 @@
 # To do
 
-Some ideas I've had in no particular order. 
+1. [UI] Move layer logic into new chess board view
 
-1. Test the castling state -- I noticed the other day it let me do an illegal castling move (while my rook was under threat).
-   The FEN string should show the correct KQkq string based on an appropriate mix of board positions. ✅
+2. Add time manager class and behaviour.
 
-2. Test the halfmove clock and fullmove number -- as above, the appropriate state should be reflected in the FEN string. ✅
+3. Improve the board position evaluation logic.
+
+4. Config options for transposition table size.
+
+5. Implement history table logic. Test efficacy of this as well as other engine parameter changes.
+
+6. Implement a movelist view controller that supports PGN export, import & selecting different moves.
+
+7. Maintain a log of board positions and PGN notation for games played (where?)
 
 8. Improve reporting of UCI info strings, especially depth reporting.
-
-3. Implement a selectable movelist that supports PGN export, import & selecting different moves.
-   Get rid of undo/redo concepts, allow "play from here."
-
-4. Maintain a log of board positions and PGN notation for games played.
-
-5. Add time manager class and behaviour.
-
-6. Improve the board position evaluation logic.
-
-7. Config options for transposition table size.
-
-9. Implment history table logic. Test efficacy of this as well as other engine parameter changes.
 
 10. Design a new GUI and implement with Swift UI.
     a) Feature set
@@ -36,8 +30,10 @@ Some ideas I've had in no particular order.
         - other UIs are either Windows-only or horribly dated Qt things
         - nothing works on mobile
         - what about Android?
+    d) Technical Design
+        - Move List View Controller
 
-11. Port game engine to Linux/BSD (GNUStep?).
+11. Port game engine to Linux/BSD (GNUStep? Swift? Rust?)
 
 12. Build an ActivityPUB social game.
 

@@ -325,4 +325,43 @@ final class ChessEngineFrameworkTests: XCTestCase {
     XCTAssertEqual(move.uciString(), "f1e2", "That is not the right move")
   }
   
+  // generating illegal double push from 16 to 32
+  func testGenerateIllegalDoublePush() throws {
+    let fen = "rnb3kr/ppp1b1pp/1n2p3/3pp2P/3P1P2/PPN3P1/2P3BK/1R1Q1R2 w - a1 0 18"
+    board.initializeFromFEN(fen)
+    
+    let whiteMoves = board.whitePlayer.findValidMoves()
+      
+    for move in whiteMoves! as! [ChessMove] {
+      XCTAssertNotEqual(move.uciString(), "a3a5")
+    }
+  }
+  
+  //  illegal move dxc5#, pv=[3 e7d8 f7xg8 d6xc5 c5xe6 g6xh5 c1xb2 h8xh1 0 0 0]
+  func testGeneratePV() async throws {
+    let fen = "1rbk2r1/5Qp1/p1ppp1p1/2Np3P/P2P4/8/1PP5/2K2R2 2 - a1 0 28"
+    board.initializeFromFEN(fen)
+    
+    let nextMove = await board.searchAgent.findMove()
+    print("bestmove \(nextMove!)")
+  }
+  
+  func testErrorLevels() {
+    let logger = Logger.default()!
+    logger.level = Verbose
+    logger.logMessage("Setting log level to verbose (all 5 messages should appear)")
+    logger.log("Logging a verbose message", level: Verbose)
+    logger.log("Logging an info message", level: Info)
+    logger.log("Logging a debug message", level: Debug)
+    logger.log("Logging a warning message", level: Warning)
+    logger.log("Logging an error message", level: Error)
+    logger.level = Info
+    logger.logMessage("Setting log level to info (only the info message should appear)")
+    logger.log("Logging a verbose message", level: Verbose)
+    logger.log("Logging an info message", level: Info)
+    logger.log("Logging a debug message", level: Debug)
+    logger.log("Logging a warning message", level: Warning)
+    logger.log("Logging an error message", level: Error)
+  }
+  
 }

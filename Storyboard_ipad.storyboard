@@ -37,23 +37,18 @@
                                 <rect key="frame" x="0.0" y="1136" width="820" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
-                                    <barButtonItem tag="1" style="plain" systemItem="add" id="eQt-yb-Epo">
+                                    <barButtonItem tag="1" title="New Game" style="done" id="eQt-yb-Epo">
                                         <connections>
                                             <action selector="newGame" destination="K20-VQ-fbd" id="QzT-a1-7lx"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="hD5-kh-DeC"/>
-                                    <barButtonItem title="Undo" image="arrowshape.backward.circle" catalog="system" style="plain" id="aoK-hH-or5">
-                                        <connections>
-                                            <action selector="undoMove" destination="K20-VQ-fbd" id="oNM-MK-kOe"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem title="Play" image="arrowshape.forward.circle" catalog="system" style="plain" id="Q57-iH-5s4">
-                                        <connections>
-                                            <action selector="play" destination="K20-VQ-fbd" id="ODk-tV-oT7"/>
-                                        </connections>
-                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="2l0-kX-EqY"/>
+                                    <barButtonItem image="arrow.triangle.swap" catalog="system" id="748-pi-nS3">
+                                        <connections>
+                                            <action selector="switchSides" destination="K20-VQ-fbd" id="nNt-bC-0cw"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                                 <color key="tintColor" systemColor="tintColor"/>
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -88,17 +83,25 @@
                                     <action selector="exportMoveList" destination="K20-VQ-fbd" eventType="touchUpInside" id="yIC-OQ-3Bp"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Line" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OFD-0F-cGf" userLabel="Engine Info Label">
+                                <rect key="frame" x="20" y="1080" width="780" height="21"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
+                    <toolbarItems/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="blackGameClock" destination="VRe-XW-IwQ" id="0pi-Vo-jUh"/>
+                        <outlet property="engineInfoLabel" destination="OFD-0F-cGf" id="Fd2-XW-dRp"/>
                         <outlet property="gameStatusLabel" destination="eJQ-hM-avp" id="RXy-oy-yTC"/>
                         <outlet property="moveListExportButton" destination="U4l-mD-vTB" id="PYk-lT-O9J"/>
                         <outlet property="moveListTextView" destination="SoX-xs-luH" id="edC-KD-EwR"/>
-                        <outlet property="playButton" destination="Q57-iH-5s4" id="ESn-qO-ayJ"/>
                         <outlet property="startButton" destination="eQt-yb-Epo" id="cj1-7l-RjO"/>
-                        <outlet property="undoButton" destination="aoK-hH-or5" id="Nrk-7Q-0Lq"/>
                         <outlet property="whiteGameClock" destination="luA-Rz-BDo" id="rrP-ta-jax"/>
                     </connections>
                 </viewController>
@@ -108,11 +111,10 @@
         </scene>
     </scenes>
     <resources>
-        <image name="arrowshape.backward.circle" catalog="system" width="128" height="123"/>
-        <image name="arrowshape.forward.circle" catalog="system" width="128" height="123"/>
+        <image name="arrow.triangle.swap" catalog="system" width="128" height="103"/>
         <image name="doc.on.doc" catalog="system" width="116" height="128"/>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

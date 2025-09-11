@@ -104,6 +104,7 @@ enum {
 @property(nonatomic, retain) ChessBoard *board;
 @property(nonatomic, assign) BOOL usePopoverController;
 @property(nonatomic, retain) NSString *remoteInstanceName;
+@property(nonatomic, retain) ChessPieceLayer *selectedPiece;
 
 @property(nonatomic, retain) IBOutlet UILabel *gameStatusLabel;
 @property(nonatomic, retain) IBOutlet UILabel *whiteGameClock;
@@ -111,8 +112,10 @@ enum {
 @property(nonatomic, retain) IBOutlet UILabel *engineInfoLabel;
 @property(nonatomic, retain) IBOutlet UITextView *moveListTextView;
 @property(nonatomic, retain) IBOutlet UIBarButtonItem *startButton;
-@property(nonatomic, retain) IBOutlet UIBarButtonItem *playButton;
-@property(nonatomic, retain) IBOutlet UIBarButtonItem *undoButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *firstMoveButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *nextMoveButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *previousMoveButton;
+@property(nonatomic, retain) IBOutlet UIBarButtonItem *lastMoveButton;
 @property (retain, nonatomic) IBOutlet UIButton *moveListExportButton;
 
 
@@ -146,9 +149,10 @@ typedef enum {
 
 -(IBAction)autoPlay;
 -(IBAction)play;
+-(IBAction)switchSides;
 -(IBAction)findBestMove;
 -(IBAction)newGame;
--(IBAction)undoMove;
+-(IBAction)previousMove;
 -(IBAction)exportMoveList;
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare;

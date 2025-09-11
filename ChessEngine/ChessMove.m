@@ -286,6 +286,10 @@ static ChessMove *NullMove = nil;
 
     NSString *unambiguous = [NSString stringWithFormat:@"%@%c%c%@%@", capture, file, rank, promotion, kingAttack];
 
+#if !__has_feature(objc_arc)
+    [newBoard release];
+#endif
+
     // In a few cases, a more detailed representation is needed to resolve ambiguity;
     // if so, the piece's file letter, numerical rank, or the exact square is inserted
     // after the moving piece's name (in that order of preference).

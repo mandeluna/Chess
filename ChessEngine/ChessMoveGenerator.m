@@ -479,23 +479,28 @@ static PossibleMoveList KnightMoves[64];
 }
 
 -(void)recycleMoveList:(ChessMoveList *)aChessMoveList {
-    
-    if (streamListIndex >= NUM_PLIES) {
-        NSLog(@"recycleMoveList: streamListIndex is out of range %d", streamListIndex);
-        NSException *exception = [NSException exceptionWithName:@"Invalid Stream List Index"
-                                                         reason:@"Exceeded maximum search depth" userInfo:nil];
-        [exception raise];
+    if (aChessMoveList == nil) {
+        [logger logDebug:@"recycleMoveList: aChessMoveList is nil"];
+        return;
     }
+    @try {
+        if (streamListIndex >= NUM_PLIES) {
+            [logger logDebug:@"recycleMoveList: streamListIndex is out of range %d", streamListIndex];
+            [logger raiseExceptionName:@"Invalid stream list index" reason:@"Exceeded maximum search depth"];
+        }
 
-    if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
-        NSLog(@"recycleMoveList is confused: index was %d but is actually %ld",
-              streamListIndex, [streamList indexOfObject:aChessMoveList]);
-        NSException *exception = [NSException exceptionWithName:@"Index corruption"
-                                                         reason:@"Move indexes are out of sync" userInfo:nil];
-        [exception raise];
+        if (aChessMoveList != [streamList objectAtIndex:streamListIndex]) {
+            [logger logDebug:@"recycleMoveList is confused: index was %d but is actually %ld",
+             streamListIndex, [streamList indexOfObject:aChessMoveList]];
+            [logger raiseExceptionName:@"Index corruption" reason:@"Move indexes are out of sync"];
+        }
+        streamListIndex--;
+        firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
     }
-    streamListIndex--;
-    firstMoveIndex = lastMoveIndex = aChessMoveList.startIndex - 1;
+    @catch (NSException *exception) {
+        [logger logException:exception];
+        @throw;
+    }
 }
 
 -(float)moveListUsage {
@@ -639,7 +644,7 @@ static PossibleMoveList KnightMoves[64];
     }
 
     // try to double-push if possible
-    if (square > 16)
+    if (square >= 16)
         return;
     destSquare = square + 16;
     if (myPieces[destSquare])
@@ -1165,7 +1170,7 @@ static PossibleMoveList KnightMoves[64];
                 [move move:kKing from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
-                    kingAttack = [moveList objectAtIndex:lastMoveIndex];
+                    self.kingAttack = [moveList objectAtIndex:lastMoveIndex];
                 }
             }
         }
@@ -1213,7 +1218,7 @@ static PossibleMoveList KnightMoves[64];
                 [move move:kKnight from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
-                    kingAttack = [moveList objectAtIndex:lastMoveIndex];
+                    self.kingAttack = [moveList objectAtIndex:lastMoveIndex];
                 }
             }
         }
@@ -1247,7 +1252,7 @@ static PossibleMoveList KnightMoves[64];
             [move move:piece from:square to:destSquare capture:capture];
 
             if (kKing == capture) {
-                kingAttack = [moveList objectAtIndex:lastMoveIndex];
+                self.kingAttack = [moveList objectAtIndex:lastMoveIndex];
             }
         }
         if (capture)
@@ -1293,7 +1298,7 @@ static PossibleMoveList KnightMoves[64];
                 [move move:kKing from:square to:destSquare capture:capture];
 
                 if (kKing == capture) {
-                    kingAttack = [moveList objectAtIndex:lastMoveIndex];
+                    self.kingAttack = [moveList objectAtIndex:lastMoveIndex];
                 }
             }
         }

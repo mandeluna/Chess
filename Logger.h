@@ -11,6 +11,7 @@ enum LogLevel {
     None,
     Info,
     Debug,
+    Warning,
     Error,
     Verbose
 };
@@ -36,6 +37,7 @@ enum LogLevel {
 - (void) log:(NSString *)message level:(enum LogLevel) level;
 - (void) logDebug:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logInfo:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
+- (void) logWarning:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logError:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logVerbose:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 - (void) logException: (NSException *)exception;

@@ -68,7 +68,7 @@ typedef struct {
     Logger *logger;
 }
 
-@property(nonatomic, assign) ChessMove *kingAttack;
+@property(nonatomic, retain) ChessMove *kingAttack;
 
 // public
 -(ChessMoveList *)findAllPossibleMovesFor:(ChessPlayer *)player;

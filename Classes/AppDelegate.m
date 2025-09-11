@@ -14,13 +14,15 @@
 #pragma mark -
 #pragma mark Application lifecycle
 
+#if !__has_feature(objc_arc)
 - (void)dealloc
 {
 	[_window release];
     [super dealloc];
 }
+#endif
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     // Override point for customization after application launch.
 //    ViewController *viewController = (ViewController *)self.window.rootViewController;

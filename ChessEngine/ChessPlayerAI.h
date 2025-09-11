@@ -30,7 +30,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     ChessBoard *board;
     NSArray *boardList;
     int boardListIndex;
-    ChessPlayer *player;
+    __weak ChessPlayer *player;
     ChessHistoryTable *historyTable;
     ChessTranspositionTable *transTable;
     ChessMoveGenerator *generator;
@@ -62,9 +62,10 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     long max_nodes;                  // total nodes visited
 }
 
-@property(nonatomic, assign) ChessPlayer *player;
-@property(nonatomic, assign) ChessBoard *board;
-@property(nonatomic, assign) ChessMoveGenerator *generator;
+// board owns the player
+@property(nonatomic, weak) ChessPlayer *player;
+@property(nonatomic, retain) ChessBoard *board;
+@property(nonatomic, retain) ChessMoveGenerator *generator;
 @property(nonatomic, readonly) ChessTranspositionTable *transTable;
 @property(nonatomic, readonly) ChessHistoryTable *historyTable;
 @property(atomic, copy) ChessMove *myMove;
@@ -111,6 +112,6 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 -(void)initializeBestVariation;
 -(void)initializeActiveVariation;
 -(void)assignBestVariation;
--(NSArray *)pvMoves;
+-(NSArray *)pvMoves:(ChessBoard *)board;
 
 @end

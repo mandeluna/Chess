@@ -29,7 +29,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 @implementation ViewController
 
-@synthesize history, redoList, board, usePopoverController, remoteInstanceName;
+@synthesize history, redoList, board, selectedPiece, usePopoverController, remoteInstanceName;
 
 #pragma mark initialize
 
@@ -79,14 +79,14 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
         autoPlay = NO;
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
-        [self.playButton setEnabled:NO];
+        [self.nextMoveButton setEnabled:NO];
     }
 	else if (board.halfmoveClock >= 100) {
 		statusMessage = @"Draw (50 move rule)";
         autoPlay = NO;
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
-        [self.playButton setEnabled:NO];
+        [self.nextMoveButton setEnabled:NO];
 	}
     else {
         statusMessage = white ? @"White‘s move" : @"Black‘s move";
@@ -117,6 +117,9 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
             result = [result stringByAppendingString:@" "];
         }
     }
+#if !__has_feature(objc_arc)
+    [workingBoard release];
+#endif
     return result;
 }
 
@@ -326,7 +329,7 @@ static NSString *imageNames[12] = {
     }
     
     [history addObject:move];
-    [self.undoButton setEnabled:YES];
+    [self.previousMoveButton setEnabled:YES];
     [self updateBoardLabels:aBool];
     [self updateKingAttackIndicator];
 }
@@ -386,9 +389,9 @@ static NSString *imageNames[12] = {
 // result == 1   : white won
 //
 -(void)finishedGame:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  NSNumber *white = [description objectForKey:@"white"];
-  NSNumber *stalemate = [description objectForKey:@"stalemate"];
+//  NSDictionary *description = notification.object;
+//  NSNumber *white = [description objectForKey:@"white"];
+//  NSNumber *stalemate = [description objectForKey:@"stalemate"];
 
   self.board = nil;
 }
@@ -405,7 +408,7 @@ static NSString *imageNames[12] = {
       return;
       
   [redoList addObject:move];
-  [self.playButton setEnabled:YES];
+  [self.nextMoveButton setEnabled:YES];
 
   [self updateBoardLabels:isWhitePlayer];
 }
@@ -449,6 +452,11 @@ static NSString *imageNames[12] = {
         [board initializeNewBoard];
         [board initializeFromFEN: enteredText];
         
+#if !__has_feature(objc_arc)
+        if (startingBoard) {
+            [startingBoard release];
+        }
+#endif
         startingBoard = [board copy];
         
         [self updateBoardLabels:board.activePlayer == board.whitePlayer];
@@ -476,6 +484,11 @@ static NSString *imageNames[12] = {
     }
     [board initializeSearch];
     [board initializeNewBoard];
+#if !__has_feature(objc_arc)
+        if (startingBoard) {
+            [startingBoard release];
+        }
+#endif
     startingBoard = [board copy];
 
     [self applyStartNewGame];
@@ -486,8 +499,8 @@ static NSString *imageNames[12] = {
     self.history = [NSMutableArray array];
     self.redoList = [NSMutableArray array];
 
-    [self.undoButton setEnabled:NO];
-    [self.playButton setEnabled:YES];
+    [self.previousMoveButton setEnabled:NO];
+    [self.nextMoveButton setEnabled:YES];
     [self removeAttackIndicationLayers];
 
     elapsedTimeBlack = elapsedTimeWhite = 0.0;
@@ -498,14 +511,11 @@ static NSString *imageNames[12] = {
 
 -(IBAction)newGame {
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Game Options" message:@"" preferredStyle:UIAlertControllerStyleAlert];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Switch Sides" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-    [self switchSides];
-  }]];
   NSString *autoPlayLabel = autoPlay ? @"Manual play" : @"Autoplay";
   [alert addAction:[UIAlertAction actionWithTitle:autoPlayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
     [self autoPlay];
   }]];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Restart Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+  [alert addAction:[UIAlertAction actionWithTitle:@"Reset Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
     [self startNewGame];
   }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"Edit Board" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -538,7 +548,7 @@ static NSString *imageNames[12] = {
 //
 // undo the last move
 //
--(IBAction)undoMove {
+-(IBAction)previousMove {
     if (0 == [history count])
         return;
     
@@ -558,7 +568,7 @@ static NSString *imageNames[12] = {
     [history removeLastObject];
     
     if ([history count] == 0) {
-        [self.undoButton setEnabled:NO];
+        [self.previousMoveButton setEnabled:NO];
     }
     
     [board undoMove:move];
@@ -569,7 +579,7 @@ static NSString *imageNames[12] = {
 //
 // flip the board upside down
 //
--(void)switchSides {
+-(IBAction)switchSides {
     
   boardDirection *= -1;
   
@@ -594,7 +604,7 @@ static NSString *imageNames[12] = {
         selectedPiece.zPosition -= 1;
         [selectedPiece needsDisplay];
     }
-    selectedPiece = pieceLayer;
+    self.selectedPiece = pieceLayer;
     
     if (selectedPiece)
     {
@@ -806,7 +816,7 @@ static NSString *imageNames[12] = {
     if (selectedPiece != nil) {
         // if the pieces are on the same side, select and highlight the new piece without requiring a second tap
         if ((selectedPiece != candidate) &&
-            ((candidate.isWhite && selectedPiece.isWhite) || (!candidate.isWhite && !selectedPiece.isWhite))) {
+            ((candidate.isWhite && selectedPiece.isWhite) || (candidate != nil && !candidate.isWhite && !selectedPiece.isWhite))) {
             [self selectPiece:candidate];
             candidate.sourceSquare = squareLayer.squarePosition;
             [self showMovesFrom:squareLayer];
@@ -1015,14 +1025,14 @@ static NSString *imageNames[12] = {
 // notification callback for think thread
 //
 -(void)startedThinking {
-    [self.playButton setEnabled:NO];
+    [self.nextMoveButton setEnabled:NO];
     [self.view setNeedsDisplay];
 }
 
 // notification callback for think thread
 //
 -(void)stoppedThinking: (NSNotification *)notification {
-    [self.playButton setEnabled:YES];
+    [self.nextMoveButton setEnabled:YES];
 
     NSDictionary *info = notification.object;
     if (info[@"bestmove"] == nil) {
@@ -1098,7 +1108,7 @@ static NSString *imageNames[12] = {
     [notificationCenter addObserver:self selector:@selector(removedPiece:) name:@"RemovedPiece" object:nil];
     [notificationCenter addObserver:self selector:@selector(replacedPiece:) name:@"ReplacedPiece" object:nil];
     [notificationCenter addObserver:self selector:@selector(finishedGame:) name:@"FinishedGame" object:nil];
-    [notificationCenter addObserver:self selector:@selector(undoMove:) name:@"UndoMove" object:nil];
+    [notificationCenter addObserver:self selector:@selector(previousMove:) name:@"UndoMove" object:nil];
     [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
 
     boardDirection = 1.0;
@@ -1138,15 +1148,17 @@ static NSString *imageNames[12] = {
 - (void)viewDidUnload {
 }
 
+#if !__has_feature(objc_arc)
 - (void)dealloc {
-  [squares release];
-  [labels release];
-  [board release];
-  
-  [redoList release]; redoList = nil;
-  [history release]; history = nil;
+    [squares release];
+    [labels release];
+    [board release];
+
+    [redoList release]; redoList = nil;
+    [history release]; history = nil;
     [_moveListExportButton release];
     [super dealloc];
 }
+#endif
 
 @end

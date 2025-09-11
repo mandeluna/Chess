@@ -17,19 +17,20 @@ extension ChessBoard {
      * for graphical chess programs to communicate with chess engines, e.g. e2e4, e1g1 (castling), e7e8q (promotion).
      *
      */
+    @objc
     public func move(uci: String) -> ChessMove? {
-        let pattern = /^([abcdefgh])([1-8])([abcdefgh])([1-8])([qbrn])?$/
+        let pattern = /^([abcdefgh])([1-8])([x])?([abcdefgh])([1-8])([qbrn])?$/
         let promotionLabels = ["q":kQueen, "r":kRook, "b":kBishop, "n":kKnight]
         do {
             if let match = try pattern.firstMatch(in: uci) {
                let origin = ChessMove.squareToIndex(String(match.1) + String(match.2))
-               let destination = ChessMove.squareToIndex(String(match.3) + String(match.4))
+               let destination = ChessMove.squareToIndex(String(match.4) + String(match.5))
                if let moveList = generator.findPossibleMoves(for: self.activePlayer) {
                    defer { generator.recycleMoveList(moveList) }
                    while let move = moveList.next() {
                        if move.destinationSquare == destination && move.sourceSquare == origin {
                            // if the move string contains a promotion, only return the one that matches
-                           if let promotion = match.5 {
+                           if let promotion = match.6 {
                                if let piece = promotionLabels[String(promotion)] {
                                    if piece == move.promotion() {
                                        return move.copy() as? ChessMove
@@ -278,7 +279,8 @@ extension ChessBoard {
     }
     
     public func generateEnPassantString() -> String {
-        if enpassantSquare == -1 {
+        // initialized to 0 or -1
+        if enpassantSquare <= 0 {
             return "-"
         }
 

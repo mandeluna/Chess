@@ -97,7 +97,7 @@ int halfmoveClock;
 
 // shallow copy constructor
 // we don't want to reallocate the generator & search agent in this case
--(ChessBoard *)initializeWithBoard:(ChessBoard *)aBoard {
+-(ChessBoard *)initFromBoard:(ChessBoard *)aBoard {
     if (self = [super init]) {
         self.whitePlayer = aBoard.whitePlayer;
         self.blackPlayer = aBoard.blackPlayer;
@@ -112,7 +112,7 @@ int halfmoveClock;
         self.halfmoveClock = aBoard.halfmoveClock;
         self.halfmoveUndo = aBoard.halfmoveUndo;
     }
-
+    
     return self;
 }
 
@@ -177,7 +177,7 @@ int halfmoveClock;
 
 -(id)copyWithZone:(NSZone *)zone {
   // shallow copy
-  ChessBoard *copy = [[ChessBoard alloc] initializeWithBoard:self];
+  ChessBoard *copy = [[ChessBoard alloc] initFromBoard:self];
   // deep copy
   [copy postCopy];
   return copy;
@@ -203,7 +203,7 @@ int halfmoveClock;
 
 -(void)updateMoveCounters:(ChessMove *)move {
     // reset en passant square
-    self.enpassantSquare = 0;
+    self.enpassantSquare = -1;
 
     self.halfmoveUndo = self.halfmoveClock;
     self.halfmoveClock++;
@@ -269,20 +269,20 @@ int halfmoveClock;
 }
 
 -(void)nullMove {
-  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-  [_activePlayer prepareNextMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer prepareNextMove];
 }
 
 -(void)undoMove:(ChessMove *)aMove {
-  _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-  [_activePlayer undoMove:aMove];
-  [self undoMoveCounters:aMove];
+    _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
+    [_activePlayer undoMove:aMove];
+    [self undoMoveCounters:aMove];
 
-  if (self.hasUserAgent) {
-    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
-    NSNotification *notification = [NSNotification notificationWithName:@"UndoMove" object:description];
-    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
-  }
+    if (self.hasUserAgent) {
+        NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+        NSNotification *notification = [NSNotification notificationWithName:@"UndoMove" object:description];
+        [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
+    }
 }
 
 #pragma mark Printing

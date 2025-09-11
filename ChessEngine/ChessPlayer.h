@@ -13,10 +13,9 @@
 
 @interface ChessPlayer : NSObject <NSCopying> {
 
-    ChessPlayer *opponent;
-    ChessBoard *board;
+    __weak ChessPlayer *opponent;
+    __weak ChessBoard *board;
     
-//    char pieces[64];
     unsigned char *pieces;
     int materialValue;
     int positionalValue;
@@ -26,8 +25,9 @@
     int castlingStatus;
 }
 
-@property(nonatomic, assign) ChessPlayer *opponent;
-@property(nonatomic, assign) ChessBoard *board;
+// board owns both players; players should have weak references to each other and to the board
+@property(nonatomic, weak) ChessPlayer *opponent;
+@property(nonatomic, weak) ChessBoard *board;
 @property(nonatomic, readonly) int castlingRookSquare;
 @property(nonatomic, readonly) int castlingStatus;
 @property(nonatomic, assign) int enpassantSquare;
@@ -36,7 +36,7 @@
 @property(nonatomic, readonly) int numPawns;
 
 // instance creation
--(ChessPlayer *)initializeWithPlayer:(ChessPlayer *)player;
+-(ChessPlayer *)initFromPlayer:(ChessPlayer *)player;
 
 // initialize
 
