@@ -58,6 +58,8 @@
 		AAAF98E92E3141FA0071E5C9 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98E72E3141FA0071E5C9 /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AAAF98EB2E31421C0071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98EC2E31421C0071E5C9 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AAD847E52E73612D007AC1E2 /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
+		AAD847E82E739124007AC1E2 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
 		AAE16D3F2E2465A8003DFB22 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 /* End PBXBuildFile section */
 
@@ -197,6 +199,9 @@
 		AAAF98A92E3137770071E5C9 /* ChessEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ChessEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98E72E3141FA0071E5C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
+		AAD847E62E736790007AC1E2 /* ChessUI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ChessUI-Bridging-Header.h"; sourceTree = "<group>"; };
+		AAD847E72E739124007AC1E2 /* ChessGame.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ChessGame.xcassets; sourceTree = "<group>"; };
 		AAEDD02A2E17112300A90C54 /* Chamonix */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chamonix; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -344,6 +349,7 @@
 				6957BDB0127114A6001630F6 /* ChessMailViewController-iPad.xib */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Chess-Info.plist */,
+				AAD847E72E739124007AC1E2 /* ChessGame.xcassets */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -368,6 +374,7 @@
 		690E511D123420C900DC1CED /* User Agent */ = {
 			isa = PBXGroup;
 			children = (
+				AAD847E62E736790007AC1E2 /* ChessUI-Bridging-Header.h */,
 				1D3623240D0F684500981E51 /* AppDelegate.h */,
 				1D3623250D0F684500981E51 /* AppDelegate.m */,
 				6942FA6A1220A569002E59B5 /* ChessPieceLayer.h */,
@@ -376,6 +383,7 @@
 				690E50EC123417E600DC1CED /* SquareLayer.m */,
 				28D7ACF60DDB3853001CB0EB /* ViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* ViewController.m */,
+				AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */,
 			);
 			name = "User Agent";
 			sourceTree = "<group>";
@@ -599,6 +607,7 @@
 				690E510712341DB500DC1CED /* blackRookImage.png in Resources */,
 				690E510812341DB500DC1CED /* blackQueenImage.png in Resources */,
 				690E510912341DB500DC1CED /* blackPawnImage.png in Resources */,
+				AAD847E82E739124007AC1E2 /* ChessGame.xcassets in Resources */,
 				690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */,
 				690E510B12341DB500DC1CED /* blackKingImage.png in Resources */,
 				690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */,
@@ -646,6 +655,7 @@
 				28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
+				AAD847E52E73612D007AC1E2 /* ChessBoardView.swift in Sources */,
 				AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -716,7 +726,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
 					"@executable_path/Frameworks",
@@ -725,7 +735,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = Chamonix;
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/ChessEngine-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Classes/ChessUI-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -746,7 +756,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))",
 					"@executable_path/Frameworks",
@@ -755,7 +765,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.chess;
 				PRODUCT_NAME = Chamonix;
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "ChessEngine/ChessEngine-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Classes/ChessUI-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;

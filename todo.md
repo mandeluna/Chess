@@ -2,13 +2,13 @@
 
 1. [UI] Move layer logic into new chess board view
 
-2. Add time manager class and behaviour.
+2. Fix unhandled exceptions in recycleMoveList (threading issue?)
 
-3. Improve the board position evaluation logic.
+3. Add time manager class and behaviour.
 
-4. Config options for transposition table size.
+4. Improve the board position evaluation logic.
 
-5. Implement history table logic. Test efficacy of this as well as other engine parameter changes.
+5. Config options for transposition table size and history table logic. Test efficacy of this as well as other engine parameter changes.
 
 6. Implement a movelist view controller that supports PGN export, import & selecting different moves.
 
@@ -75,3 +75,40 @@ Concepts I would like to understand better:
 4. How chess engines use opening books to improve gameplay
 
 5. How a neural network can improve on the basic opening book approach
+
+## Some old notes
+
+* add game clocks
+* provide option for timed game play
+* add move lists
+* show captured pieces
+* show labels for online opponents
+* status icon to indicate opponent is online
+* status icon to indicate opponent has voice chat enabled
+* provide button to enable/disable voice chat (mute local, mute remote)
+* provide indicator showing voice chat volume during game
+* save game state when quitting
+* restore game state on startup
+* provide option to reconnect with opponent restoring saved game in progress
+* add support for Game Center sessions (GKMatch)
+* set up leaderboards and tournament invitations
+* provide different theme choices for the gameboard and players
+* fix layout of subviews when screen is rotated into landscape mode
+
+* negotiate which player will be white
+    * at the start of the game, both players have the white pieces facing them
+    * once the network negotiation is complete, we have an alert in NSStreamEventOpenCompleted
+    * need this for BT sessions & GKMatch sessions
+    * game state should be as follows:
+    1. Initial state == invalid: black player undefined, white player specified twice
+    * We need to enforce that white goes first,
+    * that one player cannot move when it's another player's turn (can we reuse isThinking flag for computer play?)
+    * We should keep track of the time spent on each move by each player
+    ** if clocks get out of sync, we need a way to resynchronize them
+    * Assume that each player's computer will enforce the legality of each move
+    * We should encode # check and ++ double attack (there are a few operators we need - check wikipedia)
+    * We need to notify users of checkmate and stalemate
+    * If the board state is repeated more than 3 times (or is it 3 times or more) we should offer the opportunity to draw the game
+    ** in general players need options to agree on a draw, or to resign
+
+

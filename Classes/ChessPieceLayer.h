@@ -13,14 +13,12 @@
 @interface ChessPieceLayer : CALayer {
 
     BOOL isWhite;
-    int piece;
-    UIViewController *chessBoard;
-    int sourceSquare;
+    long piece;
+    long sourceSquare;
 }
 
 @property(nonatomic, assign) BOOL isWhite;
-@property(nonatomic, assign) int piece;
-@property(nonatomic, assign) UIViewController *chessBoard;
-@property(nonatomic, assign) int sourceSquare;  // for dragging
+@property(nonatomic, assign) long piece;
+@property(nonatomic, assign) long sourceSquare;  // for dragging
 
 @end

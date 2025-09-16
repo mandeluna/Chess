@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="K20-VQ-fbd">
     <device id="ipad10_9rounded" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -90,6 +89,11 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nf4-7s-gto" customClass="ChessBoardView" customModule="Chamonix" customModuleProvider="target">
+                                <rect key="frame" x="90" y="270" width="640" height="640"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
@@ -97,6 +101,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="blackGameClock" destination="VRe-XW-IwQ" id="0pi-Vo-jUh"/>
+                        <outlet property="chessboardView" destination="nf4-7s-gto" id="ouj-bb-Ldy"/>
                         <outlet property="engineInfoLabel" destination="OFD-0F-cGf" id="Fd2-XW-dRp"/>
                         <outlet property="gameStatusLabel" destination="eJQ-hM-avp" id="RXy-oy-yTC"/>
                         <outlet property="moveListExportButton" destination="U4l-mD-vTB" id="PYk-lT-O9J"/>
@@ -114,7 +119,7 @@
         <image name="arrow.triangle.swap" catalog="system" width="128" height="103"/>
         <image name="doc.on.doc" catalog="system" width="116" height="128"/>
         <systemColor name="tintColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

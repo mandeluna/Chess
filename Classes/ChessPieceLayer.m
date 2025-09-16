@@ -11,6 +11,6 @@
 
 @implementation ChessPieceLayer
 
-@synthesize isWhite, piece, chessBoard, sourceSquare;
+@synthesize isWhite, piece, sourceSquare;
 
 @end

@@ -11,6 +11,6 @@
 
 @implementation SquareLayer
 
-@synthesize pieceLayer, squarePosition;
+@synthesize pieceLayer, square;
 
 @end
