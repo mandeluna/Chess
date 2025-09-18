@@ -299,7 +299,9 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
       [newBoard resetGame];
       newBoard.hasUserAgent = YES;
       self.board = newBoard;
+#if !__has_feature(objc_arc)
       [newBoard release];
+#endif
     }
     [board initializeSearch];
     [board initializeNewBoard];
@@ -379,12 +381,16 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 -(void)applyUndoMove {
     ChessMove *move = [history lastObject];
+#if !__has_feature(objc_arc)
     [move retain];
+#endif
     [history removeLastObject];
     
     [board undoMove:move];
-
+    
+#if !__has_feature(objc_arc)
     [move release];
+#endif
 }
 
 //

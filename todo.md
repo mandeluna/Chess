@@ -1,6 +1,6 @@
 # To do
 
-1. [UI] Move layer logic into new chess board view
+1. Find and fix memory leaks in ChessPlayer copying
 
 2. Fix unhandled exceptions in recycleMoveList (threading issue?)
 
@@ -15,6 +15,8 @@
 7. Maintain a log of board positions and PGN notation for games played (where?)
 
 8. Improve reporting of UCI info strings, especially depth reporting.
+
+9. Measure performance of move generator. Consider bit board representation & encoded ChessMove objects
 
 10. Design a new GUI and implement with Swift UI.
     a) Feature set

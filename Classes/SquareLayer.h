@@ -13,11 +13,11 @@
 
 @interface SquareLayer : CALayer {
 
-    ChessPieceLayer *pieceLayer;
+    __weak ChessPieceLayer *pieceLayer;
     long square;
 }
 
-@property(nonatomic, assign)ChessPieceLayer *pieceLayer;
+@property(nonatomic, weak)ChessPieceLayer *pieceLayer;
 @property(nonatomic, assign) long square;
 
 @end
