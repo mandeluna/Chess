@@ -8,10 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import <Chamonix-Swift.h>
 
 @class ChessBoard;
 @class ChessMove;
+@class ChessBoardView;
+@class SelectionContext;
+@protocol ChessBoardViewDelegate;
 
 @interface ViewController : UIViewController <ChessBoardViewDelegate>
 {
@@ -57,5 +59,17 @@
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer;
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer;
 -(NSString *)formatMoveHistory:(BOOL)unicodeGlyphs;
+
+#pragma mark ChessBoardViewDelegate methods
+
+-(SelectionContext *)chessboardView:(ChessBoardView *)chessboardView
+                       shouldSelect:(NSInteger)square
+               withCurrentSelection:(SelectionContext *)selection;
+
+-(void)chessboardView:(ChessBoardView *)chessboardView
+     didMovePieceFrom:(NSInteger)sourceIndex
+                   to:(NSInteger)destIndex;
+
+- (NSInteger)chessboardView:(ChessBoardView * _Nonnull)chessboardView pieceFor:(NSInteger)square;
 
 @end

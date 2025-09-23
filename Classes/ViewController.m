@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import "ViewController.h"
 
 #import "ChessBoard.h"
 #import "ChessPlayer.h"
@@ -17,6 +16,8 @@
 #import "ChessMove.h"
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
+
+#import <Chamonix-Swift.h>
 
 const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
 const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
@@ -555,11 +556,23 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     [notificationCenter addObserver:self selector:@selector(previousMove:) name:@"UndoMove" object:nil];
     [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
     
-    if (self.chessboardView != nil) {
-        self.chessboardView.delegate = self;
+    if (self.chessboardView == nil) {
+        self.chessboardView = [[ChessBoardView alloc] init];
+        [self.view addSubview: _chessboardView];
     }
     
+    self.chessboardView.delegate = self;
+
     [self startNewGame];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    // this is called when SwiftUI sets the frame
+    CGSize size = self.chessboardView.bounds.size;
+    self.chessboardView.frame = CGRectMake(0, 0, size.width, size.height);
+    [self.chessboardView layoutIfNeeded];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

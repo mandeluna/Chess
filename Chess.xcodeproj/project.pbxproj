@@ -44,8 +44,10 @@
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
+		AA38ECC32E82E8E600D23422 /* ChessBoardViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA38ECC22E82E8E600D23422 /* ChessBoardViewWrapper.swift */; };
 		AA58A9252E67778E0005DE9C /* ChessConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = AA58A9242E67778E0005DE9C /* ChessConstants.h */; };
 		AA58A9272E6777AA0005DE9C /* ChessConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AA58A9262E6777A20005DE9C /* ChessConstants.m */; };
+		AA5ED1F72E81CF7700ABA884 /* ChessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA5ED1F62E81CF7700ABA884 /* ChessView.swift */; };
 		AA6C79702E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79712E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79722E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
@@ -189,8 +191,10 @@
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		AA1B020E2E2830B3009FDDAC /* Chess.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Chess.xctestplan; sourceTree = "<group>"; };
+		AA38ECC22E82E8E600D23422 /* ChessBoardViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardViewWrapper.swift; sourceTree = "<group>"; };
 		AA58A9242E67778E0005DE9C /* ChessConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
 		AA58A9262E6777A20005DE9C /* ChessConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChessConstants.m; sourceTree = "<group>"; };
+		AA5ED1F62E81CF7700ABA884 /* ChessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessView.swift; sourceTree = "<group>"; };
 		AA6C796F2E5E380800263171 /* todo.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = todo.md; sourceTree = "<group>"; };
 		AA887B8C2E1B12AE002AA7A4 /* NSNotificationCenter+MainThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+MainThread.h"; sourceTree = "<group>"; };
 		AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+MainThread.m"; sourceTree = "<group>"; };
@@ -384,6 +388,8 @@
 				28D7ACF60DDB3853001CB0EB /* ViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* ViewController.m */,
 				AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */,
+				AA5ED1F62E81CF7700ABA884 /* ChessView.swift */,
+				AA38ECC22E82E8E600D23422 /* ChessBoardViewWrapper.swift */,
 			);
 			name = "User Agent";
 			sourceTree = "<group>";
@@ -652,10 +658,12 @@
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
+				AA38ECC32E82E8E600D23422 /* ChessBoardViewWrapper.swift in Sources */,
 				28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */,
 				6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */,
 				690E50ED123417E600DC1CED /* SquareLayer.m in Sources */,
 				AAD847E52E73612D007AC1E2 /* ChessBoardView.swift in Sources */,
+				AA5ED1F72E81CF7700ABA884 /* ChessView.swift in Sources */,
 				AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

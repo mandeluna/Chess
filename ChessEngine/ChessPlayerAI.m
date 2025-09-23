@@ -144,8 +144,8 @@ Logger *logger;
 -(void)initializeTranspositionTable {
 
 //    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 64k entries (maxes out at depth 7)
-//    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 256k entries (~34Mb, max depth 8)
-    transTable = [[ChessTranspositionTable alloc] initWithBits:20]; // 1024k entries (~86Mb, max depth 9)
+    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 256k entries (~34Mb, max depth 8)
+//    transTable = [[ChessTranspositionTable alloc] initWithBits:20]; // 1024k entries (~86Mb, max depth 9)
     // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
     // timing on MacBook Air M1 (2021 model)
 }
@@ -787,14 +787,16 @@ Logger *logger;
         // to be populated by UI settings, otherwise we just take the defaults
     };
 
-    [self performSearchWithUCIParams: searchParameters
-                      updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
-                  completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
-        
-        NSMutableDictionary *info = [finalInfo mutableCopy];
-        info[@"bestmove"] = @([self->myMove encodedMove]);
-        [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
-    }];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        [self performSearchWithUCIParams: searchParameters
+                          updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
+                      completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+            
+            NSMutableDictionary *info = [finalInfo mutableCopy];
+            info[@"bestmove"] = @([self->myMove encodedMove]);
+            [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
+        }];
+    });    
 }
 
 #pragma mark accessing

@@ -9,7 +9,13 @@ import Foundation
 import UIKit
 
 #Preview {
-    ChessBoardView(frame: CGRect(x: 90, y: 270, width: 640, height: 640))
+    let stack = UIStackView()
+    stack.axis = .vertical
+    stack.isLayoutMarginsRelativeArrangement = true
+    stack.layoutMargins = UIEdgeInsets(top: 20, left: 33, bottom: 20, right: 20)
+    let board = ChessBoardView(frame:CGRect(x: 0, y: 0, width: 320, height: 320))
+    stack.addArrangedSubview(board)
+    return stack
 }
 
 @objc
@@ -114,28 +120,25 @@ class ChessBoardView: UIView {
 
     private func addMoveStartIndicationTo(_ square: SquareLayer) {
         let spot = CALayer()
-        let width = square.bounds.size.width
         spot.bounds = square.bounds
         spot.name = "spot"
-        spot.position = CGPoint(x: width / 2, y: width / 2)
+        spot.position = CGPoint(x: cellWidth / 2, y: cellWidth / 2)
         spot.backgroundColor = UIColor(named: "move_highlight")!.cgColor
         square.addSublayer(spot)
     }
 
     private func addMoveCaptureIndicationLayerTo(_ square: SquareLayer) {
-        let width = square.bounds.size.width
         let highlightColor = UIColor(named: "move_highlight")!.cgColor
-        let spot = createCaptureIndicationLayer(width: width, color: highlightColor)
+        let spot = createCaptureIndicationLayer(width: cellWidth, color: highlightColor)
         spot.bounds = square.bounds
         spot.name = "spot"
-        spot.position = CGPoint(x: width / 2, y: width / 2)
+        spot.position = CGPoint(x: cellWidth / 2, y: cellWidth / 2)
         spot.backgroundColor = highlightColor
         square.addSublayer(spot)
     }
 
     private func addMoveIndicationLayerTo(_ square: SquareLayer) {
         let spot = CALayer()
-        let cellWidth = square.bounds.size.width
         spot.bounds = CGRectMake(0, 0, cellWidth / 3, cellWidth / 3)
         spot.cornerRadius = cellWidth / 6
         spot.name = "spot"
@@ -236,7 +239,7 @@ class ChessBoardView: UIView {
     }
 
     private func newPiece(_ piece: Int, white isWhite: Bool) -> ChessPieceLayer {
-        let imageNames = [
+        let imageNames : [String] = [
             "whitePawnImage.png",
             "whiteKnightImage.png",
             "whiteBishopImage.png",
@@ -255,7 +258,6 @@ class ChessBoardView: UIView {
         let pieceLayer = ChessPieceLayer()
         let index = isWhite ? piece - 1 : piece + 5
         let image = UIImage(named: imageNames[index])!
-        let cellWidth = bounds.width / 8.0
 
         pieceLayer.contents = image.cgImage
         pieceLayer.isWhite = isWhite
@@ -271,10 +273,11 @@ class ChessBoardView: UIView {
     private var squares = [SquareLayer]()
     private var labels = [CATextLayer]()
     private var boardDirection = 1.0
-
+    private var cellWidth = 80.0
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupLayers()
+        commonInit()
     }
 
     required init?(coder: NSCoder) {
@@ -282,22 +285,37 @@ class ChessBoardView: UIView {
         commonInit()
     }
 
-    private func setupLayers() {
-        commonInit()
-    }
-    
     private func commonInit() {
         self.layer.addSublayer(boardLayer)
-        boardLayer.frame = bounds
+        updateCellSize()
         // 0,0 is the top left corner of the view, as god intended
         boardLayer.isGeometryFlipped = true
+        boardLayer.anchorPoint = CGPoint(x:0, y:0)
+        boardLayer.position = CGPoint(x: 0.0, y: 0.0)
         setupSquareLayers()
         setupLabelLayers()
+        updateBoardTransforms()
+    }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        updateCellSize()
+    }
+
+    public func updateCellSize() {
+        let newSize = min(bounds.size.width, bounds.size.height)
+        guard newSize != .zero else { return }
+
+        cellWidth = newSize / 8.0
+        boardLayer.frame = CGRect(x: 0, y: 0, width: newSize, height: newSize)
+        updateBoardTransforms()
+        updateSquareLayers()
+        updateLabelLayers()
+        setNeedsDisplay()
     }
 
     private func updateBoardTransforms() {
         let boardRotation = boardDirection > 0 ? 0.0 : Double.pi
-        // flipping the board requires an
         let boardTransform = CATransform3DMakeRotation(boardRotation, 0.0, 0.0, 1.0)
         let piecesTransform = CATransform3DMakeScale(boardDirection, boardDirection, 1.0)
         
@@ -314,15 +332,18 @@ class ChessBoardView: UIView {
     }
 
     private func setupSquareLayers() {
-        let white = UIColor(named: "white_square") ?? UIColor.white
-        let black = UIColor(named: "black_square") ?? UIColor.darkGray
-
-        let cellWidth = bounds.width / 8.0
-        
         for _ in 0..<64 {
             squares.append(SquareLayer())
         }
-        
+        updateSquareLayers()
+    }
+    
+    private func updateSquareLayers() {
+        if squares.isEmpty { return }
+
+        let white = UIColor(named: "white_square") ?? UIColor.white
+        let black = UIColor(named: "black_square") ?? UIColor.darkGray
+
         for row in 0..<8 {
             for col in 0..<8 {
                 let index = row * 8 + col
@@ -336,7 +357,6 @@ class ChessBoardView: UIView {
                 let squareLayer = squares[index]
                 squareLayer.backgroundColor = isWhiteSquare ? white.cgColor : black.cgColor
                 squareLayer.frame = rect
-                boardLayer.cornerRadius = 8.0
                 boardLayer.masksToBounds = true
                 boardLayer.addSublayer(squareLayer)
                 squares[index].square = index
@@ -353,14 +373,15 @@ class ChessBoardView: UIView {
     }
     
     private func updateLabelLayers() {
+        if labels.isEmpty { return }
+
         let rankLabels = ["a", "b", "c", "d", "e", "f", "g", "h"]
         let fileLabels = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
         let white = UIColor(named: "white_square") ?? UIColor.white
         let black = UIColor(named: "black_square") ?? UIColor.darkGray
 
-        let cellWidth = bounds.width / 8.0
-        let fontSize = 10.0 * cellWidth / 80.0
+        let fontSize = 16.0 * cellWidth / 80.0
         let leftMargin = 12.0 * cellWidth / 80.0
         let rightMargin = 14.0 * cellWidth / 80.0
         let bottomMargin = 10.0 * cellWidth / 80.0
