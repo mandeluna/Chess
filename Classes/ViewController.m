@@ -25,7 +25,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 @implementation ViewController
 
-@synthesize history, redoList, board, usePopoverController, remoteInstanceName;
+@synthesize history, redoList, board, remoteInstanceName;
 
 #pragma mark initialize
 
@@ -246,7 +246,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.placeholder = @"FEN";
-        textField.text = [board generateFEN];
+        textField.text = [self->board generateFEN];
         textField.keyboardType = UIKeyboardTypeDefault;
         // Further customization like secureTextEntry, delegate, etc.
     }];
@@ -255,18 +255,18 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
                                                      handler:^(UIAlertAction * action) {
         UITextField *inputTextField = alertController.textFields.firstObject;
         NSString *enteredText = inputTextField.text;
-        [board initializeSearch];
-        [board initializeNewBoard];
-        [board initializeFromFEN: enteredText];
+        [self->board initializeSearch];
+        [self->board initializeNewBoard];
+        [self->board initializeFromFEN: enteredText];
         
 #if !__has_feature(objc_arc)
         if (startingBoard) {
             [startingBoard release];
         }
 #endif
-        startingBoard = [board copy];
+        self->startingBoard = [self->board copy];
         
-        [self updateBoardLabels:board.activePlayer == board.whitePlayer];
+        [self updateBoardLabels:self->board.activePlayer == self->board.whitePlayer];
         [self applyStartNewGame];
         [self updateKingAttackIndicator];
     }];
@@ -539,8 +539,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     [notificationCenter addObserver:self selector:@selector(removedPiece:) name:@"RemovedPiece" object:nil];
     [notificationCenter addObserver:self selector:@selector(replacedPiece:) name:@"ReplacedPiece" object:nil];
     [notificationCenter addObserver:self selector:@selector(finishedGame:) name:@"FinishedGame" object:nil];
-    [notificationCenter addObserver:self selector:@selector(previousMove:) name:@"UndoMove" object:nil];
-    [notificationCenter addObserver:self selector:@selector(validateGamePosition) name:@"ValidateGamePosition" object:nil];
     
     if (self.chessboardView == nil) {
         self.chessboardView = [[ChessBoardView alloc] init];
@@ -559,31 +557,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     CGSize size = self.chessboardView.bounds.size;
     self.chessboardView.frame = CGRectMake(0, 0, size.width, size.height);
     [self.chessboardView layoutIfNeeded];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    
-    if (usePopoverController)
-        return YES;
-    
-    else
-        return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
 }
 
 #if !__has_feature(objc_arc)

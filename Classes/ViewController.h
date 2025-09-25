@@ -33,7 +33,6 @@
 @property(nonatomic, retain) NSMutableArray *history;
 @property(nonatomic, retain) NSMutableArray *redoList;
 @property(nonatomic, retain) ChessBoard *board;
-@property(nonatomic, assign) BOOL usePopoverController;
 @property(nonatomic, retain) NSString *remoteInstanceName;
 
 @property(nonatomic, retain) IBOutlet ChessBoardView *chessboardView;
