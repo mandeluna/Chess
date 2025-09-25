@@ -301,6 +301,27 @@ class ChessBoardView: UIView {
         super.layoutSubviews()
         updateCellSize()
     }
+    
+    public func updateBoard(_ pieces: [ChessPiece?]) {
+        for square in 0..<64 {
+            let newPiece = pieces[square]
+            let existingPiece = squares[square].pieceLayer
+
+            // 1. removing a piece
+            if newPiece == nil && existingPiece != nil {
+                removePiece(Int(existingPiece!.piece), at: square)
+            }
+            // 2. adding a piece
+            else if newPiece != nil && existingPiece == nil {
+                addPiece(Int(newPiece!.piece), at: square, white: newPiece!.isWhite)
+            }
+            // 3. replacing a piece
+            else if newPiece != nil && existingPiece != nil {
+                removePiece(Int(existingPiece!.piece), at: square)
+                addPiece(Int(newPiece!.piece), at: square, white: newPiece!.isWhite)
+            }
+        }
+    }
 
     public func updateCellSize() {
         let newSize = min(bounds.size.width, bounds.size.height)

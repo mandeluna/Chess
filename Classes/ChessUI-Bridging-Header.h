@@ -19,4 +19,3 @@
 // UI classes
 #import "SquareLayer.h"
 #import "ChessPieceLayer.h"
-#import "ViewController.h"

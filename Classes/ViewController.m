@@ -17,8 +17,6 @@
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
 
-#import <Chamonix-Swift.h>
-
 const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
 const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
 const int kMovingPieceMask = 0x070000;          // lower three bits of third byte is moving piece (0-6)
@@ -99,17 +97,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 }
 
 #pragma mark ChessUserAgent protocol
-
--(void)gameReset {
-    
-    // disable animations for game reset
-    [CATransaction begin];
-    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-    
-    [self.chessboardView removeMoveIndicationLayers];
-    
-    [CATransaction commit];
-}
 
 -(void)addedPiece:(NSNotification *)notification {
   NSDictionary *description = notification.object;
@@ -546,7 +533,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     [notificationCenter addObserver:self selector:@selector(startedThinking) name:@"StartedThinking" object:nil];
     [notificationCenter addObserver:self selector:@selector(stoppedThinking:) name:@"StoppedThinking" object:nil];
     
-    [notificationCenter addObserver:self selector:@selector(gameReset) name:@"GameReset" object:nil];
     [notificationCenter addObserver:self selector:@selector(addedPiece:) name:@"AddedPiece" object:nil];
     [notificationCenter addObserver:self selector:@selector(completedMove:) name:@"CompletedMove" object:nil];
     [notificationCenter addObserver:self selector:@selector(movedPiece:) name:@"MovedPiece" object:nil];
