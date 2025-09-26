@@ -134,7 +134,6 @@ static int PieceCenterScores[7][64] = {
 #pragma mark Adding/Removing
 
 -(void)addBlackPieces {
-
     for (int i=48; i<=55; i++) {
         [self addPiece:kPawn at: i];
     }
@@ -162,14 +161,17 @@ static int PieceCenterScores[7][64] = {
   [board updateHash:piece at:square from:self];
 
   if ([self hasUserAgent]) {
-    NSDictionary *description = @{ @"piece": [NSNumber numberWithInt:piece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:self.isWhitePlayer] };
+    NSDictionary *description = @{
+        @"piece": [NSNumber numberWithInt:piece],
+        @"square" : [NSNumber numberWithInt:square],
+        @"white" : [NSNumber numberWithBool:self.isWhitePlayer]
+    };
     NSString *notificationName = self.isWhitePlayer ? @"AddedPiece" : @"AddedPiece";
     [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:notificationName object:description];
   }
 }
 
 -(void)addWhitePieces {
-
     [self addPiece:kRook at:0];
     [self addPiece:kKnight at:1];
     [self addPiece:kBishop at:2];
@@ -196,7 +198,11 @@ static int PieceCenterScores[7][64] = {
   [board updateHash:piece at:destSquare from:self];
 
   if ([self hasUserAgent]) {
-    NSDictionary *description = @{ @"piece" : [NSNumber numberWithInt:piece], @"from": [NSNumber numberWithInt:sourceSquare], @"to" : [NSNumber numberWithInt:destSquare] };
+    NSDictionary *description = @{
+        @"piece" : [NSNumber numberWithInt:piece],
+        @"from": [NSNumber numberWithInt:sourceSquare],
+        @"to" : [NSNumber numberWithInt:destSquare]
+    };
     [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"MovedPiece" object:description];
   }
 }
@@ -246,7 +252,12 @@ static int PieceCenterScores[7][64] = {
     [board updateHash:newPiece at:square from:self];
 
   if ([self hasUserAgent]) {
-    NSDictionary *description = @{ @"old": [NSNumber numberWithInt:oldPiece], @"new" : [NSNumber numberWithInt:newPiece], @"square" : [NSNumber numberWithInt:square], @"white" : [NSNumber numberWithBool:[self isWhitePlayer]] };
+    NSDictionary *description = @{
+        @"old": [NSNumber numberWithInt:oldPiece],
+        @"new" : [NSNumber numberWithInt:newPiece],
+        @"square" : [NSNumber numberWithInt:square],
+        @"white" : [NSNumber numberWithBool:[self isWhitePlayer]]
+    };
     [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"ReplacedPiece" object:description];
   }
 }

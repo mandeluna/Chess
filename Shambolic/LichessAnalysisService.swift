@@ -7,14 +7,10 @@
 
 import Foundation
 
-actor LichessAnalysisService {
+@MainActor class LichessAnalysisService {
     // Mark as nonisolated(unsafe) if the client is truly thread-safe
-    private nonisolated(unsafe) let apiClient: APIClient
+    private let apiClient = APIClient()
     
-    init(apiClient: APIClient = APIClient()) {
-        self.apiClient = apiClient
-    }
-
     func analyzePosition(board: [[ChessPiece?]], maxDepth: Int = 20) async -> LichessAnalysis? {
         let fen = convertToFEN(board: board)
         

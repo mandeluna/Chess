@@ -30,6 +30,8 @@ struct ChessView: View {
                     
                     ChessBoardViewWrapper()
                         .environmentObject(gameState)
+                    
+                    Text(gameState.statusMessage)
                 }
             } else {
                 // Landscape layout

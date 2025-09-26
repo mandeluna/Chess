@@ -10,71 +10,6 @@ import Combine
 
 typealias PieceDescription = [String:Any]
 
-enum PieceType: Int32 {
-    case unknown = -1, empty, pawn, knight, bishop, rook, queen, king
-    var value: Int {
-        switch self {
-        case .pawn: return 1
-        case .knight: return 3
-        case .bishop: return 3
-        case .rook: return 5
-        case .queen: return 9
-        case .king: return 0    // kings aren't captured
-        default: return 0
-        }
-    }
-
-    // return only filled symbols
-    var symbol: String {
-        switch self {
-        case .pawn: return "♟"
-        case .knight: return "♞"
-        case .bishop: return "♝"
-        case .rook: return "♜"
-        case .queen: return "♛"
-        case .king: return "♚"
-        default: return ""
-        }
-    }
-}
-
-struct ChessPiece: Equatable, Hashable {
-    var piece: Int32
-    var square: Int
-    var isWhite: Bool
-    var type: PieceType
-    
-    init(piece: Int32, square: Int, isWhite: Bool) {
-        self.piece = piece
-        self.square = square
-        self.isWhite = isWhite
-        self.type = PieceType(rawValue: piece) ?? PieceType.unknown
-    }
-    
-    init(type: PieceType, square: Int, isWhite: Bool) {
-        self.piece = type.rawValue
-        self.square = square
-        self.isWhite = isWhite
-        self.type = type
-    }
-
-    var symbol: String {
-        switch type {
-        case .pawn: return isWhite ? "♙" : "♟"
-        case .knight: return isWhite ? "♘" : "♞"
-        case .bishop: return isWhite ? "♗" : "♝"
-        case .rook: return isWhite ? "♖" : "♜"
-        case .queen: return isWhite ? "♕" : "♛"
-        case .king: return isWhite ? "♔" : "♚"
-        default: return ""
-        }
-    }
-}
-
-enum PieceColor {
-    case black, white
-}
-
 struct CapturedPieces {
     var white: [ChessPiece] = []
     var black:[ChessPiece] = []
@@ -99,6 +34,15 @@ struct CapturedPieces {
         }.joined(separator: " ")
     }
     
+    mutating func append(piece: ChessPiece) {
+        if piece.isWhite {
+            white.append(piece)
+        }
+        else {
+            black.append(piece)
+        }
+    }
+
     func displayPieces(isWhite: Bool) -> String {
         let compressed = compressCapturedPieces(isWhite ? white.map(\.type) : black.map(\.type))
         return displayCompressedPieces(compressed, isWhite: isWhite)
@@ -111,6 +55,7 @@ struct CapturedPieces {
 
 class ChessGame: ObservableObject {
     @Published var pieces: [ChessPiece?] = Array(repeating: nil, count: 64)
+    @Published var lastMove: ChessMove? = nil
     @Published var moveHistory: [ChessMove] = []
     @Published var capturedPieces = CapturedPieces()
     @Published var kingAttack: ChessMove? = nil
@@ -210,9 +155,8 @@ class ChessGame: ObservableObject {
             "ReplacedPiece" : { [weak self] dictionary in self?.handleReplacedPiece(dictionary: dictionary) },
             "FinishedGame" : { [weak self] dictionary in self?.handleFinishedGame(dictionary: dictionary) },
             "UndoMove" : { [weak self] dictionary in self?.handleUndoMove(dictionary: dictionary) },
-            "ValidateGamePosition" : { [weak self] dictionary in self?.handleAddedPiece(dictionary: dictionary) },
-            "StartedThinking" : { [weak self] dictionary in self?.handleAddedPiece(dictionary: dictionary) },
-            "StoppedThinking" : { [weak self] dictionary in self?.handleAddedPiece(dictionary: dictionary) }
+            "StartedThinking" : { [weak self] dictionary in self?.handleSearchStarted(dictionary: dictionary) },
+            "StoppedThinking" : { [weak self] dictionary in self?.handleSearchCompleted(dictionary: dictionary) }
         ]
         for handler in handlers {
             NotificationCenter.default.publisher(for: Notification.Name(handler.key))
@@ -256,10 +200,9 @@ class ChessGame: ObservableObject {
               let square = dictionary["square"] as? Int else { return }
         
         if let piece = pieces[square] {
-            print("Error: there is no piece at \(square) to be captured")
             piece.isWhite ? capturedPieces.white.append(piece) : capturedPieces.black.append(piece)
+            pieces[square] = nil
         }
-        pieces[square] = nil
     }
 
     // handle promotion of pawn
@@ -284,6 +227,30 @@ class ChessGame: ObservableObject {
     private func handleUndoMove(dictionary: PieceDescription) {
         // notifications for undo will come from ChessPlayer>>undoMove
         // TODO: board move counters and timers will be all messed up -- we should replay the board from the beginning of the list
+    }
+    
+    private func handleSearchStarted(dictionary: PieceDescription) {
+    }
+    
+    private func handleSearchCompleted(dictionary: PieceDescription) {
+        let encodedMove = dictionary["bestmove"] as? Int
+
+        if encodedMove == nil {
+            statusMessage = dictionary["reason"] as? String ?? "No move found"
+            board.searchAgent.cancelSearch()
+            return
+        }
+
+        let isWhite = board.activePlayer == board.whitePlayer
+        let move = ChessMove.decode(from: Int32(encodedMove!))
+        let square = Int(move.destinationSquare)
+
+        if let piece = pieces[square] {
+            capturedPieces.append(piece: piece)
+        }
+
+        pieces[Int(move.sourceSquare)] = nil
+        pieces[square] = ChessPiece(piece: move.movingPiece, square: square, isWhite: isWhite)
     }
     
     private func updateStatusMessage(isWhite: Bool) {

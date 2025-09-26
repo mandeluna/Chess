@@ -8,16 +8,6 @@
 import Foundation
 import UIKit
 
-#Preview {
-    let stack = UIStackView()
-    stack.axis = .vertical
-    stack.isLayoutMarginsRelativeArrangement = true
-    stack.layoutMargins = UIEdgeInsets(top: 20, left: 33, bottom: 20, right: 20)
-    let board = ChessBoardView(frame:CGRect(x: 0, y: 0, width: 320, height: 320))
-    stack.addArrangedSubview(board)
-    return stack
-}
-
 @objc
 protocol ChessBoardViewDelegate: AnyObject {
     // Primary method for selection validation
@@ -493,8 +483,6 @@ class ChessBoardView: UIView {
         guard let touch = touches.first else { return }
 
         let index = squareFor(touch)
-
-        print("Touched square \(index)")
         self .handleSelection(at: index)
     }
     
