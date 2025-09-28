@@ -13,8 +13,6 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28D7ACF80DDB3853001CB0EB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* ViewController.m */; };
-		690A3CE3126239C900E1173B /* blackButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE2126239C900E1173B /* blackButton.png */; };
-		690A3CE512623A2E00E1173B /* clearButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 690A3CE412623A2E00E1173B /* clearButton.png */; };
 		690A3D981262467500E1173B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 690A3D971262467500E1173B /* AVFoundation.framework */; };
 		690E50ED123417E600DC1CED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		690E510112341DB500DC1CED /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
@@ -30,17 +28,15 @@
 		690E510B12341DB500DC1CED /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
 		690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
 		69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69357758164715F600BEE7BC /* Default-568h@2x.png */; };
-		6935776416472D8000BEE7BC /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775E16472D7F00BEE7BC /* icon@2x.png */; };
-		6935776516472D8000BEE7BC /* icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935775F16472D7F00BEE7BC /* icon-72.png */; };
-		6935776616472D8000BEE7BC /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776016472D7F00BEE7BC /* icon-small@2x.png */; };
-		6935776716472D8000BEE7BC /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776116472D7F00BEE7BC /* icon.png */; };
-		6935776816472D8000BEE7BC /* icon-small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776216472D7F00BEE7BC /* icon-small-50.png */; };
-		6935776916472D8000BEE7BC /* icon-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 6935776316472D8000BEE7BC /* icon-small.png */; };
 		6942FA6C1220A569002E59B5 /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
 		69B6A6EF17889B0500A56015 /* Storyboard_ipad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */; };
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
+		AA3B00582E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
+		AA3B00592E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
+		AA3B005A2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
+		AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA46E0872E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA46E0882E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA46E0892E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
@@ -218,8 +214,6 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Chess_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chess_Prefix.pch; sourceTree = "<group>"; };
 		690A3C801262310D00E1173B /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
-		690A3CE2126239C900E1173B /* blackButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackButton.png; sourceTree = "<group>"; };
-		690A3CE412623A2E00E1173B /* clearButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clearButton.png; sourceTree = "<group>"; };
 		690A3D911262466B00E1173B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		690A3D971262467500E1173B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		690A3D9F1262468E00E1173B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -238,12 +232,6 @@
 		690E50FF12341DB500DC1CED /* blackKingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKingImage.png; sourceTree = "<group>"; };
 		690E510012341DB500DC1CED /* blackBishopImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackBishopImage.png; sourceTree = "<group>"; };
 		69357758164715F600BEE7BC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		6935775E16472D7F00BEE7BC /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
-		6935775F16472D7F00BEE7BC /* icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-72.png"; sourceTree = "<group>"; };
-		6935776016472D7F00BEE7BC /* icon-small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small@2x.png"; sourceTree = "<group>"; };
-		6935776116472D7F00BEE7BC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		6935776216472D7F00BEE7BC /* icon-small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small-50.png"; sourceTree = "<group>"; };
-		6935776316472D8000BEE7BC /* icon-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-small.png"; sourceTree = "<group>"; };
 		6942FA6A1220A569002E59B5 /* ChessPieceLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChessPieceLayer.h; sourceTree = "<group>"; };
 		6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChessPieceLayer.m; sourceTree = "<group>"; };
 		69B6A6EE17889B0500A56015 /* Storyboard_ipad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard_ipad.storyboard; sourceTree = "<group>"; };
@@ -253,6 +241,8 @@
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* Chess-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Chess-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		AA1B020E2E2830B3009FDDAC /* Chess.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Chess.xctestplan; sourceTree = "<group>"; };
+		AA3B00562E88B4460069BE8B /* CaptureView.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = CaptureView.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		AA3B00572E88C1E40069BE8B /* chess.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = chess.icon; sourceTree = "<group>"; };
 		AA58A9242E67778E0005DE9C /* ChessConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChessConstants.h; sourceTree = "<group>"; };
 		AA58A9262E6777A20005DE9C /* ChessConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChessConstants.m; sourceTree = "<group>"; };
 		AA6C796F2E5E380800263171 /* todo.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = todo.md; sourceTree = "<group>"; };
@@ -469,6 +459,7 @@
 				AA8C18902E3D61D500FCA8A7 /* Logger.h */,
 				32CA4F630368D1EE00C91783 /* Chess_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
+				AA3B00562E88B4460069BE8B /* CaptureView.playground */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -477,9 +468,9 @@
 			isa = PBXGroup;
 			children = (
 				692653C21220563000D527C5 /* Chess */,
-				69C4839A1218A3EF00089898 /* images */,
 				8D1107310486CEB800E47090 /* Chess-Info.plist */,
 				AAD847E72E739124007AC1E2 /* ChessGame.xcassets */,
+				AA3B00572E88C1E40069BE8B /* chess.icon */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -544,21 +535,6 @@
 				69C4838E12189F2500089898 /* MainWindow-iPad.xib */,
 			);
 			name = "Resources-iPad";
-			sourceTree = "<group>";
-		};
-		69C4839A1218A3EF00089898 /* images */ = {
-			isa = PBXGroup;
-			children = (
-				6935775E16472D7F00BEE7BC /* icon@2x.png */,
-				6935775F16472D7F00BEE7BC /* icon-72.png */,
-				6935776016472D7F00BEE7BC /* icon-small@2x.png */,
-				6935776116472D7F00BEE7BC /* icon.png */,
-				6935776216472D7F00BEE7BC /* icon-small-50.png */,
-				6935776316472D8000BEE7BC /* icon-small.png */,
-				690A3CE412623A2E00E1173B /* clearButton.png */,
-				690A3CE2126239C900E1173B /* blackButton.png */,
-			);
-			name = images;
 			sourceTree = "<group>";
 		};
 		AA887B8B2E1B12A2002AA7A4 /* Extensions */ = {
@@ -824,17 +800,10 @@
 				690E510A12341DB500DC1CED /* blackKnightImage.png in Resources */,
 				690E510B12341DB500DC1CED /* blackKingImage.png in Resources */,
 				690E510C12341DB500DC1CED /* blackBishopImage.png in Resources */,
-				690A3CE3126239C900E1173B /* blackButton.png in Resources */,
-				690A3CE512623A2E00E1173B /* clearButton.png in Resources */,
 				69357759164715F600BEE7BC /* Default-568h@2x.png in Resources */,
-				6935776416472D8000BEE7BC /* icon@2x.png in Resources */,
 				AA6C79702E5E380800263171 /* todo.md in Resources */,
-				6935776516472D8000BEE7BC /* icon-72.png in Resources */,
-				6935776616472D8000BEE7BC /* icon-small@2x.png in Resources */,
-				6935776716472D8000BEE7BC /* icon.png in Resources */,
-				6935776816472D8000BEE7BC /* icon-small-50.png in Resources */,
-				6935776916472D8000BEE7BC /* icon-small.png in Resources */,
 				69B6A6EF17889B0500A56015 /* Storyboard_ipad.storyboard in Resources */,
+				AA3B005A2E88C1E40069BE8B /* chess.icon in Resources */,
 				69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -863,6 +832,7 @@
 				AA46E08E2E85F37A00839E11 /* whiteKnightImage.png in Resources */,
 				AA46E08F2E85F37A00839E11 /* whiteBishopImage.png in Resources */,
 				AA46E0902E85F37A00839E11 /* blackQueenImage.png in Resources */,
+				AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */,
 				AA46E0912E85F37A00839E11 /* blackPawnImage.png in Resources */,
 				AA46E0922E85F37A00839E11 /* whiteQueenImage.png in Resources */,
 				AA46E0932E85F37A00839E11 /* whitePawnImage.png in Resources */,
@@ -890,6 +860,7 @@
 				AA46E0A12E85F37A00839E11 /* blackKingImage.png in Resources */,
 				AA46E0A22E85F37A00839E11 /* whiteKingImage.png in Resources */,
 				AA46E0A32E85F37A00839E11 /* blackBishopImage.png in Resources */,
+				AA3B00592E88C1E40069BE8B /* chess.icon in Resources */,
 				AA46E0A42E85F37A00839E11 /* blackRookImage.png in Resources */,
 				AA46E08B2E85F36C00839E11 /* ChessGame.xcassets in Resources */,
 			);
@@ -910,6 +881,7 @@
 				AA46E0AD2E85F37A00839E11 /* blackKingImage.png in Resources */,
 				AA46E0AE2E85F37A00839E11 /* whiteKingImage.png in Resources */,
 				AA46E0AF2E85F37A00839E11 /* blackBishopImage.png in Resources */,
+				AA3B00582E88C1E40069BE8B /* chess.icon in Resources */,
 				AA46E0B02E85F37A00839E11 /* blackRookImage.png in Resources */,
 				AA46E08C2E85F36C00839E11 /* ChessGame.xcassets in Resources */,
 			);
@@ -1034,6 +1006,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = chess;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
@@ -1067,6 +1041,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = chess;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
@@ -1447,7 +1423,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = chess;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1512,7 +1488,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = chess;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
