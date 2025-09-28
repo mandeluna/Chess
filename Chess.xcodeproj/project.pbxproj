@@ -515,7 +515,6 @@
 				28D7ACF70DDB3853001CB0EB /* ViewController.m */,
 				AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */,
 				AAD690772E85D76300CFCFED /* ChessPiece.swift */,
-				AA38ECC62E8463FD00D23422 /* SwiftUI */,
 			);
 			name = "User Agent";
 			sourceTree = "<group>";
@@ -560,13 +559,6 @@
 				690A3CE2126239C900E1173B /* blackButton.png */,
 			);
 			name = images;
-			sourceTree = "<group>";
-		};
-		AA38ECC62E8463FD00D23422 /* SwiftUI */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SwiftUI;
 			sourceTree = "<group>";
 		};
 		AA887B8B2E1B12A2002AA7A4 /* Extensions */ = {
@@ -1052,6 +1044,7 @@
 				GCC_PREFIX_HEADER = Chess_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Shaman Chess";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1082,6 +1075,7 @@
 				GCC_PREFIX_HEADER = Chess_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "Chess-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Shaman Chess";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.strategy-games";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (

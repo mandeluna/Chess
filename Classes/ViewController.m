@@ -456,6 +456,66 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 #pragma mark callbacks
 
+// Gesture handler
+- (void)moveListTextViewTapped:(UITapGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateRecognized) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Move List" message:@"What would you like to do?" preferredStyle:UIAlertControllerStyleActionSheet];
+
+        // Copy PGN
+        [alert addAction:[UIAlertAction actionWithTitle:@"Copy Move List"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self exportMoveList];
+        }]];
+
+        // Analyze on Lichess
+        [alert addAction:[UIAlertAction actionWithTitle:@"Analyze on Lichess.org"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self analyzeOnLichess];
+        }]];
+
+        // Analyze on Chess.com
+        [alert addAction:[UIAlertAction actionWithTitle:@"Analyze on Chess.com"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self analyzeOnChessCom];
+        }]];
+
+        // Cancel
+        [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+        // On iPad, present as popover from the textView
+        alert.popoverPresentationController.sourceView = self.moveListTextView;
+        alert.popoverPresentationController.sourceRect = self.moveListTextView.bounds;
+
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+}
+
+// Helper: Analyze on Lichess
+- (void)analyzeOnLichess {
+    // Use PGN for the current board position and the move history
+    NSString *pgnEncoded = [[self formatMoveHistory:NO] stringByReplacingOccurrencesOfString:@" " withString: @"_"];
+    NSString *urlString = [NSString stringWithFormat:@"https://lichess.org/analysis/pgn/%@", pgnEncoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (url) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    }
+}
+
+// Helper: Analyze on Chess.com
+- (void)analyzeOnChessCom {
+    // Use FEN for the current board position
+    NSString *fen = [self->board generateFEN];
+    NSString *fenEncoded = [fen stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"https://www.chess.com/analysis?tab=analysis&fen=%@", fenEncoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (url) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    }
+}
+
 //
 // notification callback for think thread
 //
@@ -546,6 +606,14 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     }
     
     self.chessboardView.delegate = self;
+    
+    // Add tap gesture to move list
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(moveListTextViewTapped:)];
+    _moveListTextView.userInteractionEnabled = YES;
+    [_moveListTextView addGestureRecognizer:tapGesture];
+#if !__has_feature(objc_arc)
+    [tapGesture release];
+#endif
 
     [self startNewGame];
 }

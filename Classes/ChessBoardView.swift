@@ -276,7 +276,7 @@ class ChessBoardView: UIView {
     }
 
     private func commonInit() {
-        self.layer.addSublayer(boardLayer)
+        layer.addSublayer(boardLayer)
         updateCellSize()
         // 0,0 is the top left corner of the view, as god intended
         boardLayer.isGeometryFlipped = true
@@ -286,9 +286,16 @@ class ChessBoardView: UIView {
         setupLabelLayers()
         updateBoardTransforms()
     }
+    
+//    private var label = UILabel()
 
     public override func layoutSubviews() {
         super.layoutSubviews()
+//        label.text = "size: \(bounds.size)"
+//        label.textColor = .white
+//        label.backgroundColor = UIColor(white: 0.2, alpha: 0.5)
+//        label.frame = CGRect(x: 80, y: 150, width: 160, height: 20)
+//        addSubview(label)
         updateCellSize()
     }
     
