@@ -282,6 +282,7 @@ class ChessBoardView: UIView {
         boardLayer.isGeometryFlipped = true
         boardLayer.anchorPoint = CGPoint(x:0, y:0)
         boardLayer.position = CGPoint(x: 0.0, y: 0.0)
+        boardLayer.masksToBounds = true
         setupSquareLayers()
         setupLabelLayers()
         updateBoardTransforms()
@@ -351,7 +352,9 @@ class ChessBoardView: UIView {
 
     private func setupSquareLayers() {
         for _ in 0..<64 {
-            squares.append(SquareLayer())
+            let squareLayer = SquareLayer()
+            squares.append(squareLayer)
+            boardLayer.addSublayer(squareLayer)
         }
         updateSquareLayers()
     }
@@ -375,8 +378,6 @@ class ChessBoardView: UIView {
                 let squareLayer = squares[index]
                 squareLayer.backgroundColor = isWhiteSquare ? white.cgColor : black.cgColor
                 squareLayer.frame = rect
-                boardLayer.masksToBounds = true
-                boardLayer.addSublayer(squareLayer)
                 squares[index].square = index
                 
             }
