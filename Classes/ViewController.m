@@ -17,15 +17,9 @@
 #import "ChessMoveList.h"
 #import "ChessMoveGenerator.h"
 
-const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
-const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
-const int kMovingPieceMask = 0x070000;          // lower three bits of third byte is moving piece (0-6)
-const int kCapturedPieceMask = 0x07000000;      // lower three bits of most significant byte is captured piece (0-6)
-const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most significant byte is move type (0-15)
-
 @implementation ViewController
 
-@synthesize history, redoList, board, remoteInstanceName;
+@synthesize history, board;
 
 #pragma mark initialize
 
@@ -41,13 +35,12 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 // the argument is the color of the last player to move
 //
 -(void)updateBoardLabels:(BOOL)white {
-	
     NSArray *whiteMoves = [board.whitePlayer findValidMoves];
     NSArray *blackMoves = [board.blackPlayer findValidMoves];
     NSArray *moves = (board.activePlayer == board.whitePlayer) ? whiteMoves : blackMoves;
-
+    
     NSString *statusMessage;
-  
+    
     // no moves for the active player (findValidMoves returns an empty array, but findPossibleMoves returns nil)
     if ([moves count] == 0) {
         statusMessage = @"Checkmate";
@@ -55,27 +48,27 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
     }
-	else if (board.halfmoveClock >= 100) {
-		statusMessage = @"Draw (50 move rule)";
+    else if (board.halfmoveClock >= 100) {
+        statusMessage = @"Draw (50 move rule)";
         autoPlay = NO;
         isClockTicking = NO;
         [board.searchAgent cancelSearch];
-	}
+    }
     else {
         statusMessage = white ? @"White‘s move" : @"Black‘s move";
     }
-
+    
     self.gameStatusLabel.text = [NSString stringWithFormat:@"%@", statusMessage];
     self.moveListTextView.text = [self formatMoveHistory:YES];
 }
 
 -(NSString *)formatMoveHistory:(BOOL)unicodeGlyphs {
     NSString *result = @"";
-  
+    
     int moveNumber = startingBoard.fullmoveNumber;
     BOOL whiteToPlay = startingBoard.activePlayer == startingBoard.whitePlayer;
     ChessBoard *workingBoard = [startingBoard copy];
-
+    
     for (int i = 0; i < [history count]; i++) {
         // normally white starts, but if we loaded from a FEN string, the first move might be black
         // increment the move number on black's move (full move number starts at 1 from starting position)
@@ -99,11 +92,11 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 #pragma mark ChessUserAgent protocol
 
 -(void)addedPiece:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  NSNumber *piece = [description objectForKey:@"piece"];
-  NSNumber *square = [description objectForKey:@"square"];
-  NSNumber *white = [description objectForKey:@"white"];
-  [self.chessboardView addPiece:[piece intValue] at:[square intValue] white:[white boolValue]];
+    NSDictionary *description = notification.object;
+    NSNumber *piece = [description objectForKey:@"piece"];
+    NSNumber *square = [description objectForKey:@"square"];
+    NSNumber *white = [description objectForKey:@"white"];
+    [self.chessboardView addPiece:[piece intValue] at:[square intValue] white:[white boolValue]];
 }
 
 -(void)completedMove:(NSNotification *)notification {
@@ -118,7 +111,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     if ([board.generator kingAttack]) {
         return [board.generator kingAttack];
     }
-
+    
     [board.blackPlayer findPossibleMoves];
     if ([board.generator kingAttack]) {
         return [board.generator kingAttack];
@@ -128,9 +121,9 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 -(NSArray *)captureSquares {
     NSArray *moves = board.activePlayer == board.whitePlayer ?
-        [board.whitePlayer findPossibleMoves] :
-        [board.blackPlayer findPossibleMoves];
-
+    [board.whitePlayer findPossibleMoves] :
+    [board.blackPlayer findPossibleMoves];
+    
     NSMutableArray *result = [NSMutableArray array];
     for (ChessMove *move in moves) {
         if (move.capturedPiece != 0) {
@@ -170,19 +163,19 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 }
 
 -(void)removedPiece:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  NSNumber *piece = [description objectForKey:@"piece"];
-  NSNumber *square = [description objectForKey:@"square"];
-  [self.chessboardView removePiece:[piece intValue] at:[square intValue]];
+    NSDictionary *description = notification.object;
+    NSNumber *piece = [description objectForKey:@"piece"];
+    NSNumber *square = [description objectForKey:@"square"];
+    [self.chessboardView removePiece:[piece intValue] at:[square intValue]];
 }
 
 -(void)replacedPiece:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  NSNumber *old = [description objectForKey:@"old"];
-  NSNumber *new = [description objectForKey:@"new"];
-  NSNumber *square = [description objectForKey:@"square"];
-  NSNumber *white = [description objectForKey:@"white"];
-  [self replacedPiece:[old intValue] with:[new intValue] at:[square intValue] white:[white boolValue]];
+    NSDictionary *description = notification.object;
+    NSNumber *old = [description objectForKey:@"old"];
+    NSNumber *new = [description objectForKey:@"new"];
+    NSNumber *square = [description objectForKey:@"square"];
+    NSNumber *white = [description objectForKey:@"white"];
+    [self replacedPiece:[old intValue] with:[new intValue] at:[square intValue] white:[white boolValue]];
 }
 
 -(void)replacedPiece:(int)oldPiece with:(int)newPiece at:(int)square white:(BOOL)isWhitePlayer {
@@ -197,33 +190,30 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 // result == 1   : white won
 //
 -(void)finishedGame:(NSNotification *)notification {
-//  NSDictionary *description = notification.object;
-//  NSNumber *white = [description objectForKey:@"white"];
-//  NSNumber *stalemate = [description objectForKey:@"stalemate"];
-
-  self.board = nil;
+    //  NSDictionary *description = notification.object;
+    //  NSNumber *white = [description objectForKey:@"white"];
+    //  NSNumber *stalemate = [description objectForKey:@"stalemate"];
+    
+    self.board = nil;
 }
 
 -(void)undoMove:(NSNotification *)notification {
-  NSDictionary *description = notification.object;
-  ChessMove *move = [description objectForKey:@"move"];
-  NSNumber *white = [description objectForKey:@"white"];
-  [self undoMove:move white:[white boolValue]];
+    NSDictionary *description = notification.object;
+    ChessMove *move = [description objectForKey:@"move"];
+    NSNumber *white = [description objectForKey:@"white"];
+    [self undoMove:move white:[white boolValue]];
 }
 
 -(void)undoMove:(ChessMove *)move white:(BOOL)isWhitePlayer {
-  if (!board)
-      return;
-      
-  [redoList addObject:move];
-
-  [self updateBoardLabels:isWhitePlayer];
+    if (!board)
+        return;
+    
+    [self updateBoardLabels:isWhitePlayer];
 }
 
 #pragma mark playing
 
 -(IBAction)autoPlay {
-    
     autoPlay = !autoPlay;
     if (autoPlay) {
         [self play];
@@ -231,13 +221,11 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 }
 
 -(IBAction)findBestMove {
-    
     if (![board.searchAgent isReady])
         return;
     
     [board.searchAgent startSearchThread];
 }
-
 
 -(void)editFENString {
     UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Edit board positions"
@@ -277,69 +265,65 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     
     [alertController addAction:cancelAction];
     [alertController addAction:okAction];
-
+    
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
 -(void)startNewGame {
     if (!board) {
-      ChessBoard *newBoard = [[ChessBoard alloc] init];
-      [newBoard resetGame];
-      newBoard.hasUserAgent = YES;
-      self.board = newBoard;
+        ChessBoard *newBoard = [[ChessBoard alloc] init];
+        [newBoard resetGame];
+        newBoard.hasUserAgent = YES;
+        self.board = newBoard;
 #if !__has_feature(objc_arc)
-      [newBoard release];
+        [newBoard release];
 #endif
     }
     [board initializeSearch];
     [board initializeNewBoard];
 #if !__has_feature(objc_arc)
-        if (startingBoard) {
-            [startingBoard release];
-        }
+    if (startingBoard) {
+        [startingBoard release];
+    }
 #endif
     startingBoard = [board copy];
-
+    
     [self applyStartNewGame];
 }
 
 -(void)applyStartNewGame {
     autoPlay = NO;
     self.history = [NSMutableArray array];
-    self.redoList = [NSMutableArray array];
-
+    
     [self.chessboardView removeAttackIndicationLayers];
-
+    
     elapsedTimeBlack = elapsedTimeWhite = 0.0;
     isClockTicking = YES;
-
+    
     [self updateBoardLabels:YES];
 }
 
 -(IBAction)newGame {
-  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Game Options" message:@"" preferredStyle:UIAlertControllerStyleAlert];
-  NSString *autoPlayLabel = autoPlay ? @"Manual play" : @"Autoplay";
-  [alert addAction:[UIAlertAction actionWithTitle:autoPlayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-    [self autoPlay];
-  }]];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Reset Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-    [self startNewGame];
-  }]];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Edit Board" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-      [self editFENString];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Game Options" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    NSString *autoPlayLabel = autoPlay ? @"Manual play" : @"Autoplay";
+    [alert addAction:[UIAlertAction actionWithTitle:autoPlayLabel style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self autoPlay];
     }]];
-  [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-  
-  [self presentViewController:alert animated:YES completion:nil];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Reset Board" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+        [self startNewGame];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Edit Board" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self editFENString];
+    }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 -(void)movePieceFrom:(int)sourceSquare to:(int)destSquare {
-    if (!board)
-        return;
-
     if (![board.searchAgent isReady])
         return;
-
+    
     [board movePieceFrom:sourceSquare to:destSquare];
     [board.searchAgent startSearchThread];
 }
@@ -373,7 +357,6 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     [move retain];
 #endif
     [history removeLastObject];
-    
     [board undoMove:move];
     
 #if !__has_feature(objc_arc)
@@ -405,9 +388,9 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
         (board.activePlayer == board.blackPlayer && whiteToPlay)) {
         return;
     }
-
+    
     [self.chessboardView removeMoveIndicationLayers];
-
+    
     NSArray *moves = [board.activePlayer findValidMovesAt:square];
     NSArray *captureSquares = [self captureSquares];
     
@@ -417,39 +400,39 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 -(SelectionContext *)chessboardView:(ChessBoardView *)chessboardView
                        shouldSelect:(NSInteger)square
                withCurrentSelection:(SelectionContext *)selection {
-
+    
     if (![board.searchAgent isReady]) {
         return nil;
     }
-
+    
     SelectionContext *candidate = [self.chessboardView selectionInfoFor:square];
-
+    
     // if we have a current selection, this is a destination selection attempt
     if (selection.square == candidate.square) {
         return nil;
     }
-
+    
     // no current selection -- this is a piece selection attempt
     int piece = [board.activePlayer pieceAt:(int)square];
-
+    
     if (piece <= 0) {
         return nil;
     }
-
+    
     candidate.moves = [board.activePlayer findValidMovesAt:(int)square];
     candidate.captures = [self captureSquares];
-
+    
     return candidate;
 }
 
 -(void)chessboardView:(ChessBoardView *)chessboardView
      didMovePieceFrom:(NSInteger)sourceIndex
                    to:(NSInteger)destIndex {
-
+    
     [self movePieceFrom:(int)sourceIndex to:(int)destIndex];
 }
 
-- (NSInteger)chessboardView:(ChessBoardView * _Nonnull)chessboardView pieceFor:(NSInteger)square { 
+- (NSInteger)chessboardView:(ChessBoardView * _Nonnull)chessboardView pieceFor:(NSInteger)square {
     return [board.activePlayer pieceAt:(int)square];
 }
 
@@ -458,37 +441,42 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 
 // Gesture handler
 - (void)moveListTextViewTapped:(UITapGestureRecognizer *)recognizer {
+    
+    if (_moveListTextView.text.length == 0) {
+        return;
+    }
+    
     if (recognizer.state == UIGestureRecognizerStateRecognized) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Move List" message:@"What would you like to do?" preferredStyle:UIAlertControllerStyleActionSheet];
-
+        
         // Copy PGN
         [alert addAction:[UIAlertAction actionWithTitle:@"Copy Move List"
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction *action) {
             [self exportMoveList];
         }]];
-
+        
         // Analyze on Lichess
         [alert addAction:[UIAlertAction actionWithTitle:@"Analyze on Lichess.org"
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction *action) {
             [self analyzeOnLichess];
         }]];
-
+        
         // Analyze on Chess.com
         [alert addAction:[UIAlertAction actionWithTitle:@"Analyze on Chess.com"
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction *action) {
             [self analyzeOnChessCom];
         }]];
-
+        
         // Cancel
         [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-
+        
         // On iPad, present as popover from the textView
         alert.popoverPresentationController.sourceView = self.moveListTextView;
         alert.popoverPresentationController.sourceRect = self.moveListTextView.bounds;
-
+        
         [self presentViewController:alert animated:YES completion:nil];
     }
 }
@@ -614,7 +602,7 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 #if !__has_feature(objc_arc)
     [tapGesture release];
 #endif
-
+    
     [self startNewGame];
 }
 
@@ -626,16 +614,5 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     self.chessboardView.frame = CGRectMake(0, 0, size.width, size.height);
     [self.chessboardView layoutIfNeeded];
 }
-
-#if !__has_feature(objc_arc)
-- (void)dealloc {
-    [board release];
-    
-    [redoList release]; redoList = nil;
-    [history release]; history = nil;
-    [_moveListExportButton release];
-    [super dealloc];
-}
-#endif
 
 @end

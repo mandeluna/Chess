@@ -280,7 +280,7 @@ class ChessBoardView: UIView {
         updateCellSize()
         // 0,0 is the top left corner of the view, as god intended
         boardLayer.isGeometryFlipped = true
-        boardLayer.anchorPoint = CGPoint(x:0, y:0)
+        boardLayer.anchorPoint = CGPoint(x:0.5, y:0.5)
         boardLayer.position = CGPoint(x: 0.0, y: 0.0)
         boardLayer.masksToBounds = true
         setupSquareLayers()

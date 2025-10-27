@@ -25,12 +25,12 @@
                                     <constraint firstAttribute="width" secondItem="3Wo-WC-lfv" secondAttribute="height" multiplier="1:1" id="9wP-d8-eo3"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="8" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cJK-s0-L7d" userLabel="Engine Info Label">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cJK-s0-L7d" userLabel="Engine Info Label">
                                 <rect key="frame" x="0.0" y="383" width="375" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="x8y-Ck-b0D"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -38,7 +38,7 @@
                                 <rect key="frame" x="24" y="431" width="327" height="278"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="278" id="ztl-0s-WWI"/>
+                                    <constraint firstAttribute="height" constant="278" id="a0s-y0-RyR"/>
                                 </constraints>
                                 <attributedString key="attributedText">
                                     <fragment content="moves…">
@@ -51,9 +51,8 @@
                                 </attributedString>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="tj0-ZK-ac9">
-                                <rect key="frame" x="0.0" y="749" width="375" height="48"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tj0-ZK-ac9">
+                                <rect key="frame" x="0.0" y="744" width="375" height="48"/>
                                 <items>
                                     <barButtonItem title="New Game" style="plain" id="Mr0-Es-Zno">
                                         <connections>
@@ -69,31 +68,33 @@
                                 </items>
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </toolbar>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="8" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DDf-nS-98r" userLabel="Game Status Label">
-                                <rect key="frame" x="0.0" y="709" width="375" height="40"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DDf-nS-98r" userLabel="Game Status Label">
+                                <rect key="frame" x="0.0" y="704" width="375" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="ENj-Gs-0hC"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="cJK-s0-L7d" firstAttribute="top" secondItem="3Wo-WC-lfv" secondAttribute="bottom" constant="8" symbolic="YES" id="02e-mH-OJa"/>
+                            <constraint firstItem="cJK-s0-L7d" firstAttribute="top" secondItem="3Wo-WC-lfv" secondAttribute="bottom" symbolic="YES" id="02e-mH-OJa"/>
                             <constraint firstItem="3Wo-WC-lfv" firstAttribute="leading" secondItem="cJK-s0-L7d" secondAttribute="leading" id="11F-xL-05a"/>
-                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="centerX" secondItem="tj0-ZK-ac9" secondAttribute="centerX" id="3Qf-VG-W1d"/>
-                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leadingMargin" constant="8" id="44p-VC-RlM"/>
                             <constraint firstAttribute="trailing" secondItem="3Wo-WC-lfv" secondAttribute="trailing" id="9FO-pb-hyD"/>
                             <constraint firstItem="3Wo-WC-lfv" firstAttribute="trailing" secondItem="cJK-s0-L7d" secondAttribute="trailing" id="Ghb-nK-UgY"/>
+                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="centerX" secondItem="DDf-nS-98r" secondAttribute="centerX" id="I3v-3V-J4S"/>
                             <constraint firstItem="3Wo-WC-lfv" firstAttribute="top" secondItem="qdF-hi-qsS" secondAttribute="top" id="KPE-qy-Ia3"/>
                             <constraint firstItem="cJK-s0-L7d" firstAttribute="trailing" secondItem="DDf-nS-98r" secondAttribute="trailing" id="S0L-1T-y8c"/>
-                            <constraint firstItem="DDf-nS-98r" firstAttribute="top" secondItem="xmP-hP-Nlk" secondAttribute="bottom" id="YnK-hy-6r1"/>
-                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="top" secondItem="cJK-s0-L7d" secondAttribute="bottom" constant="8" symbolic="YES" id="cDz-JA-mQk"/>
+                            <constraint firstItem="tj0-ZK-ac9" firstAttribute="top" secondItem="DDf-nS-98r" secondAttribute="bottom" id="SXk-dV-ago"/>
+                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="top" secondItem="cJK-s0-L7d" secondAttribute="bottom" constant="8" symbolic="YES" id="bXk-Q9-3us"/>
+                            <constraint firstItem="DDf-nS-98r" firstAttribute="trailing" secondItem="tj0-ZK-ac9" secondAttribute="trailing" id="fAb-Hj-lI3"/>
+                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leadingMargin" constant="8" id="g1n-ot-wl7"/>
                             <constraint firstItem="3Wo-WC-lfv" firstAttribute="leading" secondItem="qdF-hi-qsS" secondAttribute="leading" id="gGU-Wl-fFa"/>
-                            <constraint firstItem="xmP-hP-Nlk" firstAttribute="centerX" secondItem="DDf-nS-98r" secondAttribute="centerX" id="hyU-uj-4B2"/>
                             <constraint firstItem="cJK-s0-L7d" firstAttribute="leading" secondItem="DDf-nS-98r" secondAttribute="leading" id="nDR-XC-bva"/>
+                            <constraint firstItem="DDf-nS-98r" firstAttribute="top" secondItem="xmP-hP-Nlk" secondAttribute="bottom" constant="-5" id="wdh-Rc-rcH"/>
+                            <constraint firstItem="DDf-nS-98r" firstAttribute="leading" secondItem="tj0-ZK-ac9" secondAttribute="leading" id="zSA-ZU-7Kq"/>
                         </constraints>
                     </view>
                     <connections>

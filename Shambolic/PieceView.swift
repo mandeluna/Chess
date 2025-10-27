@@ -67,3 +67,47 @@ struct PieceView: View {
     .padding()
     .background(Color.gray.opacity(0.2))
 }
+
+let pieces = ["♟", "♞", "♝", "♜", "♛", "♚"]
+#Preview("All Pieces") {
+    ForEach(pieces, id: \.self) { piece in
+        HStack {
+            GlyphViewRepresentable(glyph: piece, fontName: "Apple Symbols", fontSize: 10, fillColor: .white, strokeColor: .darkGray, strokeWidth: 1)
+                .frame(width: 44, height: 44)
+            GlyphViewRepresentable(glyph: piece, fontName: "Apple Symbols", fontSize: 10, fillColor: .darkGray, strokeColor: .clear, strokeWidth: 1)
+                .frame(width: 44, height: 44)
+                .padding(8)
+        }
+    }
+    .background(Color.gray.opacity(0.2))
+}
+
+// ♟ ♞ ♝ ♜ ♛ ♚
+// ♙ ♘ ♗ ♖ ♕ ♔
+#Preview("Fonts") {
+    let fonts = ["Apple Symbols", "Menlo", "Arial Unicode MS", "STIX Two Math"]
+    HStack {
+        ForEach(fonts, id: \.self) { font in
+            VStack {
+                Text(font)
+                    .font(.system(size:12))
+                    ForEach(pieces, id: \.self) { piece in
+                        GlyphViewRepresentable(glyph: piece, fontName: font, fontSize: 10, fillColor: .white, strokeColor: .darkGray, strokeWidth: 1)
+                            .frame(width: 28, height: 28)
+                    }
+            }
+        }
+    }
+    .background(Color.gray.opacity(0.2))
+}
+
+let emoji = ["→", "$", "℥", "©", "∆", "✈︎"]
+#Preview("Other Symbols") {
+    ForEach(emoji, id: \.self) { piece in
+        HStack {
+            GlyphViewRepresentable(glyph: piece, fontName: "Apple Symbols", fontSize: 10, fillColor: .darkGray, strokeColor: .darkGray, strokeWidth: 1)
+                .frame(width: 66, height: 66)
+        }
+    }
+    .background(Color.gray.opacity(0.2))
+}

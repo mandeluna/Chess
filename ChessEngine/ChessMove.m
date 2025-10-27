@@ -54,11 +54,18 @@ static ChessMove *NullMove = nil;
 
 #pragma mark encoding
 
+// TODO: we have 64 bits to work with — moves should be smaller and more numerous
+
+const int kDestinationSquareMask = 0x3F;        // lower six bits of least significant byte is destination square (0-63)
+const int kSourceSquareMask = 0x3F00;           // lower six bits of second byte is source square (0-63)
+const int kMovingPieceMask = 0x070000;          // lower three bits of third byte is moving piece (0-6)
+const int kCapturedPieceMask = 0x07000000;      // lower three bits of most significant byte is captured piece (0-6)
+const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most significant byte is move type (0-15)
+
 //
 // return an integer encoding enough of a move for printing
 //
 -(int)encodedMove {
-    
     return destinationSquare + (sourceSquare << 8) + (movingPiece << 16) + (capturedPiece << 24);
 }
 

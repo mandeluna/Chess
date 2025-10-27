@@ -1,5 +1,12 @@
 # To do
 
+0. UILayout and basic gameplay
+   * switch sides to play as black
+   * show status string (checkmate etc.)
+   * improve calculation of score (who is winning?)
+   * show captures (and basic piece score)
+   * ipad status bar obscures top of board
+
 1. Find and fix memory leaks in ChessPlayer copying
 
 2. Fix unhandled exceptions in recycleMoveList (threading issue?)

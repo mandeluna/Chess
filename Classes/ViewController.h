@@ -19,7 +19,6 @@
     ChessBoard *board;
     ChessBoard *startingBoard;
     NSMutableArray *history;
-    NSMutableArray *redoList;
     BOOL animateMove;
     BOOL autoPlay;
 
@@ -31,7 +30,6 @@
 }
 
 @property(nonatomic, retain) NSMutableArray *history;
-@property(nonatomic, retain) NSMutableArray *redoList;
 @property(nonatomic, retain) ChessBoard *board;
 @property(nonatomic, retain) NSString *remoteInstanceName;
 
