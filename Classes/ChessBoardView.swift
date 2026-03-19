@@ -379,7 +379,11 @@ class ChessBoardView: UIView {
                 squareLayer.backgroundColor = isWhiteSquare ? white.cgColor : black.cgColor
                 squareLayer.frame = rect
                 squares[index].square = index
-                
+
+                if let pieceLayer = squareLayer.pieceLayer {
+                    pieceLayer.bounds = CGRect(x: 0, y: 0, width: cellWidth, height: cellWidth)
+                    pieceLayer.position = squareLayer.position
+                }
             }
         }
     }
