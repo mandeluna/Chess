@@ -175,9 +175,10 @@ class ChessGame: ObservableObject {
     }
     
     private func handleCompletedMove(dictionary: PieceDescription) {
-        guard let move = dictionary["move"] as? ChessMove,
+        guard let encoded = dictionary["move"] as? Int32,
               let white = dictionary["white"] as? Bool else { return }
         
+        let move = ChessMove.decode(from: encoded)
         moveHistory.append(move)
 
         // TODO: update king attack indicator
@@ -186,13 +187,16 @@ class ChessGame: ObservableObject {
         updateStatusMessage(isWhite: white)
     }
 
+    // TODO: handle castling, capture, promotion
     private func handleMovedPiece(dictionary: PieceDescription) {
-        guard let from = dictionary["from"] as? Int,
-              let to = dictionary["to"] as? Int else { return }
+        guard let encoded = dictionary["move"] as? Int32,
+              let white = dictionary["white"] as? Bool else { return }
         
-        let piece = pieces[from]
-        pieces[from] = nil
-        pieces[to] = piece
+        let move = ChessMove.decode(from: encoded)
+
+        let piece = pieces[Int(move.sourceSquare)]!
+        pieces[Int(move.sourceSquare)] = nil
+        pieces[Int(move.destinationSquare)] = piece
     }
 
     private func handleRemovedPiece(dictionary: PieceDescription) {

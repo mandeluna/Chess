@@ -255,14 +255,15 @@ int halfmoveClock;
   return theMove;
 }
 
--(void)nextMove:(ChessMove *)aMove {
+-(void)nextMove:(ChessMove *)move {
 
-  [_activePlayer applyMove:aMove];
+  [_activePlayer applyMove:move];
   _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
   [_activePlayer prepareNextMove];
 
   if (self.hasUserAgent) {
-    NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+    NSDictionary *description = @{ @"move" : [NSNumber numberWithInt:[move encodedMove]],
+                                   @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
     NSNotification *notification = [NSNotification notificationWithName:@"CompletedMove" object:description];
     [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
   }
@@ -273,13 +274,14 @@ int halfmoveClock;
     [_activePlayer prepareNextMove];
 }
 
--(void)undoMove:(ChessMove *)aMove {
+-(void)undoMove:(ChessMove *)move {
     _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
-    [_activePlayer undoMove:aMove];
-    [self undoMoveCounters:aMove];
+    [_activePlayer undoMove:move];
+    [self undoMoveCounters:move];
 
     if (self.hasUserAgent) {
-        NSDictionary *description = @{ @"move" : aMove, @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
+        NSDictionary *description = @{ @"move" : [NSNumber numberWithInt:[move encodedMove]],
+                                       @"white" : [NSNumber numberWithBool:_activePlayer.isWhitePlayer]};
         NSNotification *notification = [NSNotification notificationWithName:@"UndoMove" object:description];
         [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) withObject:notification waitUntilDone:YES];
     }

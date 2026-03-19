@@ -365,4 +365,35 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     return [NSString stringWithFormat:@"%@", [self uciString]];
 }
 
+#pragma testing
+
+-(BOOL)isNormalMove {
+    return (type & kBasicMoveMask) == kMoveNormal;
+}
+
+-(BOOL)isPromotion {
+    return [self promotion] > 0;
+}
+
+-(BOOL)isKingSideCastle {
+    return (type & kBasicMoveMask) == kMoveCastlingKingSide;
+}
+
+-(BOOL)isQueenSideCastle {
+    return (type & kBasicMoveMask) == kMoveCastlingQueenSide;
+}
+
+-(BOOL)isResignation {
+    return (type & kBasicMoveMask) == kMoveResign;
+}
+
+-(BOOL)isEnpassantCapture {
+    return (type & kBasicMoveMask) == kMoveCaptureEnPassant;
+}
+
+// TODO: returns false for e2e4
+-(BOOL)isDoublePush {
+    return (type & kBasicMoveMask) == kMoveDoublePush;
+}
+
 @end

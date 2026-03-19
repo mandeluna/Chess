@@ -92,4 +92,14 @@ enum {
 -(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board;
 -(nonnull NSString *)sanStringForBoard:(nonnull ChessBoard *)board unicodeGlyphs:(BOOL)useUnicode;
 
+// testing
+
+-(BOOL)isNormalMove;
+-(BOOL)isPromotion;
+-(BOOL)isKingSideCastle;
+-(BOOL)isQueenSideCastle;
+-(BOOL)isResignation;
+-(BOOL)isEnpassantCapture;
+-(BOOL)isDoublePush;
+
 @end

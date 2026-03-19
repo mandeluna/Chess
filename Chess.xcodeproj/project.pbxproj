@@ -84,6 +84,8 @@
 		AA6C79702E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79712E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
 		AA6C79722E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
+		AA70A8022EB97ABD00E8EE01 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
+		AA70A8032EB97ABD00E8EE01 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA887B8E2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA8C18932E3D679700FCA8A7 /* Logger.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8C18912E3D676000FCA8A7 /* Logger.m */; };
 		AAAF98B42E3137780071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
@@ -93,7 +95,6 @@
 		AAAF98E92E3141FA0071E5C9 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98E72E3141FA0071E5C9 /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AAAF98EB2E31421C0071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98EC2E31421C0071E5C9 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AAD690522E85D6A000CFCFED /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAD690742E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
 		AAD690752E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
 		AAD690762E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
@@ -158,6 +159,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		AA70A8042EB97ABD00E8EE01 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AA70A8032EB97ABD00E8EE01 /* ChessEngine.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AAAF98C02E3137780071E5C9 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -378,7 +390,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAD690522E85D6A000CFCFED /* ChessEngine.framework in Frameworks */,
+				AA70A8022EB97ABD00E8EE01 /* ChessEngine.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,6 +650,7 @@
 				AAD690272E85D68500CFCFED /* Sources */,
 				AAD690282E85D68500CFCFED /* Frameworks */,
 				AAD690292E85D68500CFCFED /* Resources */,
+				AA70A8042EB97ABD00E8EE01 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

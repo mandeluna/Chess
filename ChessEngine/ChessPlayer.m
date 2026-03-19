@@ -196,15 +196,6 @@ static int PieceCenterScores[7][64] = {
 
   [board updateHash:piece at:sourceSquare from:self];
   [board updateHash:piece at:destSquare from:self];
-
-  if ([self hasUserAgent]) {
-    NSDictionary *description = @{
-        @"piece" : [NSNumber numberWithInt:piece],
-        @"from": [NSNumber numberWithInt:sourceSquare],
-        @"to" : [NSNumber numberWithInt:destSquare]
-    };
-    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"MovedPiece" object:description];
-  }
 }
 
 -(void)removePiece:(int)piece at:(int)square {
@@ -250,22 +241,33 @@ static int PieceCenterScores[7][64] = {
 
     [board updateHash:oldPiece at:square from:self];
     [board updateHash:newPiece at:square from:self];
-
-  if ([self hasUserAgent]) {
-    NSDictionary *description = @{
-        @"old": [NSNumber numberWithInt:oldPiece],
-        @"new" : [NSNumber numberWithInt:newPiece],
-        @"square" : [NSNumber numberWithInt:square],
-        @"white" : [NSNumber numberWithBool:[self isWhitePlayer]]
-    };
-    [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"ReplacedPiece" object:description];
-  }
 }
 
 #pragma mark moving
 
--(void)applyCastleKingSideMove:(ChessMove *)move {
+-(void)publishMove:(ChessMove *)move {
+    if ([self hasUserAgent]) {
+        NSDictionary *description = @{
+            @"move" : [NSNumber numberWithInt:[move encodedMove]],
+            @"white" : [NSNumber numberWithBool:self.isWhitePlayer]
+        };
+        [[NSNotificationCenter defaultCenter]
+            postNotificationOnMainThreadName:@"MovedPiece" object:description];
+    }
+}
 
+-(void)publishUndoMove:(ChessMove *)move {
+    if ([self hasUserAgent]) {
+        NSDictionary *description = @{
+            @"move" : [NSNumber numberWithInt:[move encodedMove]],
+            @"white" : [NSNumber numberWithBool:self.isWhitePlayer]
+        };
+        [[NSNotificationCenter defaultCenter]
+            postNotificationOnMainThreadName:@"UndoMove" object:description];
+    }
+}
+
+-(void)applyCastleKingSideMove:(ChessMove *)move {
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
     [self movePiece:kRook from:[move sourceSquare]+3 to:(castlingRookSquare = [move sourceSquare]+1)];
 
@@ -274,12 +276,13 @@ static int PieceCenterScores[7][64] = {
 }
 
 -(void)applyCastleQueenSideMove:(ChessMove *)move {
-
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
     [self movePiece:kRook from:[move sourceSquare]-4 to:(castlingRookSquare = [move sourceSquare]-1)];
 
     pieces[castlingRookSquare] = kKing;
     castlingStatus ^= kCastlingDone;
+
+    [self publishMove: move];
 }
 
 -(void)applyDoublePushMove:(ChessMove *)move {
@@ -288,12 +291,13 @@ static int PieceCenterScores[7][64] = {
     board.enpassantSquare = enpassantSquare;
 
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
+    [self publishMove: move];
 }
 
 -(void)applyEnPassantMove:(ChessMove *)move {
-
     [opponent removePiece:[move capturedPiece] at:[move destinationSquare] - ([self isWhitePlayer] ? 8 : -8)];
     [self movePiece:[move movingPiece] from:[move sourceSquare] to:[move destinationSquare]];
+    [self publishMove: move];
 }
 
 //
@@ -336,6 +340,7 @@ static int PieceCenterScores[7][64] = {
 
     // maintain castling status
     [self updateCastlingStatus:move];
+    [self publishMove: move];
 }
 
 -(void)applyNormalMove:(ChessMove *)move {
@@ -796,6 +801,7 @@ static int PieceCenterScores[7][64] = {
             NSLog(@"applying unknown move %d", type);
             break;
     }
+    [self publishUndoMove: move];
 }
 
 -(void)undoNormalMove:(ChessMove *)move {
