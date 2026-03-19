@@ -228,6 +228,65 @@ class ChessBoardView: UIView {
         square.addSublayer(attack)
     }
 
+    // MARK: - Last Move Highlight
+
+    @objc public func setLastMoveHighlight(from: Int, to: Int) {
+        for index in highlightedSquares {
+            squares[index].sublayers?
+                .filter { $0.name == "lastmove" }
+                .forEach { $0.removeFromSuperlayer() }
+        }
+        highlightedSquares = [from, to]
+        for index in highlightedSquares where index >= 0 && index < 64 {
+            let square = squares[index]
+            let highlight = CALayer()
+            highlight.name = "lastmove"
+            highlight.frame = square.bounds
+            highlight.backgroundColor = UIColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.35).cgColor
+            square.insertSublayer(highlight, at: 0)
+        }
+    }
+
+    @objc public func clearLastMoveHighlight() {
+        for index in highlightedSquares {
+            squares[index].sublayers?
+                .filter { $0.name == "lastmove" }
+                .forEach { $0.removeFromSuperlayer() }
+        }
+        highlightedSquares = []
+    }
+
+    // MARK: - Move Animation
+
+    /// Animate the piece at `fromSquare` sliding to `toSquare`, then call `completion`.
+    /// If no piece is found at the source the completion is called immediately.
+    @objc public func animateMove(from fromSquare: Int, to toSquare: Int, completion: @escaping () -> Void) {
+        guard fromSquare >= 0 && fromSquare < 64,
+              toSquare >= 0 && toSquare < 64,
+              let pieceLayer = squares[fromSquare].pieceLayer else {
+            completion()
+            return
+        }
+
+        let destPosition = squares[toSquare].position
+        pieceLayer.zPosition = 100
+
+        let anim = CABasicAnimation(keyPath: "position")
+        anim.fromValue = pieceLayer.position
+        anim.toValue = destPosition
+        anim.duration = 0.22
+        anim.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            pieceLayer.zPosition = 0
+            completion()
+        }
+        pieceLayer.position = destPosition  // set model position before animation
+        pieceLayer.add(anim, forKey: "pieceMove")
+        CATransaction.commit()
+    }
+
     private func newPiece(_ piece: Int, white isWhite: Bool) -> ChessPieceLayer {
         let imageNames : [String] = [
             "whitePawnImage.png",
@@ -264,6 +323,7 @@ class ChessBoardView: UIView {
     private var labels = [CATextLayer]()
     private var boardDirection = 1.0
     private var cellWidth = 80.0
+    private var highlightedSquares: Set<Int> = []
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -384,6 +444,9 @@ class ChessBoardView: UIView {
                     pieceLayer.bounds = CGRect(x: 0, y: 0, width: cellWidth, height: cellWidth)
                     pieceLayer.position = squareLayer.position
                 }
+                squareLayer.sublayers?
+                    .filter { $0.name == "lastmove" }
+                    .forEach { $0.frame = squareLayer.bounds }
             }
         }
     }

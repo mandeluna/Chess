@@ -47,6 +47,7 @@ class ChessGame: ObservableObject {
     @Published var highlightChecks: Bool = true
     @Published var moveTime: Double = 0.0
     @Published var isThinking: Bool = false
+    @Published var moveCount: Int = 0
 
     /// Material score from white's perspective: positive = white ahead, negative = black ahead.
     var score: Int {
@@ -75,6 +76,7 @@ class ChessGame: ObservableObject {
         capturedPieces = CapturedPieces()
         kingAttack = nil
         isThinking = false
+        moveCount = 0
         refreshFromBoard()
     }
 
@@ -153,6 +155,7 @@ class ChessGame: ObservableObject {
         moveHistorySAN.append(san)
         moveHistory.append(move)
         lastMove = move
+        moveCount += 1
 
         return refreshFromBoard()
     }
