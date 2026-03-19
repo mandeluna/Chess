@@ -90,30 +90,38 @@ struct CompactBottomPanel: View {
 struct ScoreBar: View {
     @EnvironmentObject var gameState: ChessGame
 
-    private var scoreText: String {
-        let s = gameState.score
-        if s == 0 { return "=" }
-        return s > 0 ? "+\(s)" : "\(s)"
+    private var evalText: String {
+        guard let cp = gameState.engineScore else { return "?" }
+        let pawns = Double(cp) / 100.0
+        if pawns > 0 { return String(format: "+%.2f", pawns) }
+        if pawns < 0 { return String(format: "%.2f", pawns) }
+        return "0.00"
     }
 
-    private var scoreColor: Color {
-        let s = gameState.score
-        if s > 0 { return .green }
-        if s < 0 { return .red }
-        return .secondary
+    private var evalColor: Color {
+        guard let cp = gameState.engineScore else { return .secondary }
+        if cp > 20 { return .green }
+        if cp < -20 { return .red }
+        return .primary
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Text(gameState.statusMessage)
                 .font(.caption)
                 .foregroundColor(.primary)
+                .lineLimit(1)
 
             Spacer()
 
-            Text("Score: \(scoreText)")
-                .font(.system(.caption, design: .monospaced))
-                .foregroundColor(scoreColor)
+            HStack(spacing: 3) {
+                Text(evalText)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(evalColor)
+                Text("cp")
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+            }
         }
         .padding(.horizontal, 16)
         .frame(height: 32)

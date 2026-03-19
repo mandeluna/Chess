@@ -48,6 +48,9 @@ class ChessGame: ObservableObject {
     @Published var moveTime: Double = 0.0
     @Published var isThinking: Bool = false
     @Published var moveCount: Int = 0
+    /// Engine evaluation in centipawns from white's perspective (positive = white ahead).
+    /// Nil until the engine has completed at least one search.
+    @Published var engineScore: Int? = nil
 
     /// Material score from white's perspective: positive = white ahead, negative = black ahead.
     var score: Int {
@@ -77,6 +80,7 @@ class ChessGame: ObservableObject {
         kingAttack = nil
         isThinking = false
         moveCount = 0
+        engineScore = nil
         refreshFromBoard()
     }
 
@@ -123,6 +127,13 @@ class ChessGame: ObservableObject {
 
     private func applyEngineMove(_ uciMove: String?) {
         isThinking = false
+
+        // Capture the engine's evaluation before the move is applied.
+        // myMove.value is from the searching player's (engine/black) perspective; negate for white.
+        if let myMove = board.searchAgent.myMove {
+            engineScore = -Int(myMove.value)
+        }
+
         guard let uciMove = uciMove, !uciMove.isEmpty,
               let (from, to, promo) = parseUCI(uciMove),
               let move = findMove(from: from, to: to, promotionPiece: promo) else {
