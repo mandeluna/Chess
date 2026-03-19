@@ -34,7 +34,7 @@ struct CompactMenuBar: View {
                 Text("Chess")
                     .font(.headline)
                 Spacer()
-                MenuButton(icon: "chart.bar", action: gameState.showAnalysis)
+                MenuButton(icon: "chart.bar", action: {})
             }
             .padding(.horizontal)
         }

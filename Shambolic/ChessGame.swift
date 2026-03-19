@@ -8,48 +8,28 @@
 import Foundation
 import Combine
 
-typealias PieceDescription = [String:Any]
-
 struct CapturedPieces {
     var white: [ChessPiece] = []
-    var black:[ChessPiece] = []
-    
+    var black: [ChessPiece] = []
+
     private func compressCapturedPieces(_ pieces: [PieceType]) -> [(type: PieceType, count: Int)] {
-        // Count occurrences of each piece type
-        let counts = Dictionary(grouping: pieces, by: { $0 })
-            .mapValues { $0.count }
-        
-        // Convert to array and sort by piece value
+        let counts = Dictionary(grouping: pieces, by: { $0 }).mapValues { $0.count }
         return counts.map { (type: $0.key, count: $0.value) }
             .sorted { $0.type.value < $1.type.value }
     }
 
-    private func displayCompressedPieces(_ compressed: [(type: PieceType, count: Int)], isWhite: Bool) -> String {
-        compressed.map { item in
-            if item.count > 1 {
-                return "\(item.type.symbol)×\(item.count)"
-            } else {
-                return item.type.symbol
-            }
-        }.joined(separator: " ")
-    }
-    
     mutating func append(piece: ChessPiece) {
-        if piece.isWhite {
-            white.append(piece)
-        }
-        else {
-            black.append(piece)
-        }
-    }
-
-    func displayPieces(isWhite: Bool) -> String {
-        let compressed = compressCapturedPieces(isWhite ? white.map(\.type) : black.map(\.type))
-        return displayCompressedPieces(compressed, isWhite: isWhite)
+        if piece.isWhite { white.append(piece) } else { black.append(piece) }
     }
 
     func compressPieces(isWhite: Bool) -> [(type: PieceType, count: Int)] {
-        return compressCapturedPieces(isWhite ? white.map(\.type) : black.map(\.type))
+        compressCapturedPieces(isWhite ? white.map(\.type) : black.map(\.type))
+    }
+
+    func displayPieces(isWhite: Bool) -> String {
+        compressPieces(isWhite: isWhite).map { item in
+            item.count > 1 ? "\(item.type.symbol)×\(item.count)" : item.type.symbol
+        }.joined(separator: " ")
     }
 }
 
@@ -66,6 +46,7 @@ class ChessGame: ObservableObject {
     @Published var showLegalMoves: Bool = true
     @Published var highlightChecks: Bool = true
     @Published var moveTime: Double = 0.0
+    @Published var isThinking: Bool = false
 
     /// Material score from white's perspective: positive = white ahead, negative = black ahead.
     var score: Int {
@@ -73,233 +54,191 @@ class ChessGame: ObservableObject {
             sum + (piece.isWhite ? piece.type.value : -piece.type.value)
         }
     }
-    
+
     private var board: ChessBoard
-    private var cancellables: Set<AnyCancellable> = []
-    
+
     init() {
         board = ChessBoard()
-        initializeBoardObservers()
-        initializeGameState()
-    }
-    
-    public func resetGame() {
         board.initializeSearch()
+        board.hasUserAgent = false
+        board.initializeNewBoard()
+        refreshFromBoard()
+    }
+
+    func resetGame() {
+        board.searchAgent.cancelSearch()
+        board.initializeSearch()
+        board.hasUserAgent = false
         board.initializeNewBoard()
         moveHistory = []
         moveHistorySAN = []
-        kingAttack = nil
         capturedPieces = CapturedPieces()
-        updateStatusMessage(isWhite:true)
+        kingAttack = nil
+        isThinking = false
+        refreshFromBoard()
     }
 
-    public func undoLastMove() {
-        if !moveHistory.isEmpty {
-            let move = moveHistory.removeLast()
-            board.undoMove(move)
-        }
-    }
+    // MARK: - Board view delegate interface
 
-    public func showAnalysis() {
-    }
-
-    public func capturedPieces(for color: PieceColor) -> [ChessPiece] {
-        switch color {
-            case .black: return capturedPieces.black
-            case .white: return capturedPieces.white
-        }
-    }
-    
-    @MainActor public func chessboardView(_ chessboardView: ChessBoardView, shouldSelect square: Int, selection: SelectionContext?) -> SelectionContext? {
-        if !board.searchAgent.isReady() {
-            return nil
-        }
-
+    @MainActor
+    func chessboardView(_ chessboardView: ChessBoardView, shouldSelect square: Int, selection: SelectionContext?) -> SelectionContext? {
+        guard board.searchAgent.isReady(), !isThinking else { return nil }
         let candidate = chessboardView.selectionInfo(for: square)
-
-        // if we have a current selection, this is a destination selection attempt
-        if selection?.square == candidate?.square {
-            return nil
-        }
-
-        // no current selection -- this is a piece selection attempt
-        let piece = board.activePlayer.piece(at:Int32(square))
-
-        if (piece <= 0) {
-            return nil
-        }
-
-        candidate?.moves = board.activePlayer.findValidMoves(at:Int32(square)) as? [ChessMove] ?? []
-        candidate?.captures = captureSquares()
-
+        guard let candidate = candidate else { return nil }
+        if selection?.square == candidate.square { return nil }
+        let piece = board.activePlayer.piece(at: Int32(square))
+        guard piece > 0 else { return nil }
+        candidate.moves = board.activePlayer.findValidMoves(at: Int32(square)) as? [ChessMove] ?? []
+        candidate.captures = captureSquares()
         return candidate
     }
 
     func chessboardView(_ chessboardView: ChessBoardView, didMovePieceFrom fromSquare: Int, to toSquare: Int) {
-        if !board.searchAgent.isReady() {
-            return
-        }
-
-        board.movePiece(from:Int32(fromSquare), to:Int32(toSquare))
-        board.searchAgent.startSearchThread()
+        guard board.searchAgent.isReady(), !isThinking else { return }
+        applyUserMove(from: fromSquare, to: toSquare)
     }
 
     func chessboardView(_ chessboardView: ChessBoardView, pieceFor square: Int) -> Int {
         return Int(board.activePlayer.piece(at: Int32(square)))
     }
-    
-    private func captureSquares() -> [Int] {
-        let moves : [ChessMove?] = board.activePlayer.findPossibleMoves() as! [ChessMove?]
-        return moves
-            .filter { $0!.capturedPiece != 0 }
-            .compactMap { Int($0!.destinationSquare) } as [Int]
-    }
 
-    private func initializeBoardObservers() {
-        let handlers : [String:([String:Any])->Void] = [
-            "AddedPiece" : { [weak self] dictionary in self?.handleAddedPiece(dictionary: dictionary) },
-            "CompletedMove" : { [weak self] dictionary in self?.handleCompletedMove(dictionary: dictionary) },
-            "MovedPiece" : { [weak self] dictionary in self?.handleMovedPiece(dictionary: dictionary) },
-            "RemovedPiece" : { [weak self] dictionary in self?.handleRemovedPiece(dictionary: dictionary) },
-            "ReplacedPiece" : { [weak self] dictionary in self?.handleReplacedPiece(dictionary: dictionary) },
-            "FinishedGame" : { [weak self] dictionary in self?.handleFinishedGame(dictionary: dictionary) },
-            "UndoMove" : { [weak self] dictionary in self?.handleUndoMove(dictionary: dictionary) },
-            "StartedThinking" : { [weak self] dictionary in self?.handleSearchStarted(dictionary: dictionary) },
-            "StoppedThinking" : { [weak self] dictionary in self?.handleSearchCompleted(dictionary: dictionary) }
-        ]
-        for handler in handlers {
-            NotificationCenter.default.publisher(for: Notification.Name(handler.key))
-                .compactMap { $0.object as? PieceDescription }
-                .sink { dictionary in handler.value(dictionary) }
-                .store(in: &cancellables)
-        }
-    }
-    
-    private func handleAddedPiece(dictionary: PieceDescription) {
-        guard let piece = dictionary["piece"] as? Int32,
-              let square = dictionary["square"] as? Int,
-              let white = dictionary["white"] as? Bool else { return }
-        
-        pieces[square] = ChessPiece(piece: piece, square: square, isWhite: white)
-    }
-    
-    private func handleCompletedMove(dictionary: PieceDescription) {
-        guard let encoded = dictionary["move"] as? Int32,
-              let white = dictionary["white"] as? Bool else { return }
+    // MARK: - Move application
 
-        let move = ChessMove.decode(from: encoded)
-        moveHistorySAN.append(move.sanString(for: board))
-        moveHistory.append(move)
+    private func applyUserMove(from fromSquare: Int, to toSquare: Int) {
+        guard let move = findMove(from: fromSquare, to: toSquare) else { return }
 
-        // TODO: update king attack indicator
-        kingAttack = findKingAttack()
+        let gameOver = apply(move: move)
+        guard !gameOver else { return }
 
-        updateStatusMessage(isWhite: white)
-    }
-
-    // TODO: handle castling, capture, promotion
-    private func handleMovedPiece(dictionary: PieceDescription) {
-        guard let encoded = dictionary["move"] as? Int32,
-              let white = dictionary["white"] as? Bool else { return }
-        
-        let move = ChessMove.decode(from: encoded)
-
-        let piece = pieces[Int(move.sourceSquare)]!
-        pieces[Int(move.sourceSquare)] = nil
-        pieces[Int(move.destinationSquare)] = piece
-    }
-
-    private func handleRemovedPiece(dictionary: PieceDescription) {
-        guard let _ = dictionary["piece"] as? Int,
-              let square = dictionary["square"] as? Int else { return }
-        
-        if let piece = pieces[square] {
-            piece.isWhite ? capturedPieces.white.append(piece) : capturedPieces.black.append(piece)
-            pieces[square] = nil
+        isThinking = true
+        board.searchAgent.setActivePlayer(board.activePlayer)
+        board.searchAgent.findMove { [weak self] uciMove in
+            DispatchQueue.main.async {
+                self?.applyEngineMove(uciMove)
+            }
         }
     }
 
-    // handle promotion of pawn
-    private func handleReplacedPiece(dictionary: PieceDescription) {
-        guard let _ = dictionary["old"] as? Int,
-              let new = dictionary["new"] as? Int32,
-              let square = dictionary["square"] as? Int,
-              let white = dictionary["white"] as? Bool else { return }
-        
-        pieces[square] = ChessPiece(piece: new, square: square, isWhite: white)
-    }
-
-    // resign or stalemate coming from engine (not sure if there is a hook for this)
-    private func handleFinishedGame(dictionary: PieceDescription) {
-        let stalemate = dictionary["stalemate"] as? Bool
-        let white = dictionary["white"] as? Bool
-
-        let playerString = white! ? "White" : "Black"
-        statusMessage = playerString + " " + (stalemate == nil ? "Resigns" : "Stalemate")
-    }
-    
-    private func handleUndoMove(dictionary: PieceDescription) {
-        // notifications for undo will come from ChessPlayer>>undoMove
-        // TODO: board move counters and timers will be all messed up -- we should replay the board from the beginning of the list
-    }
-    
-    private func handleSearchStarted(dictionary: PieceDescription) {
-    }
-    
-    private func handleSearchCompleted(dictionary: PieceDescription) {
-        let encodedMove = dictionary["bestmove"] as? Int
-
-        if encodedMove == nil {
-            statusMessage = dictionary["reason"] as? String ?? "No move found"
-            board.searchAgent.cancelSearch()
+    private func applyEngineMove(_ uciMove: String?) {
+        isThinking = false
+        guard let uciMove = uciMove, !uciMove.isEmpty,
+              let (from, to, promo) = parseUCI(uciMove),
+              let move = findMove(from: from, to: to, promotionPiece: promo) else {
+            refreshFromBoard()
             return
         }
-
-        let isWhite = board.activePlayer == board.whitePlayer
-        let move = ChessMove.decode(from: Int32(encodedMove!))
-        let square = Int(move.destinationSquare)
-
-        if let piece = pieces[square] {
-            capturedPieces.append(piece: piece)
-        }
-
-        pieces[Int(move.sourceSquare)] = nil
-        pieces[square] = ChessPiece(piece: move.movingPiece, square: square, isWhite: isWhite)
+        apply(move: move)
     }
-    
-    private func updateStatusMessage(isWhite: Bool) {
-        let whiteMoves = board.whitePlayer.findValidMoves()
-        let blackMoves = board.blackPlayer.findValidMoves()
-        let moves = board.activePlayer == board.whitePlayer ? whiteMoves : blackMoves
-        
-        // no moves for the active player (findValidMoves returns an empty array, but findPossibleMoves returns nil)
-        if moves == nil || moves!.isEmpty {
-            statusMessage = kingAttack != nil ? "Checkmate" : "Stalemate"   // current player is not in check, but is unable to move
-            board.searchAgent.cancelSearch()
-        }
-        else if board.halfmoveClock >= 100 {
-            statusMessage = "Draw (50 move rule)"   // 100 halfmoves without a pawn move or a capture
-            board.searchAgent.cancelSearch()
-        }
-        else {
-            statusMessage = isWhite ? "White's move" : "Black's move"
+
+    /// Apply a move: record SAN, execute on board, track history, refresh UI state.
+    /// Returns true if the game is over after this move.
+    @discardableResult
+    private func apply(move: ChessMove) -> Bool {
+        // SAN must be computed before nextMove (board state reflects pre-move position)
+        let san = move.sanString(for: board)
+
+        board.nextMove(move)
+
+        // After nextMove, activePlayer is the next player.
+        // The captured piece (if any) belonged to the now-active player.
+        if move.capturedPiece != 0 {
+            let captured = ChessPiece(
+                piece: move.capturedPiece,
+                square: Int(move.destinationSquare),
+                isWhite: board.activePlayer.isWhitePlayer()
+            )
+            capturedPieces.append(piece: captured)
         }
 
+        moveHistorySAN.append(san)
+        moveHistory.append(move)
+        lastMove = move
+
+        return refreshFromBoard()
     }
-    
+
+    // MARK: - State refresh
+
+    /// Rebuild all published state from the board. Returns true if the game is over.
+    @discardableResult
+    private func refreshFromBoard() -> Bool {
+        pieces = piecesFromBoard()
+        currentPlayer = board.activePlayer == board.whitePlayer ? .white : .black
+        kingAttack = findKingAttack()
+
+        let validMoves = board.activePlayer.findValidMoves()
+        let noMoves = validMoves == nil || validMoves!.isEmpty
+
+        if noMoves {
+            statusMessage = kingAttack != nil ? "Checkmate" : "Stalemate"
+            board.searchAgent.cancelSearch()
+            return true
+        }
+        if board.halfmoveClock >= 100 {
+            statusMessage = "Draw (50 move rule)"
+            board.searchAgent.cancelSearch()
+            return true
+        }
+        statusMessage = currentPlayer == .white ? "White's move" : "Black's move"
+        return false
+    }
+
+    private func piecesFromBoard() -> [ChessPiece?] {
+        (0..<64).map { square in
+            let wp = board.whitePlayer.piece(at: Int32(square))
+            if wp > 0 { return ChessPiece(piece: wp, square: square, isWhite: true) }
+            let bp = board.blackPlayer.piece(at: Int32(square))
+            if bp > 0 { return ChessPiece(piece: bp, square: square, isWhite: false) }
+            return nil
+        }
+    }
+
+    // MARK: - Move lookup (ObjC API, no ChessEngine Swift extensions needed)
+
+    /// Find a legal move for the current active player from source to destination.
+    /// Optionally matches a specific promotion piece (kQueen, kRook, etc.).
+    private func findMove(from fromSquare: Int, to toSquare: Int, promotionPiece: Int32? = nil) -> ChessMove? {
+        guard let moves = board.activePlayer.findPossibleMoves(at: Int32(fromSquare)) as? [ChessMove] else { return nil }
+        for move in moves {
+            guard Int(move.destinationSquare) == toSquare else { continue }
+            if let promo = promotionPiece {
+                if move.promotion() == promo { return move }
+                continue
+            }
+            return move
+        }
+        return nil
+    }
+
+    /// Parse a UCI move string ("e2e4", "e7e8q") into board square indices.
+    private func parseUCI(_ uci: String) -> (from: Int, to: Int, promotion: Int32?)? {
+        let chars = Array(uci.lowercased())
+        guard chars.count >= 4 else { return nil }
+        let files = "abcdefgh"
+        guard let f1 = files.firstIndex(of: chars[0]),
+              let r1 = Int(String(chars[1])), (1...8).contains(r1),
+              let f2 = files.firstIndex(of: chars[2]),
+              let r2 = Int(String(chars[3])), (1...8).contains(r2) else { return nil }
+        let from = (r1 - 1) * 8 + files.distance(from: files.startIndex, to: f1)
+        let to   = (r2 - 1) * 8 + files.distance(from: files.startIndex, to: f2)
+        let promotionMap: [Character: Int32] = [
+            "q": Int32(kQueen), "r": Int32(kRook), "b": Int32(kBishop), "n": Int32(kKnight)
+        ]
+        let promo = chars.count > 4 ? promotionMap[chars[4]] : nil
+        return (from, to, promo)
+    }
+
+    // MARK: - Helpers
+
     private func findKingAttack() -> ChessMove? {
         let _ = board.whitePlayer.findPossibleMoves()
-        if board.generator.kingAttack != nil {
-            return board.generator.kingAttack
-        }
+        if board.generator.kingAttack != nil { return board.generator.kingAttack }
         let _ = board.blackPlayer.findPossibleMoves()
         return board.generator.kingAttack
     }
-    
-    private func initializeGameState() {
-        board.resetGame()
-        board.hasUserAgent = true
-        board.initializeSearch()
-        board.initializeNewBoard()
+
+    private func captureSquares() -> [Int] {
+        guard let moves = board.activePlayer.findPossibleMoves() as? [ChessMove] else { return [] }
+        return moves.filter { $0.capturedPiece != 0 }.map { Int($0.destinationSquare) }
     }
 }
