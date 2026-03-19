@@ -80,16 +80,16 @@ struct SideMenu: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-                
-                if gameState.analysis != nil {
-                    Button(action: { showAnalysis = true }) {
+
+                if !gameState.moveHistory.isEmpty {
+                    Button(role: .destructive, action: gameState.resetGame) {
                         HStack {
-                            Image(systemName: "chart.bar")
-                            Text("Analyze")
+                            Image(systemName: "flag")
+                            Text("Resign")
                         }
                         .font(.system(size: 14, weight: .medium))
                         .frame(maxWidth: .infinity, minHeight: 36)
-                        .background(Color.green)
+                        .background(Color.red.opacity(0.8))
                         .foregroundColor(.white)
                         .cornerRadius(6)
                     }
@@ -200,27 +200,44 @@ struct AnalysisPreviewView: View {
 
 struct MoveHistoryView: View {
     @EnvironmentObject var gameState: ChessGame
-    
+
+    private var movePairs: [(Int, String, String?)] {
+        let sans = gameState.moveHistorySAN
+        var pairs: [(Int, String, String?)] = []
+        var i = 0
+        while i < sans.count {
+            pairs.append((i / 2 + 1, sans[i], i + 1 < sans.count ? sans[i + 1] : nil))
+            i += 2
+        }
+        return pairs
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Move History")
                 .font(.headline)
-            
-            if gameState.moveHistory.isEmpty {
+
+            if gameState.moveHistorySAN.isEmpty {
                 Text("No moves yet")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .italic()
             } else {
                 LazyVStack(alignment: .leading, spacing: 4) {
-                    ForEach(Array(gameState.moveHistory.enumerated()), id: \.offset) { index, move in
-                        HStack {
-                            Text("\(index + 1).")
+                    ForEach(movePairs, id: \.0) { number, white, black in
+                        HStack(spacing: 4) {
+                            Text("\(number).")
                                 .font(.system(.caption, design: .monospaced))
+                                .foregroundColor(.secondary)
                                 .frame(width: 24, alignment: .trailing)
-                            
-                            Text(move.uciString())
+                            Text(white)
                                 .font(.system(.caption, design: .monospaced))
+                                .frame(width: 52, alignment: .leading)
+                            if let black = black {
+                                Text(black)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .frame(width: 52, alignment: .leading)
+                            }
                         }
                     }
                 }

@@ -57,6 +57,7 @@ class ChessGame: ObservableObject {
     @Published var pieces: [ChessPiece?] = Array(repeating: nil, count: 64)
     @Published var lastMove: ChessMove? = nil
     @Published var moveHistory: [ChessMove] = []
+    @Published var moveHistorySAN: [String] = []
     @Published var capturedPieces = CapturedPieces()
     @Published var kingAttack: ChessMove? = nil
     @Published var statusMessage: String = ""
@@ -65,6 +66,13 @@ class ChessGame: ObservableObject {
     @Published var showLegalMoves: Bool = true
     @Published var highlightChecks: Bool = true
     @Published var moveTime: Double = 0.0
+
+    /// Material score from white's perspective: positive = white ahead, negative = black ahead.
+    var score: Int {
+        pieces.compactMap { $0 }.reduce(0) { sum, piece in
+            sum + (piece.isWhite ? piece.type.value : -piece.type.value)
+        }
+    }
     
     private var board: ChessBoard
     private var cancellables: Set<AnyCancellable> = []
@@ -79,6 +87,7 @@ class ChessGame: ObservableObject {
         board.initializeSearch()
         board.initializeNewBoard()
         moveHistory = []
+        moveHistorySAN = []
         kingAttack = nil
         capturedPieces = CapturedPieces()
         updateStatusMessage(isWhite:true)
@@ -177,8 +186,9 @@ class ChessGame: ObservableObject {
     private func handleCompletedMove(dictionary: PieceDescription) {
         guard let encoded = dictionary["move"] as? Int32,
               let white = dictionary["white"] as? Bool else { return }
-        
+
         let move = ChessMove.decode(from: encoded)
+        moveHistorySAN.append(move.sanString(for: board))
         moveHistory.append(move)
 
         // TODO: update king attack indicator

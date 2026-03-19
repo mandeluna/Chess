@@ -9,102 +9,180 @@ import SwiftUI
 
 struct ChessView: View {
     @StateObject private var gameState = ChessGame()
-    @State private var showingAnalysis = false
     @State private var showMenuSheet = false
-    
+    @State private var showingAnalysis = false
+    @State private var showingResignConfirmation = false
+
     var body: some View {
-        // Main Chessboard
-        chessboard
-    }
-    
-    private var chessboard: some View {
         GeometryReader { geometry in
             let isPortrait = geometry.size.height > geometry.size.width
             let isCompact = geometry.size.width < 400
-            
+
             if isPortrait || isCompact {
-                // Portrait or compact layout
-                VStack(spacing: 0) {
-                    CompactTopMenu(showSidebar: $showMenuSheet)
-                        .environmentObject(gameState)
-                    
-                    ChessBoardViewWrapper()
-                        .environmentObject(gameState)
-                    
-                    Text(gameState.statusMessage)
-                }
+                portraitLayout(geometry: geometry)
             } else {
-                // Landscape layout
-                HStack(spacing: 0) {
-                    SideMenu()
-                        .frame(width: 280)
-                        .environmentObject(gameState)
-                    
-                    ChessBoardViewWrapper()
-                        .environmentObject(gameState)
-                }
+                landscapeLayout
             }
+        }
+        .sheet(isPresented: $showMenuSheet) {
+            SideMenu()
+                .environmentObject(gameState)
+        }
+        .alert("Resign?", isPresented: $showingResignConfirmation) {
+            Button("Resign", role: .destructive) { gameState.resetGame() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("End the current game and start a new one.")
         }
     }
 
-    private func playerIndicatorView() -> some View {
-        Text(gameState.statusMessage)
-    }
-    
-    private func capturedPiecesView(for color: PieceColor) -> some View {
-        let isWhite = color == .white
-        return VStack(alignment: .leading) {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2)) {
-                ForEach(gameState.capturedPieces(for: color), id: \.self) { piece in
-                    PieceView(pieces:gameState.capturedPieces.compressPieces(isWhite: isWhite), isWhite:isWhite)
-                        .frame(width: 25, height: 25)
-                }
-            }
+    private func portraitLayout(geometry: GeometryProxy) -> some View {
+        VStack(spacing: 0) {
+            CompactTopMenu(
+                showSidebar: $showMenuSheet,
+                showResign: $showingResignConfirmation
+            )
+            .environmentObject(gameState)
+
+            ChessBoardViewWrapper()
+                .environmentObject(gameState)
+                .aspectRatio(1, contentMode: .fit)
+                .frame(maxWidth: geometry.size.width)
+
+            CompactBottomPanel()
+                .environmentObject(gameState)
+                .frame(maxHeight: .infinity)
         }
     }
-    
-    private func moveHistoryView() -> some View {
-        VStack {
-            Text("Move History")
-                .font(.headline)
-            
-            ScrollView {
-                LazyVStack(alignment: .leading) {
-                    ForEach(Array(gameState.moveHistory.enumerated()), id: \.offset) { index, move in
-                        HStack {
-                            Text("\(index + 1).")
-                            Text(move.uciString())
-//                            if let evaluation = move.analysis?.evaluation {
-//                                Text(String(format: "%.1f", evaluation))
-//                                    .foregroundColor(evaluation > 0 ? .green : .red)
-//                            }
-                            let evaluation = move.value
-                            Text(String(format: "%.1f", evaluation))
-                                .foregroundColor(evaluation > 0 ? .green : .red)
+
+    private var landscapeLayout: some View {
+        HStack(spacing: 0) {
+            SideMenu()
+                .frame(width: 280)
+                .environmentObject(gameState)
+
+            ChessBoardViewWrapper()
+                .environmentObject(gameState)
+        }
+    }
+}
+
+// MARK: - Compact Bottom Panel (portrait)
+
+struct CompactBottomPanel: View {
+    @EnvironmentObject var gameState: ChessGame
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScoreBar()
+                .environmentObject(gameState)
+
+            Divider()
+
+            PGNHistoryView()
+                .environmentObject(gameState)
+        }
+    }
+}
+
+// MARK: - Score Bar
+
+struct ScoreBar: View {
+    @EnvironmentObject var gameState: ChessGame
+
+    private var scoreText: String {
+        let s = gameState.score
+        if s == 0 { return "=" }
+        return s > 0 ? "+\(s)" : "\(s)"
+    }
+
+    private var scoreColor: Color {
+        let s = gameState.score
+        if s > 0 { return .green }
+        if s < 0 { return .red }
+        return .secondary
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text(gameState.statusMessage)
+                .font(.caption)
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            Text("Score: \(scoreText)")
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(scoreColor)
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 32)
+        .background(Color(.secondarySystemBackground))
+    }
+}
+
+// MARK: - PGN History View (portrait, compact)
+
+struct PGNHistoryView: View {
+    @EnvironmentObject var gameState: ChessGame
+
+    /// Pair up SAN moves: [(moveNumber, white, black?)]
+    private var movePairs: [(Int, String, String?)] {
+        let sans = gameState.moveHistorySAN
+        var pairs: [(Int, String, String?)] = []
+        var i = 0
+        while i < sans.count {
+            let white = sans[i]
+            let black = i + 1 < sans.count ? sans[i + 1] : nil
+            pairs.append((i / 2 + 1, white, black))
+            i += 2
+        }
+        return pairs
+    }
+
+    var body: some View {
+        Group {
+            if gameState.moveHistorySAN.isEmpty {
+                Text("No moves yet")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .italic()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 2) {
+                            ForEach(movePairs, id: \.0) { number, white, black in
+                                HStack(spacing: 4) {
+                                    Text("\(number).")
+                                        .font(.system(.caption, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                        .frame(width: 28, alignment: .trailing)
+                                    Text(white)
+                                        .font(.system(.caption, design: .monospaced))
+                                        .frame(width: 52, alignment: .leading)
+                                    if let black = black {
+                                        Text(black)
+                                            .font(.system(.caption, design: .monospaced))
+                                            .frame(width: 52, alignment: .leading)
+                                    }
+                                    Spacer()
+                                }
+                                .id(number)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                    }
+                    .onChange(of: gameState.moveHistorySAN.count) { _ in
+                        if let last = movePairs.last {
+                            withAnimation { proxy.scrollTo(last.0, anchor: .bottom) }
                         }
                     }
                 }
             }
-            .frame(height: 150)
         }
-        .padding()
-    }
-    
-    private func gameControlsView() -> some View {
-        VStack {
-            Button("Analyze Position") {
-                showingAnalysis = true
-            }
-            
-            Button("Undo Move") {
-                gameState.undoLastMove()
-            }
-            .disabled(gameState.moveHistory.isEmpty)
-            
-            Button("New Game") {
-                gameState.resetGame()
-            }
-        }
+        .background(Color(.systemBackground))
     }
 }
 

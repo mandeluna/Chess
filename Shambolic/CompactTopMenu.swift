@@ -10,54 +10,39 @@ import SwiftUI
 struct CompactTopMenu: View {
     @EnvironmentObject var gameState: ChessGame
     @Binding var showSidebar: Bool
-    @State private var showAnalysis = false
+    @Binding var showResign: Bool
     @State private var showSettings = false
-    
+
     var body: some View {
         HStack(spacing: 16) {
-            // Left side - Game controls
+            // Left — sidebar + resign
             HStack(spacing: 12) {
                 MenuButton(
                     icon: "line.3.horizontal",
                     action: { showSidebar.toggle() }
                 )
-                
+
                 MenuButton(
-                    icon: "arrow.clockwise",
-                    action: gameState.resetGame
+                    icon: "flag",
+                    action: { showResign = true }
                 )
+                .disabled(gameState.moveHistory.isEmpty)
             }
-            
+
             Spacer()
-            
-            // Center - Game status
-            VStack(spacing: 2) {
-                Text(gameStatusText)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                
-                if let evaluation = gameState.analysis?.evaluation {
-                    Text(evaluationText(evaluation))
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(evaluationColor(evaluation))
-                }
-            }
-            
+
+            // Center — current player indicator
+            Text(gameState.currentPlayer == .white ? "♔ White" : "♚ Black")
+                .font(.caption)
+                .fontWeight(.medium)
+
             Spacer()
-            
-            // Right side - Analysis and settings
-            HStack(spacing: 12) {
-                MenuButton(
-                    icon: "chart.bar",
-                    action: { showAnalysis = true }
-                )
-                .disabled(gameState.analysis == nil)
-                
-                MenuButton(
-                    icon: "gearshape",
-                    action: { showSettings = true }
-                )
-            }
+
+            // Right — settings
+            MenuButton(
+                icon: "gearshape",
+                action: { showSettings = true }
+            )
         }
         .padding(.horizontal, 16)
         .frame(height: 44)
@@ -67,30 +52,9 @@ struct CompactTopMenu: View {
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 0.5)
         }
-        .sheet(isPresented: $showAnalysis) {
-            AnalysisView(analysis: gameState.analysis)
-        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
-    }
-    
-    private var gameStatusText: String {
-        return gameState.statusMessage
-    }
-    
-    private func evaluationText(_ evaluation: Double) -> String {
-        if evaluation > 0 {
-            return "+\(String(format: "%.1f", evaluation))"
-        } else {
-            return "\(String(format: "%.1f", evaluation))"
-        }
-    }
-    
-    private func evaluationColor(_ evaluation: Double) -> Color {
-        if evaluation > 0.5 { return .green }
-        else if evaluation < -0.5 { return .red }
-        else { return .primary }
     }
 }
 
@@ -121,6 +85,6 @@ struct MenuButton: View {
 }
 
 #Preview {
-    CompactTopMenu(showSidebar: .constant(false))
+    CompactTopMenu(showSidebar: .constant(false), showResign: .constant(false))
         .environmentObject(ChessGame())
 }
