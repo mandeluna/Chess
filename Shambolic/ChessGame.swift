@@ -60,13 +60,14 @@ class ChessGame: ObservableObject {
     }
 
     private var board: ChessBoard
+    private static let savedMovesKey = "savedMoves"
 
     init() {
         board = ChessBoard()
         board.initializeSearch()
         board.hasUserAgent = false
         board.initializeNewBoard()
-        refreshFromBoard()
+        restoreGame()
     }
 
     func resetGame() {
@@ -81,6 +82,7 @@ class ChessGame: ObservableObject {
         isThinking = false
         moveCount = 0
         engineScore = nil
+        UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
         refreshFromBoard()
     }
 
@@ -167,6 +169,7 @@ class ChessGame: ObservableObject {
         moveHistory.append(move)
         lastMove = move
         moveCount += 1
+        saveGame()
 
         return refreshFromBoard()
     }
@@ -205,6 +208,57 @@ class ChessGame: ObservableObject {
             if bp > 0 { return ChessPiece(piece: bp, square: square, isWhite: false) }
             return nil
         }
+    }
+
+    // MARK: - Persistence
+
+    private func saveGame() {
+        let uciMoves = moveHistory.map { $0.uciString() }
+        UserDefaults.standard.set(uciMoves, forKey: Self.savedMovesKey)
+    }
+
+    /// Replay saved UCI moves at startup. Rebuilds all state without triggering
+    /// per-move UI refreshes. Falls back to a fresh board if any move is invalid.
+    private func restoreGame() {
+        guard let uciMoves = UserDefaults.standard.stringArray(forKey: Self.savedMovesKey),
+              !uciMoves.isEmpty else {
+            refreshFromBoard()
+            return
+        }
+
+        for uci in uciMoves {
+            guard let (from, to, promo) = parseUCI(uci),
+                  let move = findMove(from: from, to: to, promotionPiece: promo) else {
+                // Saved state is corrupt — start fresh rather than leaving a half-replayed position.
+                board.initializeNewBoard()
+                moveHistory = []
+                moveHistorySAN = []
+                capturedPieces = CapturedPieces()
+                lastMove = nil
+                moveCount = 0
+                UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
+                break
+            }
+
+            let san = move.sanString(for: board)
+            board.nextMove(move)
+
+            if move.capturedPiece != 0 {
+                let captured = ChessPiece(
+                    piece: move.capturedPiece,
+                    square: Int(move.destinationSquare),
+                    isWhite: board.activePlayer.isWhitePlayer()
+                )
+                capturedPieces.append(piece: captured)
+            }
+
+            moveHistorySAN.append(san)
+            moveHistory.append(move)
+            lastMove = move
+            moveCount += 1
+        }
+
+        refreshFromBoard()
     }
 
     // MARK: - Move lookup (ObjC API, no ChessEngine Swift extensions needed)
