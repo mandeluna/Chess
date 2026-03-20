@@ -211,6 +211,20 @@ class ChessEngineController {
             }
             i += 1
         }
+        // Convert wtime/btime/winc/binc to a movetime if not already specified.
+        // The engine plays whichever color is active on the board.
+        if uciParams["movetime"] == nil && uciParams["infinite"] == nil {
+            let isWhite = board.activePlayer == board.whitePlayer
+            let remaining = (uciParams[isWhite ? "wtime" : "btime"] as? Int) ?? 0
+            let increment = (uciParams[isWhite ? "winc" : "binc"] as? Int) ?? 0
+            if remaining > 0 {
+                // Simple time allocation: use 1/30 of remaining time plus the increment,
+                // with a floor of 100ms so we always make at least a minimal search.
+                let movetime = max(100, remaining / 30 + increment)
+                uciParams["movetime"] = movetime
+                logger.log("time management: \(isWhite ? "white" : "black") remaining=\(remaining)ms inc=\(increment)ms → movetime=\(movetime)ms", level: Info)
+            }
+        }
         self.engine.performSearch(withUCIParams: uciParams)
     }
     
@@ -221,7 +235,7 @@ class ChessEngineController {
 
     public func waitForReady() {
         while engine.isSearching {
-            Thread.sleep(forTimeInterval: 10)
+            Thread.sleep(forTimeInterval: 0.01)
         }
     }
     
