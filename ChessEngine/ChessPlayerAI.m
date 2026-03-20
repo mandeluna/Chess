@@ -765,13 +765,17 @@ Logger *logger;
         [logger logDebug: @"findmove: Search already in progress" ];
         return;
     }
-    [self performSearchWithUCIParams: [NSDictionary dictionary]
-                      updateCallback:^(NSDictionary *info) {
-        [self printUCIInfo: info];
-    }
-                  completionCallback:^(NSDictionary *info, ChessSearchStatus status) {
-        completion(info[@"bestmove"]);
-    }];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        @autoreleasepool {
+            [self performSearchWithUCIParams: [NSDictionary dictionary]
+                              updateCallback:^(NSDictionary *info) {
+                [self printUCIInfo: info];
+            }
+                          completionCallback:^(NSDictionary *info, ChessSearchStatus status) {
+                completion(info[@"bestmove"]);
+            }];
+        }
+    });
 }
 
 -(void)cancelSearch {
@@ -788,15 +792,17 @@ Logger *logger;
     };
 
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-        [self performSearchWithUCIParams: searchParameters
-                          updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
-                      completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
-            
-            NSMutableDictionary *info = [finalInfo mutableCopy];
-            info[@"bestmove"] = @([self->myMove encodedMove]);
-            [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
-        }];
-    });    
+        @autoreleasepool {
+            [self performSearchWithUCIParams: searchParameters
+                              updateCallback:^(NSDictionary<NSString *,id> *info) { NSLog(@"%@", self.statusString); }
+                          completionCallback:^(NSDictionary<NSString *,id> *finalInfo, ChessSearchStatus status) {
+
+                NSMutableDictionary *info = [finalInfo mutableCopy];
+                info[@"bestmove"] = @([self->myMove encodedMove]);
+                [[NSNotificationCenter defaultCenter] postNotificationOnMainThreadName:@"StoppedThinking" object:info];
+            }];
+        }
+    });
 }
 
 #pragma mark accessing

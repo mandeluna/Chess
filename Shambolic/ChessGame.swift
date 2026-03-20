@@ -51,6 +51,10 @@ class ChessGame: ObservableObject {
     /// Engine evaluation in centipawns from white's perspective (positive = white ahead).
     /// Nil until the engine has completed at least one search.
     @Published var engineScore: Int? = nil
+    /// Which color the human player controls.
+    @Published var humanColor: PieceColor = .white
+    /// True when the color-selection overlay should be shown.
+    @Published var showColorSelection = false
 
     /// FEN string for the current board position.
     var currentFEN: String { board.generateFEN() }
@@ -82,12 +86,17 @@ class ChessGame: ObservableObject {
 
     private var board: ChessBoard
     private static let savedMovesKey = "savedMoves"
+    private static let humanColorKey = "humanColor"
 
     init() {
         board = ChessBoard()
         board.initializeSearch()
         board.hasUserAgent = false
         board.initializeNewBoard()
+        // Restore color preference before replaying moves so triggerEngineIfNeeded works.
+        if UserDefaults.standard.string(forKey: Self.humanColorKey) == "black" {
+            humanColor = .black
+        }
         restoreGame()
     }
 
@@ -98,6 +107,7 @@ class ChessGame: ObservableObject {
         board.initializeNewBoard()
         clearGameState()
         refreshFromBoard()
+        showColorSelection = true
     }
 
     /// Load a position from a FEN string, discarding the current game.
@@ -108,6 +118,15 @@ class ChessGame: ObservableObject {
         board.initialize(fromFEN: fen)
         clearGameState()
         refreshFromBoard()
+        triggerEngineIfNeeded()
+    }
+
+    /// Called by the color-selection overlay; saves preference and starts the game.
+    func setHumanColor(_ color: PieceColor) {
+        humanColor = color
+        UserDefaults.standard.set(color == .black ? "black" : "white", forKey: Self.humanColorKey)
+        showColorSelection = false
+        triggerEngineIfNeeded()
     }
 
     private func clearGameState() {
@@ -120,6 +139,23 @@ class ChessGame: ObservableObject {
         moveCount = 0
         engineScore = nil
         UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
+    }
+
+    /// Returns true when it is the engine's turn to move.
+    private var isEngineTurn: Bool {
+        humanColor == .white ? currentPlayer == .black : currentPlayer == .white
+    }
+
+    /// Trigger the engine to search if it is the engine's turn and no search is running.
+    private func triggerEngineIfNeeded() {
+        guard isEngineTurn, !isThinking else { return }
+        isThinking = true
+        board.searchAgent.setActivePlayer(board.activePlayer)
+        board.searchAgent.findMove { [weak self] uciMove in
+            DispatchQueue.main.async {
+                self?.applyEngineMove(uciMove)
+            }
+        }
     }
 
     // MARK: - Board view delegate interface
@@ -259,9 +295,11 @@ class ChessGame: ObservableObject {
         guard let uciMoves = UserDefaults.standard.stringArray(forKey: Self.savedMovesKey),
               !uciMoves.isEmpty else {
             refreshFromBoard()
+            showColorSelection = true
             return
         }
 
+        var restored = true
         for uci in uciMoves {
             guard let (from, to, promo) = parseUCI(uci),
                   let move = findMove(from: from, to: to, promotionPiece: promo) else {
@@ -273,6 +311,7 @@ class ChessGame: ObservableObject {
                 lastMove = nil
                 moveCount = 0
                 UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
+                restored = false
                 break
             }
 
@@ -295,6 +334,13 @@ class ChessGame: ObservableObject {
         }
 
         refreshFromBoard()
+
+        if restored {
+            // If the engine is next to move (e.g. app killed mid-turn), resume the search.
+            triggerEngineIfNeeded()
+        } else {
+            showColorSelection = true
+        }
     }
 
     // MARK: - Move lookup (ObjC API, no ChessEngine Swift extensions needed)

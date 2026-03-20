@@ -24,6 +24,14 @@ struct ChessView: View {
                 landscapeLayout
             }
         }
+        .overlay {
+            if gameState.showColorSelection {
+                ColorSelectionOverlay()
+                    .environmentObject(gameState)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: gameState.showColorSelection)
         .sheet(isPresented: $showMenuSheet) {
             SideMenu()
                 .environmentObject(gameState)
