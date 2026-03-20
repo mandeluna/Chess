@@ -25,6 +25,13 @@ struct ChessBoardViewWrapper: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIViewType, context: Context) {
         let coordinator = context.coordinator
+
+        // Keep board orientation in sync with the human player's color.
+        let wantWhiteOnBottom = game.humanColor == .white
+        if uiView.isWhiteOnBottom() != wantWhiteOnBottom {
+            uiView.switchSides()
+        }
+
         let moveCount = game.moveCount
 
         // Detect game reset (moveCount went backwards)
