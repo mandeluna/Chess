@@ -272,6 +272,11 @@ Logger *logger;
         return nil;
     }
 
+    if (self.shouldCancelSearch) {
+        [generator recycleMoveList:moveList];
+        return nil;
+    }
+
     // sort move list according to history heuristics
     [moveList sortUsing:historyTable];
 
@@ -303,11 +308,11 @@ Logger *logger;
         notFirst = YES;
         ply--;
 
-//        if (self.status != ChessSearchStatusInProgress) {
-//            [generator recycleMoveList:moveList];
-//            return move;
-//        }
-        
+        if (self.shouldCancelSearch) {
+            [generator recycleMoveList:moveList];
+            return nil;
+        }
+
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
                 if (ply < 10) {
@@ -349,6 +354,10 @@ Logger *logger;
 -(int)ngSearch:(ChessBoard *)theBoard depth:(int)depth alpha:(int)initialAlpha beta:(int)initialBeta {
 
     assert(initialAlpha < initialBeta);
+
+    if (self.shouldCancelSearch) {
+        return kAlphaBetaMinVal;
+    }
 
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -395,7 +404,7 @@ Logger *logger;
     BOOL notFirst = NO;
 
     ChessMove *move = [moveList next];
-    while ((nil != move) /* && (self.status == ChessSearchStatusInProgress) */) {
+    while (nil != move) {
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
@@ -410,6 +419,11 @@ Logger *logger;
         }
         notFirst = YES;
         ply--;
+
+        if (self.shouldCancelSearch) {
+            [generator recycleMoveList:moveList];
+            return bestScore;
+        }
 
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
@@ -447,6 +461,10 @@ Logger *logger;
 -(int)quiesce:(ChessBoard *)theBoard alpha:(int)initialAlpha beta:(int)initialBeta {
 
     assert(initialAlpha < initialBeta);
+
+    if (self.shouldCancelSearch) {
+        return initialAlpha;
+    }
 
     if (ply < 10) {
         variations[ply][0] = 0;
@@ -528,24 +546,22 @@ Logger *logger;
 
     // and search
     ChessMove *move = [moveList next];
-    while ((nil != move) /* && (self.status == ChessSearchStatusInProgress) */) {
+    while (nil != move) {
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
-        
+
         // search recursively
         ply++;
 
         int score = -[self quiesce:newBoard alpha:-beta beta:-alpha];
 
-//        if (status != ChessSearchStatusInProgress) {
-//            if (moveList) {
-//                [generator recycleMoveList:moveList];
-//            }
-//            return score;
-//        }
-
         ply--;
+
+        if (self.shouldCancelSearch) {
+            [generator recycleMoveList:moveList];
+            return bestScore;
+        }
 
         if (kAlphaBetaIllegal != score) {
             if (score > bestScore) {
@@ -658,27 +674,33 @@ Logger *logger;
         NSMutableDictionary *updateInfo = [[self reportInfo:board] mutableCopy];
         updateInfo[@"depth"] = @(depth);
 
-        if (theMove == nil) {
+        // Check cancellation BEFORE checking theMove == nil: a cancelled search
+        // may return nil from negaScout even though the position has legal moves.
+        if (self.shouldCancelSearch) {
+            self.status = ChessSearchStatusStopped;
+            updateInfo[@"stop_reason"] = @"search cancelled";
+            // myMove may still be nil if cancelled before depth 1 completes;
+            // the completion handler will treat a nil/null move gracefully.
+        }
+        else if (theMove == nil) {
+            // No legal moves (checkmate / stalemate).
             self.status = ChessSearchStatusStopped;
             updateInfo[@"stop_reason"] = @"no more moves";
         }
-        // don't cancel until we have a move
-        else if (self.shouldCancelSearch) {
-            if (myMove && ![myMove isNullMove]) {
-                self.status = ChessSearchStatusStopped;
-                updateInfo[@"stop_reason"] = @"search stopped";
-            }
-        }
         else {
+            // Completed a full depth iteration — commit the result.
             score = theMove.value;
-            depth++;
-            updateInfo[@"score"] = @{ @"cp": @(score) };
-            // copy semantics on myMove -- we should replace this with a Swift struct (how does interop work?)
             self.myMove = theMove;
             [self assignBestVariation];
+            updateInfo[@"score"] = @{ @"cp": @(score) };
             dispatch_async(dispatch_queue, ^{
                 updateCallback([updateInfo copy]);
             });
+            depth++;
+            // Enforce depth limit here (after a complete iteration), not inside the search.
+            if (depth_limit > 0 && depth > depth_limit) {
+                self.status = ChessSearchStatusStopped;
+            }
         }
     }
 
@@ -737,26 +759,13 @@ Logger *logger;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval time_spent = now - startTime;
     BOOL stop_nodes = (node_limit > 0) && (nodesVisited > node_limit);
-    BOOL stop_depth = (depth_limit > 0) && (ply > depth_limit);
-    BOOL stop_time = ((time_limit > 0) && (time_spent > time_limit));
-    
-    if (!infinite && (stop_nodes || stop_depth || stop_time)) {
-        NSString *reason;
-            
-        if (stop_time) {
-            reason = [NSString stringWithFormat: @"time limit exceeded (time spent = %d)", (int)(time_spent * 1000)];
-        }
-        else if (stop_depth) {
-            reason = @"depth limit exceeded";
-        }
-        else if (stop_nodes) {
-            reason = @"node limit exceeded";
-        }
-        else {
-            reason = @"stopped search";
-        }
+    BOOL stop_time = (time_limit > 0) && (time_spent > time_limit);
 
-        self.status = ChessSearchStatusStopped;
+    if (!infinite && (stop_nodes || stop_time)) {
+        // Set the cancellation flag; the outer iterative-deepening loop decides
+        // whether to commit the result of the current depth.  Depth limits are
+        // enforced by the outer loop, not here.
+        self.shouldCancelSearch = YES;
     }
 }
 

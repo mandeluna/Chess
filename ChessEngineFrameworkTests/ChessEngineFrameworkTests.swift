@@ -272,8 +272,9 @@ final class ChessEngineFrameworkTests: XCTestCase {
   func testCastleRookUnderThreat() throws {
     let fen = "r2qk2r/ppp2ppp/3p1n2/n1b1p1N1/2B5/1QP1PbP1/PP1P1P1P/RNB1K2R w KQkq - 0 1"
     board.initializeFromFEN(fen)
-    // attempt to castle through check (Bf3 threatens f1)
-    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
+    // Bf3 threatens h1 (the rook) via the diagonal g2–h1, but not f1 or g1.
+    // The rook being under attack does not prevent castling; only king-path squares matter.
+    XCTAssertTrue(board.generator.canCastleWhiteKingSide())
   }
   
   func testCastlingUnderThreats() throws {
@@ -287,8 +288,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
     XCTAssertFalse(board.generator.canCastleWhiteKingSide())
     XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
     board.initializeFromFEN("4k1n1/8/8/8/8/3b4/8/R3K2R w KQ - 0 1")
-    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
-    XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
+    XCTAssertFalse(board.generator.canCastleWhiteKingSide())  // Bd3 attacks f1 via e2-f1 diagonal
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())  // Bd3 attacks b1 but not c1 or d1
     board.initializeFromFEN("4k3/8/8/8/8/4n3/8/R3K2R w KQ - 0 1")
     XCTAssertFalse(board.generator.canCastleWhiteKingSide())
     XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
@@ -296,8 +297,8 @@ final class ChessEngineFrameworkTests: XCTestCase {
     XCTAssertTrue(board.generator.canCastleWhiteKingSide())
     XCTAssertTrue(board.generator.canCastleWhiteQueenSide())
     board.initializeFromFEN("4k3/8/8/8/4q3/8/4P3/R3K2R w KQha - 0 1")
-    XCTAssertFalse(board.generator.canCastleWhiteKingSide())
-    XCTAssertFalse(board.generator.canCastleWhiteQueenSide())
+    XCTAssertTrue(board.generator.canCastleWhiteKingSide())   // Qe4 attacks h1 (rook) via f3-g2-h1, not f1/g1
+    XCTAssertTrue(board.generator.canCastleWhiteQueenSide())  // Qe4 attacks b1 via d3-c2-b1, not c1/d1
   }
   
   func testCastlingDisabledFEN() throws {

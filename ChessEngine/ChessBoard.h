@@ -59,6 +59,6 @@
 
 // FEN (Forsyth-Edwards Notation) -- implemented in ChessBoard-Parsing.swift
 -(void)initializeFromFEN:(NSString *)fen;
--(NSString *)generateFEN;
+// generateFEN is declared in ChessBoard-Parsing.swift (@objc); no ObjC stub needed.
 
 @end

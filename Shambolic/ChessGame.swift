@@ -177,7 +177,7 @@ class ChessGame: ObservableObject {
             DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
         }, update: { [weak self] info in
             guard let info else { return }
-            self?.handleEngineUpdate(info)
+            self?.handleEngineUpdate(info as NSDictionary)
         })
     }
 
@@ -221,7 +221,7 @@ class ChessGame: ObservableObject {
             DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
         }, update: { [weak self] info in
             guard let info else { return }
-            self?.handleEngineUpdate(info)
+            self?.handleEngineUpdate(info as NSDictionary)
         })
     }
 
