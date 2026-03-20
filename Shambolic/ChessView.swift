@@ -87,9 +87,45 @@ struct CompactBottomPanel: View {
 
             Divider()
 
+            if gameState.isThinking {
+                ThinkingPanel()
+                    .environmentObject(gameState)
+                Divider()
+            }
+
             PGNHistoryView()
                 .environmentObject(gameState)
         }
+    }
+}
+
+// MARK: - Thinking Panel
+
+struct ThinkingPanel: View {
+    @EnvironmentObject var gameState: ChessGame
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .scaleEffect(0.65)
+                Text("Depth \(gameState.thinkingDepth)")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            if !gameState.thinkingLine.isEmpty {
+                Text(gameState.thinkingLine)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(.primary.opacity(0.75))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 5)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.tertiarySystemBackground))
     }
 }
 

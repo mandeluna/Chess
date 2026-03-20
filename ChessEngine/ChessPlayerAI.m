@@ -760,7 +760,12 @@ Logger *logger;
     }
 }
 
--(void)findMove: (void (^)(NSString *move))completion {
+-(void)findMove:(void (^)(NSString *move))completion {
+    [self findMove:completion update:nil];
+}
+
+-(void)findMove:(void (^)(NSString *move))completion
+         update:(nullable void (^)(NSDictionary *info))update {
     if (![self isReady]) {
         [logger logDebug: @"findmove: Search already in progress" ];
         return;
@@ -770,6 +775,7 @@ Logger *logger;
             [self performSearchWithUCIParams: [NSDictionary dictionary]
                               updateCallback:^(NSDictionary *info) {
                 [self printUCIInfo: info];
+                if (update) update(info);
             }
                           completionCallback:^(NSDictionary *info, ChessSearchStatus status) {
                 completion(info[@"bestmove"]);

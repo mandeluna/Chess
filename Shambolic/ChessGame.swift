@@ -48,6 +48,10 @@ class ChessGame: ObservableObject {
     @Published var moveTime: Double = 0.0
     @Published var isThinking: Bool = false
     @Published var moveCount: Int = 0
+    /// Current search depth reached by the engine (0 when not thinking).
+    @Published var thinkingDepth: Int = 0
+    /// Principal variation from the current search, as space-separated UCI moves.
+    @Published var thinkingLine: String = ""
     /// Engine evaluation in centipawns from white's perspective (positive = white ahead).
     /// Nil until the engine has completed at least one search.
     @Published var engineScore: Int? = nil
@@ -138,7 +142,23 @@ class ChessGame: ObservableObject {
         isThinking = false
         moveCount = 0
         engineScore = nil
+        thinkingDepth = 0
+        thinkingLine = ""
         UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
+    }
+
+    /// Called on a background thread by the engine after each depth iteration.
+    private func handleEngineUpdate(_ info: NSDictionary) {
+        let depth = (info["depth"] as? Int) ?? 0
+        let pv = (info["pv"] as? [String]) ?? []
+        let line = pv.prefix(8).joined(separator: " ")
+        let cp = ((info["score"] as? [String: Any])?["cp"] as? Int)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.thinkingDepth = depth
+            self.thinkingLine = line
+            if let cp { self.engineScore = -cp }
+        }
     }
 
     /// Returns true when it is the engine's turn to move.
@@ -150,12 +170,15 @@ class ChessGame: ObservableObject {
     private func triggerEngineIfNeeded() {
         guard isEngineTurn, !isThinking else { return }
         isThinking = true
+        thinkingDepth = 0
+        thinkingLine = ""
         board.searchAgent.setActivePlayer(board.activePlayer)
-        board.searchAgent.findMove { [weak self] uciMove in
-            DispatchQueue.main.async {
-                self?.applyEngineMove(uciMove)
-            }
-        }
+        board.searchAgent.findMove({ [weak self] uciMove in
+            DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
+        }, update: { [weak self] info in
+            guard let info else { return }
+            self?.handleEngineUpdate(info)
+        })
     }
 
     // MARK: - Board view delegate interface
@@ -191,16 +214,21 @@ class ChessGame: ObservableObject {
         guard !gameOver else { return }
 
         isThinking = true
+        thinkingDepth = 0
+        thinkingLine = ""
         board.searchAgent.setActivePlayer(board.activePlayer)
-        board.searchAgent.findMove { [weak self] uciMove in
-            DispatchQueue.main.async {
-                self?.applyEngineMove(uciMove)
-            }
-        }
+        board.searchAgent.findMove({ [weak self] uciMove in
+            DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
+        }, update: { [weak self] info in
+            guard let info else { return }
+            self?.handleEngineUpdate(info)
+        })
     }
 
     private func applyEngineMove(_ uciMove: String?) {
         isThinking = false
+        thinkingDepth = 0
+        thinkingLine = ""
 
         // Capture the engine's evaluation before the move is applied.
         // myMove.value is from the searching player's (engine/black) perspective; negate for white.
