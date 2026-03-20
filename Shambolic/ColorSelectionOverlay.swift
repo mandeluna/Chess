@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ColorSelectionOverlay: View {
     @EnvironmentObject var gameState: ChessGame
@@ -30,32 +31,32 @@ struct ColorSelectionOverlay: View {
                 HStack(spacing: 20) {
                     SideChoiceButton(
                         label: "White",
-                        symbol: "♔",
                         circleFill: .white,
-                        symbolColor: .black,
-                        bordered: true
+                        bordered: true,
+                        action: { gameState.setHumanColor(.white) }
                     ) {
-                        gameState.setHumanColor(.white)
+                        PieceImage(named: "whiteKingImage.png")
                     }
 
                     SideChoiceButton(
                         label: "Random",
-                        symbol: "🎲",
                         circleFill: Color(.systemGray4),
-                        symbolColor: .primary,
-                        bordered: false
+                        bordered: false,
+                        action: { gameState.setHumanColor(Bool.random() ? .white : .black) }
                     ) {
-                        gameState.setHumanColor(Bool.random() ? .white : .black)
+                        Image(systemName: "die.face.5")
+                            .font(.system(size: 36, weight: .regular))
+                            .foregroundStyle(.primary)
                     }
 
                     SideChoiceButton(
                         label: "Black",
-                        symbol: "♚",
                         circleFill: .black,
-                        symbolColor: .white,
-                        bordered: true
+                        bordered: true,
+                        action: { gameState.setHumanColor(.black) }
                     ) {
-                        gameState.setHumanColor(.black)
+                        PieceImage(named: "blackKingImage.png")
+                            .shadow(color: .white.opacity(0.55), radius: 3, x: 0, y: 0)
                     }
                 }
             }
@@ -73,15 +74,45 @@ struct ColorSelectionOverlay: View {
     }
 }
 
+// MARK: - Piece Image
+
+/// Loads a bundle image by filename (e.g. "whiteKingImage.png") and renders it
+/// resizable, fitting within a fixed square.
+private struct PieceImage: View {
+    let named: String
+
+    var body: some View {
+        if let uiImage = UIImage(named: named) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 46, height: 46)
+        }
+    }
+}
+
 // MARK: - Side Choice Button
 
-private struct SideChoiceButton: View {
+private struct SideChoiceButton<Icon: View>: View {
     let label: String
-    let symbol: String
     let circleFill: Color
-    let symbolColor: Color
     let bordered: Bool
     let action: () -> Void
+    let icon: Icon
+
+    init(
+        label: String,
+        circleFill: Color,
+        bordered: Bool,
+        action: @escaping () -> Void,
+        @ViewBuilder icon: () -> Icon
+    ) {
+        self.label = label
+        self.circleFill = circleFill
+        self.bordered = bordered
+        self.action = action
+        self.icon = icon()
+    }
 
     var body: some View {
         Button(action: action) {
@@ -95,9 +126,7 @@ private struct SideChoiceButton: View {
                             .strokeBorder(Color(.separator), lineWidth: 1)
                             .frame(width: 76, height: 76)
                     }
-                    Text(symbol)
-                        .font(.system(size: 42))
-                        .foregroundStyle(symbolColor)
+                    icon
                 }
                 Text(label)
                     .font(.caption)
