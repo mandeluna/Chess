@@ -52,6 +52,27 @@ class ChessGame: ObservableObject {
     /// Nil until the engine has completed at least one search.
     @Published var engineScore: Int? = nil
 
+    /// FEN string for the current board position.
+    var currentFEN: String { board.generateFEN() }
+
+    /// True when no moves have been made (board is in starting state or freshly loaded from FEN).
+    var isInInitialPosition: Bool { moveHistory.isEmpty }
+
+    /// PGN move list, e.g. "1. e4 e5 2. Nf3 Nc6"
+    var pgn: String {
+        var result = ""
+        var i = 0
+        while i < moveHistorySAN.count {
+            if i > 0 { result += " " }
+            result += "\(i / 2 + 1). \(moveHistorySAN[i])"
+            if i + 1 < moveHistorySAN.count {
+                result += " \(moveHistorySAN[i + 1])"
+            }
+            i += 2
+        }
+        return result
+    }
+
     /// Material score from white's perspective: positive = white ahead, negative = black ahead.
     var score: Int {
         pieces.compactMap { $0 }.reduce(0) { sum, piece in
@@ -75,15 +96,30 @@ class ChessGame: ObservableObject {
         board.initializeSearch()
         board.hasUserAgent = false
         board.initializeNewBoard()
+        clearGameState()
+        refreshFromBoard()
+    }
+
+    /// Load a position from a FEN string, discarding the current game.
+    func loadFEN(_ fen: String) {
+        board.searchAgent.cancelSearch()
+        board.initializeSearch()
+        board.hasUserAgent = false
+        board.initialize(fromFEN: fen)
+        clearGameState()
+        refreshFromBoard()
+    }
+
+    private func clearGameState() {
         moveHistory = []
         moveHistorySAN = []
         capturedPieces = CapturedPieces()
         kingAttack = nil
+        lastMove = nil
         isThinking = false
         moveCount = 0
         engineScore = nil
         UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
-        refreshFromBoard()
     }
 
     // MARK: - Board view delegate interface

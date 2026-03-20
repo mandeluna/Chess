@@ -5,6 +5,7 @@
 
 .idea/
 build/
+Chess Data/
 
 *.pbxuser
 *.perspective

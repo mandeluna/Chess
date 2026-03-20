@@ -12,6 +12,7 @@ struct CompactTopMenu: View {
     @Binding var showSidebar: Bool
     @Binding var showResign: Bool
     @State private var showSettings = false
+    @State private var showPosition = false
 
     var body: some View {
         HStack(spacing: 16) {
@@ -38,11 +39,17 @@ struct CompactTopMenu: View {
 
             Spacer()
 
-            // Right — settings
-            MenuButton(
-                icon: "gearshape",
-                action: { showSettings = true }
-            )
+            // Right — position/share + settings
+            HStack(spacing: 12) {
+                MenuButton(
+                    icon: "square.and.arrow.up",
+                    action: { showPosition = true }
+                )
+                MenuButton(
+                    icon: "gearshape",
+                    action: { showSettings = true }
+                )
+            }
         }
         .padding(.horizontal, 16)
         .frame(height: 44)
@@ -54,6 +61,10 @@ struct CompactTopMenu: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $showPosition) {
+            PositionSheet()
+                .environmentObject(gameState)
         }
     }
 }

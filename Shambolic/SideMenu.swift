@@ -11,6 +11,7 @@ struct SideMenu: View {
     @EnvironmentObject var gameState: ChessGame
     @State private var selectedTab: MenuTab = .game
     @State private var showAnalysis = false
+    @State private var showPosition = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -81,6 +82,18 @@ struct SideMenu: View {
                     .cornerRadius(8)
                 }
 
+                Button(action: { showPosition = true }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Position")
+                    }
+                    .font(.system(size: 14, weight: .medium))
+                    .frame(maxWidth: .infinity, minHeight: 36)
+                    .background(Color(.secondarySystemBackground))
+                    .foregroundColor(.primary)
+                    .cornerRadius(6)
+                }
+
                 if !gameState.moveHistory.isEmpty {
                     Button(role: .destructive, action: gameState.resetGame) {
                         HStack {
@@ -103,6 +116,10 @@ struct SideMenu: View {
         .background(.regularMaterial)
         .sheet(isPresented: $showAnalysis) {
             AnalysisView(analysis: gameState.analysis)
+        }
+        .sheet(isPresented: $showPosition) {
+            PositionSheet()
+                .environmentObject(gameState)
         }
     }
 }

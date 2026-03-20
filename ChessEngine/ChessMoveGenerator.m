@@ -722,12 +722,9 @@ static PossibleMoveList KnightMoves[64];
     if (myPieces[G8] + myPieces[F8] + itsPieces[G8] + itsPieces[F8])
         return NO;
 
-    // check for castling squares under attack
+    // check for castling squares under attack (king path: E8, F8, G8)
     // first check for vertical (rook-like) attacks
-    int hRank[7] = {H7, H6, H5, H4, H3, H2, H1};
-    DirectionalMoveList sqH = {7, hRank};
-    if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
-
+    // H8 is the rook's square -- not part of the king's path, skip it
     int gRank[7] = {G7, G6, G5, G4, G3, G2, G1};
     DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
@@ -746,10 +743,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
 
     // check for bishop attacks from the diagonals
-    int b1[7] = {G7, F6, E5, D4, C3, B2, A1};
-    DirectionalMoveList sqb1 = {7, b1};
-    if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
-
+    // b1 (H8 diagonal) omitted -- H8 is the rook's square, not king's path
     int b2[6] = {F7, E6, D5, C4, B3, A2};
     DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
@@ -774,9 +768,10 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb7 = {1, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
 
-    // check for a knight attack
-    int k1[11] = {H7, G7, F7, E7, D7, C7, H6, G6, F6, E6, D6};
-    DirectionalMoveList sqk1 = {11, k1};
+    // check for a knight attack (squares from which a knight reaches E8, F8, or G8)
+    // F7 removed: only reaches H8 (rook's square), not E8/F8/G8
+    int k1[10] = {H7, G7, E7, D7, C7, H6, G6, F6, E6, D6};
+    DirectionalMoveList sqk1 = {10, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
@@ -801,16 +796,10 @@ static PossibleMoveList KnightMoves[64];
     if (myPieces[B8] + myPieces[C8]  + myPieces[D8] + itsPieces[B8] + itsPieces[C8] + itsPieces[D8])
         return NO;
 
-    // check for castling squares under attack
+    // check for castling squares under attack (king path: E8, D8, C8)
     // first check for vertical (rook-like) attacks
-    int aRank[7] = {A7, A6, A5, A4, A3, A2, A1};
-    DirectionalMoveList sqA = {7, aRank};
-    if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
-
-    int bRank[7] = {B7, B6, B5, B4, B3, B2, B1};
-    DirectionalMoveList sqB = {7, bRank};
-    if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
-
+    // A8 is the rook's square -- not part of the king's path, skip it
+    // B8 is only in the rook's path, not the king's -- skip it too
     int cRank[7] = {C7, C6, C5, C4, C3, C2, C1};
     DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
@@ -829,14 +818,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
 
     // check for bishop attacks from the diagonals
-    int b1[7] = {B7, C6, D5, E4, F3, G2, H1};
-    DirectionalMoveList sqb1 = {7, b1};
-    if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
-
-    int b2[6] = {C7, D6, E5, F4, G3, H2};
-    DirectionalMoveList sqb2 = {6, b2};
-    if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
-
+    // b1 (A8 diagonal) and b2 (B8 diagonal) omitted -- not king's path
     int b3[5] = {D7, E6, F5, G4, H3};
     DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
@@ -849,10 +831,7 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
 
-    int b6[1] = {A7};
-    DirectionalMoveList sqb6 = {1, b6};
-    if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
-
+    // b6 (B8 from NE) omitted -- B8 not king's path
     int b7[2] = {B7, A6};
     DirectionalMoveList sqb7 = {2, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
@@ -865,14 +844,18 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb9 = {4, b9};
     if ([self checkAttack:&sqb9 fromPieces:BishopMovers]) return NO;
 
-    // check for a knight attack
-    int k1[12] = {A7, B7, C7, D7, E7, F7, G7, A6, B6, D6, E6, F6};
-    DirectionalMoveList sqk1 = {12, k1};
+    // check for a knight attack (squares from which a knight reaches C8, D8, or E8)
+    // D7 removed: only reaches B8/F8, not C8/D8/E8
+    // A6 removed: only reaches B8, not C8/D8/E8
+    // C6 added: reaches D8 (+1,+2)
+    int k1[11] = {A7, B7, C7, E7, F7, G7, B6, C6, D6, E6, F6};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
-    int p1[6] = {A7, B7, C7, D7, E7, F7};
-    DirectionalMoveList sqp1 = {6, p1};
+    // A7 removed: white pawn at A7 only attacks B8, not C8/D8/E8
+    int p1[5] = {B7, C7, D7, E7, F7};
+    DirectionalMoveList sqp1 = {5, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
 
     // check for a king attack
@@ -892,12 +875,9 @@ static PossibleMoveList KnightMoves[64];
     if (myPieces[G1] + myPieces[F1] + itsPieces[G1] + itsPieces[F1])
         return NO;
 
-    // check for castling squares under attack
+    // check for castling squares under attack (king path: E1, F1, G1)
     // first check for vertical (rook-like) attacks
-    int hRank[7] = {H2, H3, H4, H5, H6, H7, H8};
-    DirectionalMoveList sqH = {7, hRank};
-    if ([self checkAttack:&sqH fromPieces:RookMovers]) return NO;
-
+    // H1 is the rook's square -- not part of the king's path, skip it
     int gRank[7] = {G2, G3, G4, G5, G6, G7, G8};
     DirectionalMoveList sqG = {7, gRank};
     if ([self checkAttack:&sqG fromPieces:RookMovers]) return NO;
@@ -916,10 +896,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
 
     // check for bishop attacks from the diagonals
-    int b1[7] = {G2, F3, E4, D5, C6, B7, A8};
-    DirectionalMoveList sqb1 = {7, b1};
-    if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
-
+    // b1 (H1 diagonal) omitted -- H1 is the rook's square, not king's path
     int b2[6] = {F2, E3, D4, C5, B6, A7};
     DirectionalMoveList sqb2 = {6, b2};
     if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
@@ -944,9 +921,10 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb7 = {1, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
 
-    // check for a knight attack
-    int k1[11] = {H2, G2, F2, E2, D2, C2, H3, G3, F3, E3, D3};
-    DirectionalMoveList sqk1 = {11, k1};
+    // check for a knight attack (squares from which a knight reaches E1, F1, or G1)
+    // F2 removed: only reaches H1 (rook's square), not E1/F1/G1
+    int k1[10] = {H2, G2, E2, D2, C2, H3, G3, F3, E3, D3};
+    DirectionalMoveList sqk1 = {10, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
@@ -971,16 +949,10 @@ static PossibleMoveList KnightMoves[64];
     if (myPieces[B1] + myPieces[C1]  + myPieces[D1] + itsPieces[B1] + itsPieces[C1] + itsPieces[D1])
         return NO;
 
-    // check for castling squares under attack
+    // check for castling squares under attack (king path: E1, D1, C1)
     // first check for vertical (rook-like) attacks
-    int aRank[7] = {A2, A3, A4, A5, A6, A7, A8};
-    DirectionalMoveList sqA = {7, aRank};
-    if ([self checkAttack:&sqA fromPieces:RookMovers]) return NO;
-
-    int bRank[7] = {B2, B3, B4, B5, B6, B7, B8};
-    DirectionalMoveList sqB = {7, bRank};
-    if ([self checkAttack:&sqB fromPieces:RookMovers]) return NO;
-
+    // A1 is the rook's square -- not part of the king's path, skip it
+    // B1 is only in the rook's path, not the king's -- skip it too
     int cRank[7] = {C2, C3, C4, C5, C6, C7, C8};
     DirectionalMoveList sqC = {7, cRank};
     if ([self checkAttack:&sqC fromPieces:RookMovers]) return NO;
@@ -999,14 +971,7 @@ static PossibleMoveList KnightMoves[64];
     if ([self checkAttack:&sq8 fromPieces:RookMovers]) return NO;
 
     // check for bishop attacks from the diagonals
-    int b1[7] = {B2, C3, D4, E5, F6, G7, H8};
-    DirectionalMoveList sqb1 = {7, b1};
-    if ([self checkAttack:&sqb1 fromPieces:BishopMovers]) return NO;
-
-    int b2[6] = {C2, D3, E4, F5, G6, H7};
-    DirectionalMoveList sqb2 = {6, b2};
-    if ([self checkAttack:&sqb2 fromPieces:BishopMovers]) return NO;
-
+    // b1 (A1 diagonal) and b2 (B1 diagonal) omitted -- not king's path
     int b3[5] = {D2, E3, F4, G5, H6};
     DirectionalMoveList sqb3 = {5, b3};
     if ([self checkAttack:&sqb3 fromPieces:BishopMovers]) return NO;
@@ -1019,10 +984,7 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb5 = {3, b5};
     if ([self checkAttack:&sqb5 fromPieces:BishopMovers]) return NO;
 
-    int b6[1] = {A2};
-    DirectionalMoveList sqb6 = {1, b6};
-    if ([self checkAttack:&sqb6 fromPieces:BishopMovers]) return NO;
-
+    // b6 (B1 from NW) omitted -- B1 not king's path
     int b7[2] = {B2, A3};
     DirectionalMoveList sqb7 = {2, b7};
     if ([self checkAttack:&sqb7 fromPieces:BishopMovers]) return NO;
@@ -1035,14 +997,19 @@ static PossibleMoveList KnightMoves[64];
     DirectionalMoveList sqb9 = {4, b9};
     if ([self checkAttack:&sqb9 fromPieces:BishopMovers]) return NO;
 
-    // check for a knight attack
-    int k1[12] = {A2, B2, C2, D2, E2, F2, G2, A3, B3, D3, E3, F3};
-    DirectionalMoveList sqk1 = {12, k1};
+    // check for a knight attack (squares from which a knight reaches C1, D1, or E1)
+    // D2 removed: only reaches B1/F1, not C1/D1/E1
+    // A3 removed: only reaches B1, not C1/D1/E1
+    // B3 added: reaches C1 (+1,-2)
+    // C3 added: reaches D1 (+1,-2)
+    int k1[12] = {A2, B2, C2, E2, F2, G2, B3, C3, D3, E3, F3};
+    DirectionalMoveList sqk1 = {11, k1};
     if ([self checkUnprotectedAttack:&sqk1 fromPiece:kKnight]) return NO;
 
     // check for a pawn attack
-    int p1[6] = {A2, B2, C2, D2, E2, F2};
-    DirectionalMoveList sqp1 = {6, p1};
+    // A2 removed: black pawn at A2 only attacks B1, not C1/D1/E1
+    int p1[5] = {B2, C2, D2, E2, F2};
+    DirectionalMoveList sqp1 = {5, p1};
     if ([self checkUnprotectedAttack:&sqp1 fromPiece:kPawn]) return NO;
 
     // check for a king attack
