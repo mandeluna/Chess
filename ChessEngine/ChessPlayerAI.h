@@ -27,7 +27,7 @@ typedef void (^UpdateCallback)(NSDictionary *info);
 typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus status);
 
 @interface ChessPlayerAI : NSObject {
-    ChessBoard *board;
+    __weak ChessBoard *board;
     NSArray *boardList;
     int boardListIndex;
     __weak ChessPlayer *player;
@@ -62,9 +62,9 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
     long max_nodes;                  // total nodes visited
 }
 
-// board owns the player
+// board owns the searchAgent; back-reference must be weak to break the cycle
 @property(nonatomic, weak) ChessPlayer *player;
-@property(nonatomic, retain) ChessBoard *board;
+@property(nonatomic, weak) ChessBoard *board;
 @property(nonatomic, retain) ChessMoveGenerator *generator;
 @property(nonatomic, readonly) ChessTranspositionTable *transTable;
 @property(nonatomic, readonly) ChessHistoryTable *historyTable;
