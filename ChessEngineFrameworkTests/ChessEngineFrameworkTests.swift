@@ -347,6 +347,110 @@ final class ChessEngineFrameworkTests: XCTestCase {
     print("bestmove \(nextMove!)")
   }
   
+  // MARK: - Move struct tests
+
+  func testMoveFieldAccessors() {
+    // e2 = square 12 (file e=4, rank 2: 4 + 8*1 = 12), e4 = square 28
+    let m = Move.move(piece: kPawn, from: 12, to: 28)
+    XCTAssertEqual(m.from, 12)
+    XCTAssertEqual(m.to, 28)
+    XCTAssertEqual(m.piece, kPawn)
+    XCTAssertEqual(m.captured, 0)
+    XCTAssertEqual(m.promotion, 0)
+    XCTAssertEqual(m.kind, .normal)
+    XCTAssertEqual(m.score, 0)
+    XCTAssertFalse(m.isNull)
+    XCTAssertFalse(m.isCapture)
+    XCTAssertFalse(m.isPromotion)
+  }
+
+  func testMoveCapture() {
+    let m = Move.move(piece: kRook, from: 0, to: 56, captured: kQueen)
+    XCTAssertEqual(m.captured, kQueen)
+    XCTAssertTrue(m.isCapture)
+  }
+
+  func testMovePromotion() {
+    // g7 = square 54, g8 = square 62
+    let m = Move.promotion(piece: kPawn, from: 54, to: 62, promoteTo: kQueen)
+    XCTAssertEqual(m.piece, kPawn)
+    XCTAssertEqual(m.promotion, kQueen)
+    XCTAssertTrue(m.isPromotion)
+    XCTAssertEqual(m.uciString, "g7g8q")
+  }
+
+  func testMovePromotionWithCapture() {
+    let m = Move.promotion(piece: kPawn, from: 54, to: 63, promoteTo: kKnight, captured: kRook)
+    XCTAssertEqual(m.captured, kRook)
+    XCTAssertEqual(m.promotion, kKnight)
+    XCTAssertEqual(m.uciString, "g7h8n")
+  }
+
+  func testMoveKinds() {
+    let dp = Move.doublePush(piece: kPawn, from: 12, to: 28)
+    XCTAssertEqual(dp.kind, .doublePush)
+
+    let ep = Move.enPassant(piece: kPawn, from: 28, to: 21, captured: kPawn)
+    XCTAssertEqual(ep.kind, .enPassant)
+
+    let ck = Move.castleKingside(piece: kKing, from: 4, to: 6)
+    XCTAssertTrue(ck.isCastle)
+    XCTAssertEqual(ck.kind, .castleKingside)
+
+    let cq = Move.castleQueenside(piece: kKing, from: 4, to: 2)
+    XCTAssertTrue(cq.isCastle)
+    XCTAssertEqual(cq.kind, .castleQueenside)
+  }
+
+  func testMoveNullSentinel() {
+    XCTAssertTrue(Move.null.isNull)
+    XCTAssertFalse(Move.move(piece: kPawn, from: 12, to: 28).isNull)
+    XCTAssertEqual(Move.null.uciString, "0000")
+    // null kind
+    XCTAssertEqual(Move.null.kind, .null)
+  }
+
+  func testMoveUCIString() {
+    // a1→a2: from=0 to=8
+    XCTAssertEqual(Move.move(piece: kRook, from: 0, to: 8).uciString, "a1a2")
+    // e1→g1 (kingside castle): from=4 to=6
+    XCTAssertEqual(Move.castleKingside(piece: kKing, from: 4, to: 6).uciString, "e1g1")
+    // h7→h8 promote to rook: from=55 to=63
+    XCTAssertEqual(Move.promotion(piece: kPawn, from: 55, to: 63, promoteTo: kRook).uciString, "h7h8r")
+  }
+
+  func testMoveEqualityIgnoresScore() {
+    let m1 = Move.move(piece: kKnight, from: 1, to: 18)
+    let m2 = m1.withScore(500)
+    let m3 = m1.withScore(-200)
+    // Same board action — equal regardless of score
+    XCTAssertEqual(m1, m2)
+    XCTAssertEqual(m2, m3)
+    // withScore round-trips
+    XCTAssertEqual(m2.score, 500)
+    XCTAssertEqual(m3.score, -200)
+    // Hash consistency
+    XCTAssertEqual(m1.hashValue, m2.hashValue)
+  }
+
+  func testMoveScoreRoundTrip() {
+    let m = Move.move(piece: kBishop, from: 2, to: 47)
+    XCTAssertEqual(m.withScore(32767).score,  32767)
+    XCTAssertEqual(m.withScore(-32768).score, -32768)
+    XCTAssertEqual(m.withScore(0).score, 0)
+    // Score mutation does not change board-level fields
+    let scored = m.withScore(1000)
+    XCTAssertEqual(scored.from, m.from)
+    XCTAssertEqual(scored.to, m.to)
+    XCTAssertEqual(scored.piece, m.piece)
+  }
+
+  func testMoveTerminal() {
+    XCTAssertTrue(Move.resign(piece: kKing).isTerminal)
+    XCTAssertTrue(Move.stalemate(piece: kKing).isTerminal)
+    XCTAssertFalse(Move.move(piece: kPawn, from: 8, to: 16).isTerminal)
+  }
+
   func testErrorLevels() {
     let logger = Logger.default()!
     logger.level = Verbose
