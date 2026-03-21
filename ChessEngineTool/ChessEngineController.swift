@@ -39,14 +39,16 @@ class ChessEngineController {
                 self.sendOk()
             }
         case "ucinewgame":
-            DispatchQueue.main.async {
+            // Run on searchQueue so it is serialized with position/go and cannot
+            // race with board.move(uci:) calls that touch the generator.
+            searchQueue.async {
                 self.waitForReady()
                 self.board.initializeSearch()
                 self.board.initializeNewBoard()
                 self.engine = self.board.searchAgent
             }
         case "isready":
-            DispatchQueue.main.async {
+            searchQueue.async {
                 self.waitForReady()
                 respond("readyok")
             }

@@ -5,6 +5,7 @@
 #import "Logger.h"
 #import "ChessConstants.h"
 #import "ChessBoard.h"
+#import "ChessBoard+UIExtensions.h"
 #import "ChessPlayer.h"
 #import "ChessMove.h"
 #import "ChessPlayerAI.h"

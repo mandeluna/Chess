@@ -204,13 +204,13 @@ Logger *logger;
         av = activeVariation;
         count = av[0];
     }
+    // If neither bestVariation nor activeVariation has moves yet (e.g. before
+    // depth 1 completes), return an empty array.  The previous fallback to
+    // variations[0] could emit stale moves from a prior search position, which
+    // CuteChess/GUIs flag as illegal.  The "***" sentinel was also emitted
+    // verbatim in the UCI pv field, which is always illegal.
     if (count < 1) {
-        [result addObject:@"***"];
-        av = variations[0];
-        count = av[0];
-        if (count > 3) {
-            count = 3;
-        }
+        return result;
     }
     ChessBoard *newBoard = [board copy];
     count = av[0];

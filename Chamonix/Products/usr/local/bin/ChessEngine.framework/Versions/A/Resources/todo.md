@@ -1,26 +1,29 @@
 # To do
 
-Some ideas I've had in no particular order. 
+0. UILayout and basic gameplay
+   * switch sides to play as black
+   * show status string (checkmate etc.)
+   * improve calculation of score (who is winning?)
+   * show captures (and basic piece score)
+   * ipad status bar obscures top of board
 
-1. Test the castling state -- I noticed the other day it let me do an illegal castling move (while my rook was under threat).
-   The FEN string should show the correct KQkq string based on an appropriate mix of board positions. ✅
+1. Find and fix memory leaks in ChessPlayer copying
 
-2. Test the halfmove clock and fullmove number -- as above, the appropriate state should be reflected in the FEN string. ✅
+2. Fix unhandled exceptions in recycleMoveList (threading issue?)
+
+3. Add time manager class and behaviour.
+
+4. Improve the board position evaluation logic.
+
+5. Config options for transposition table size and history table logic. Test efficacy of this as well as other engine parameter changes.
+
+6. Implement a movelist view controller that supports PGN export, import & selecting different moves.
+
+7. Maintain a log of board positions and PGN notation for games played (where?)
 
 8. Improve reporting of UCI info strings, especially depth reporting.
 
-3. Implement a selectable movelist that supports PGN export, import & selecting different moves.
-   Get rid of undo/redo concepts, allow "play from here."
-
-4. Maintain a log of board positions and PGN notation for games played.
-
-5. Add time manager class and behaviour.
-
-6. Improve the board position evaluation logic.
-
-7. Config options for transposition table size.
-
-9. Implment history table logic. Test efficacy of this as well as other engine parameter changes.
+9. Measure performance of move generator. Consider bit board representation & encoded ChessMove objects
 
 10. Design a new GUI and implement with Swift UI.
     a) Feature set
@@ -36,8 +39,10 @@ Some ideas I've had in no particular order.
         - other UIs are either Windows-only or horribly dated Qt things
         - nothing works on mobile
         - what about Android?
+    d) Technical Design
+        - Move List View Controller
 
-11. Port game engine to Linux/BSD (GNUStep?).
+11. Port game engine to Linux/BSD (GNUStep? Swift? Rust?)
 
 12. Build an ActivityPUB social game.
 
@@ -79,3 +84,40 @@ Concepts I would like to understand better:
 4. How chess engines use opening books to improve gameplay
 
 5. How a neural network can improve on the basic opening book approach
+
+## Some old notes
+
+* add game clocks
+* provide option for timed game play
+* add move lists
+* show captured pieces
+* show labels for online opponents
+* status icon to indicate opponent is online
+* status icon to indicate opponent has voice chat enabled
+* provide button to enable/disable voice chat (mute local, mute remote)
+* provide indicator showing voice chat volume during game
+* save game state when quitting
+* restore game state on startup
+* provide option to reconnect with opponent restoring saved game in progress
+* add support for Game Center sessions (GKMatch)
+* set up leaderboards and tournament invitations
+* provide different theme choices for the gameboard and players
+* fix layout of subviews when screen is rotated into landscape mode
+
+* negotiate which player will be white
+    * at the start of the game, both players have the white pieces facing them
+    * once the network negotiation is complete, we have an alert in NSStreamEventOpenCompleted
+    * need this for BT sessions & GKMatch sessions
+    * game state should be as follows:
+    1. Initial state == invalid: black player undefined, white player specified twice
+    * We need to enforce that white goes first,
+    * that one player cannot move when it's another player's turn (can we reuse isThinking flag for computer play?)
+    * We should keep track of the time spent on each move by each player
+    ** if clocks get out of sync, we need a way to resynchronize them
+    * Assume that each player's computer will enforce the legality of each move
+    * We should encode # check and ++ double attack (there are a few operators we need - check wikipedia)
+    * We need to notify users of checkmate and stalemate
+    * If the board state is repeated more than 3 times (or is it 3 times or more) we should offer the opportunity to draw the game
+    ** in general players need options to agree on a draw, or to resign
+
+

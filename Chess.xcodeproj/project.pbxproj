@@ -33,16 +33,10 @@
 		69B6A6F117889B1600A56015 /* Storyboard_iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 69B6A6F017889B1600A56015 /* Storyboard_iphone.storyboard */; };
 		69C4838F12189F2500089898 /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69C4838E12189F2500089898 /* MainWindow-iPad.xib */; };
 		69C483AF1218A87E00089898 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69C483AE1218A87E00089898 /* QuartzCore.framework */; };
-		AA3B00582E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
-		AA3B00592E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA3B005A2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA46E0872E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
-		AA46E0882E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
-		AA46E0892E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA46E08A2E85F36C00839E11 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
-		AA46E08B2E85F36C00839E11 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
-		AA46E08C2E85F36C00839E11 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
 		AA46E08D2E85F37A00839E11 /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
 		AA46E08E2E85F37A00839E11 /* whiteKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F812341DB500DC1CED /* whiteKnightImage.png */; };
 		AA46E08F2E85F37A00839E11 /* whiteBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FA12341DB500DC1CED /* whiteBishopImage.png */; };
@@ -55,30 +49,6 @@
 		AA46E0962E85F37A00839E11 /* whiteKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F912341DB500DC1CED /* whiteKingImage.png */; };
 		AA46E0972E85F37A00839E11 /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
 		AA46E0982E85F37A00839E11 /* blackRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FB12341DB500DC1CED /* blackRookImage.png */; };
-		AA46E0992E85F37A00839E11 /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
-		AA46E09A2E85F37A00839E11 /* whiteKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F812341DB500DC1CED /* whiteKnightImage.png */; };
-		AA46E09B2E85F37A00839E11 /* whiteBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FA12341DB500DC1CED /* whiteBishopImage.png */; };
-		AA46E09C2E85F37A00839E11 /* blackQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FC12341DB500DC1CED /* blackQueenImage.png */; };
-		AA46E09D2E85F37A00839E11 /* blackPawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FD12341DB500DC1CED /* blackPawnImage.png */; };
-		AA46E09E2E85F37A00839E11 /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
-		AA46E09F2E85F37A00839E11 /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
-		AA46E0A02E85F37A00839E11 /* whitePawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F712341DB500DC1CED /* whitePawnImage.png */; };
-		AA46E0A12E85F37A00839E11 /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
-		AA46E0A22E85F37A00839E11 /* whiteKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F912341DB500DC1CED /* whiteKingImage.png */; };
-		AA46E0A32E85F37A00839E11 /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
-		AA46E0A42E85F37A00839E11 /* blackRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FB12341DB500DC1CED /* blackRookImage.png */; };
-		AA46E0A52E85F37A00839E11 /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
-		AA46E0A62E85F37A00839E11 /* whiteKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F812341DB500DC1CED /* whiteKnightImage.png */; };
-		AA46E0A72E85F37A00839E11 /* whiteBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FA12341DB500DC1CED /* whiteBishopImage.png */; };
-		AA46E0A82E85F37A00839E11 /* blackQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FC12341DB500DC1CED /* blackQueenImage.png */; };
-		AA46E0A92E85F37A00839E11 /* blackPawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FD12341DB500DC1CED /* blackPawnImage.png */; };
-		AA46E0AA2E85F37A00839E11 /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
-		AA46E0AB2E85F37A00839E11 /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
-		AA46E0AC2E85F37A00839E11 /* whitePawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F712341DB500DC1CED /* whitePawnImage.png */; };
-		AA46E0AD2E85F37A00839E11 /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
-		AA46E0AE2E85F37A00839E11 /* whiteKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F912341DB500DC1CED /* whiteKingImage.png */; };
-		AA46E0AF2E85F37A00839E11 /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
-		AA46E0B02E85F37A00839E11 /* blackRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FB12341DB500DC1CED /* blackRookImage.png */; };
 		AA58A9252E67778E0005DE9C /* ChessConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = AA58A9242E67778E0005DE9C /* ChessConstants.h */; };
 		AA58A9272E6777AA0005DE9C /* ChessConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AA58A9262E6777A20005DE9C /* ChessConstants.m */; };
 		AA6C79702E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
@@ -96,18 +66,10 @@
 		AAAF98EB2E31421C0071E5C9 /* ChessEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; };
 		AAAF98EC2E31421C0071E5C9 /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AAD690742E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
-		AAD690752E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
-		AAD690762E85D6C700CFCFED /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
 		AAD690782E85D76300CFCFED /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD690772E85D76300CFCFED /* ChessPiece.swift */; };
 		AAD690792E85D76300CFCFED /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD690772E85D76300CFCFED /* ChessPiece.swift */; };
-		AAD6907A2E85D76300CFCFED /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD690772E85D76300CFCFED /* ChessPiece.swift */; };
-		AAD6907B2E85D76300CFCFED /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD690772E85D76300CFCFED /* ChessPiece.swift */; };
 		AAD6907C2E85D9C300CFCFED /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
 		AAD6907D2E85D9C300CFCFED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
-		AAD6907E2E85D9C300CFCFED /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
-		AAD6907F2E85D9C300CFCFED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
-		AAD690802E85D9C300CFCFED /* ChessPieceLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6942FA6B1220A569002E59B5 /* ChessPieceLayer.m */; };
-		AAD690812E85D9C300CFCFED /* SquareLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 690E50EC123417E600DC1CED /* SquareLayer.m */; };
 		AAD847E52E73612D007AC1E2 /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */; };
 		AAD847E82E739124007AC1E2 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
 		AAE16D3F2E2465A8003DFB22 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
@@ -141,20 +103,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AAAF98A82E3137770071E5C9;
 			remoteInfo = ChessEngine;
-		};
-		AAD690382E85D68800CFCFED /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AAD6902A2E85D68500CFCFED;
-			remoteInfo = Shambolic;
-		};
-		AAD690422E85D68800CFCFED /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AAD6902A2E85D68500CFCFED;
-			remoteInfo = Shambolic;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -266,8 +214,6 @@
 		AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAF98E72E3141FA0071E5C9 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		AAD6902B2E85D68500CFCFED /* Shambolic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shambolic.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAD690372E85D68800CFCFED /* ShambolicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShambolicTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAD690412E85D68800CFCFED /* ShambolicUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShambolicUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAD690772E85D76300CFCFED /* ChessPiece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessPiece.swift; sourceTree = "<group>"; };
 		AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
 		AAD847E62E736790007AC1E2 /* ChessUI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ChessUI-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -283,44 +229,6 @@
 				"ChessMove-Parsing.swift",
 			);
 			target = 1D6058900D05DD3D006BFB54 /* Shaman */;
-		};
-		AA46E0852E85E29000839E11 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				AnalysisView.swift,
-				APIClient.swift,
-				ChessBoardViewWrapper.swift,
-				ChessGame.swift,
-				ChessView.swift,
-				CompactMenuBar.swift,
-				CompactTopMenu.swift,
-				GlyphView.m,
-				GlyphViewRepresentable.swift,
-				LichessAnalysisService.swift,
-				PieceView.swift,
-				SettingsView.swift,
-				SideMenu.swift,
-			);
-			target = AAD690362E85D68800CFCFED /* ShambolicTests */;
-		};
-		AA46E0862E85E29000839E11 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				AnalysisView.swift,
-				APIClient.swift,
-				ChessBoardViewWrapper.swift,
-				ChessGame.swift,
-				ChessView.swift,
-				CompactMenuBar.swift,
-				CompactTopMenu.swift,
-				GlyphView.m,
-				GlyphViewRepresentable.swift,
-				LichessAnalysisService.swift,
-				PieceView.swift,
-				SettingsView.swift,
-				SideMenu.swift,
-			);
-			target = AAD690402E85D68800CFCFED /* ShambolicUITests */;
 		};
 		AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -350,9 +258,7 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AAAF98AA2E3137770071E5C9 /* ChessEngine */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA2C7E402E5BCC4300779D5C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AA61CD212E37310C007E8CE8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AAAF98E32E313A040071E5C9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChessEngine; sourceTree = "<group>"; };
 		AAAF98B92E3137780071E5C9 /* ChessEngineFrameworkTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineFrameworkTests; sourceTree = "<group>"; };
-		AAD6902C2E85D68500CFCFED /* Shambolic */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA46E0852E85E29000839E11 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AA46E0862E85E29000839E11 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Shambolic; sourceTree = "<group>"; };
-		AAD6903A2E85D68800CFCFED /* ShambolicTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ShambolicTests; sourceTree = "<group>"; };
-		AAD690442E85D68800CFCFED /* ShambolicUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ShambolicUITests; sourceTree = "<group>"; };
+		AAD6902C2E85D68500CFCFED /* Shambolic */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Shambolic; sourceTree = "<group>"; };
 		AAEDD02B2E17112300A90C54 /* ChessEngineTool */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ChessEngineTool; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -394,20 +300,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AAD690342E85D68800CFCFED /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AAD6903E2E85D68800CFCFED /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AAEDD0272E17112300A90C54 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -436,8 +328,6 @@
 				AAAF98A92E3137770071E5C9 /* ChessEngine.framework */,
 				AAAF98B32E3137780071E5C9 /* ChessEngineTests.xctest */,
 				AAD6902B2E85D68500CFCFED /* Shambolic.app */,
-				AAD690372E85D68800CFCFED /* ShambolicTests.xctest */,
-				AAD690412E85D68800CFCFED /* ShambolicUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -448,8 +338,6 @@
 				AA6C796F2E5E380800263171 /* todo.md */,
 				AA1B020E2E2830B3009FDDAC /* Chess.xctestplan */,
 				AAD6902C2E85D68500CFCFED /* Shambolic */,
-				AAD6903A2E85D68800CFCFED /* ShambolicTests */,
-				AAD690442E85D68800CFCFED /* ShambolicUITests */,
 				AAEDD02B2E17112300A90C54 /* ChessEngineTool */,
 				AAAF98AA2E3137770071E5C9 /* ChessEngine */,
 				AAAF98B92E3137780071E5C9 /* ChessEngineFrameworkTests */,
@@ -666,52 +554,6 @@
 			productReference = AAD6902B2E85D68500CFCFED /* Shambolic.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AAD690362E85D68800CFCFED /* ShambolicTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AAD6904C2E85D68800CFCFED /* Build configuration list for PBXNativeTarget "ShambolicTests" */;
-			buildPhases = (
-				AAD690332E85D68800CFCFED /* Sources */,
-				AAD690342E85D68800CFCFED /* Frameworks */,
-				AAD690352E85D68800CFCFED /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AAD690392E85D68800CFCFED /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AAD6903A2E85D68800CFCFED /* ShambolicTests */,
-			);
-			name = ShambolicTests;
-			packageProductDependencies = (
-			);
-			productName = ShambolicTests;
-			productReference = AAD690372E85D68800CFCFED /* ShambolicTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		AAD690402E85D68800CFCFED /* ShambolicUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AAD6904F2E85D68800CFCFED /* Build configuration list for PBXNativeTarget "ShambolicUITests" */;
-			buildPhases = (
-				AAD6903D2E85D68800CFCFED /* Sources */,
-				AAD6903E2E85D68800CFCFED /* Frameworks */,
-				AAD6903F2E85D68800CFCFED /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AAD690432E85D68800CFCFED /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AAD690442E85D68800CFCFED /* ShambolicUITests */,
-			);
-			name = ShambolicUITests;
-			packageProductDependencies = (
-			);
-			productName = ShambolicUITests;
-			productReference = AAD690412E85D68800CFCFED /* ShambolicUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		AAEDD0292E17112300A90C54 /* Chamonix */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AAEDD02E2E17112300A90C54 /* Build configuration list for PBXNativeTarget "Chamonix" */;
@@ -759,14 +601,6 @@
 					AAD6902A2E85D68500CFCFED = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
-					AAD690362E85D68800CFCFED = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = AAD6902A2E85D68500CFCFED;
-					};
-					AAD690402E85D68800CFCFED = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = AAD6902A2E85D68500CFCFED;
-					};
 					AAEDD0292E17112300A90C54 = {
 						CreatedOnToolsVersion = 16.4;
 						LastSwiftMigration = 1640;
@@ -792,8 +626,6 @@
 				AAAF98A82E3137770071E5C9 /* ChessEngine */,
 				AAAF98B22E3137780071E5C9 /* ChessEngineTests */,
 				AAD6902A2E85D68500CFCFED /* Shambolic */,
-				AAD690362E85D68800CFCFED /* ShambolicTests */,
-				AAD690402E85D68800CFCFED /* ShambolicUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -862,48 +694,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AAD690352E85D68800CFCFED /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA46E0992E85F37A00839E11 /* blackKnightImage.png in Resources */,
-				AA46E09A2E85F37A00839E11 /* whiteKnightImage.png in Resources */,
-				AA46E09B2E85F37A00839E11 /* whiteBishopImage.png in Resources */,
-				AA46E09C2E85F37A00839E11 /* blackQueenImage.png in Resources */,
-				AA46E09D2E85F37A00839E11 /* blackPawnImage.png in Resources */,
-				AA46E09E2E85F37A00839E11 /* whiteQueenImage.png in Resources */,
-				AA46E09F2E85F37A00839E11 /* whiteRookImage.png in Resources */,
-				AA46E0A02E85F37A00839E11 /* whitePawnImage.png in Resources */,
-				AA46E0A12E85F37A00839E11 /* blackKingImage.png in Resources */,
-				AA46E0A22E85F37A00839E11 /* whiteKingImage.png in Resources */,
-				AA46E0A32E85F37A00839E11 /* blackBishopImage.png in Resources */,
-				AA3B00592E88C1E40069BE8B /* chess.icon in Resources */,
-				AA46E0A42E85F37A00839E11 /* blackRookImage.png in Resources */,
-				AA46E08B2E85F36C00839E11 /* ChessGame.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AAD6903F2E85D68800CFCFED /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA46E0A52E85F37A00839E11 /* blackKnightImage.png in Resources */,
-				AA46E0A62E85F37A00839E11 /* whiteKnightImage.png in Resources */,
-				AA46E0A72E85F37A00839E11 /* whiteBishopImage.png in Resources */,
-				AA46E0A82E85F37A00839E11 /* blackQueenImage.png in Resources */,
-				AA46E0A92E85F37A00839E11 /* blackPawnImage.png in Resources */,
-				AA46E0AA2E85F37A00839E11 /* whiteQueenImage.png in Resources */,
-				AA46E0AB2E85F37A00839E11 /* whiteRookImage.png in Resources */,
-				AA46E0AC2E85F37A00839E11 /* whitePawnImage.png in Resources */,
-				AA46E0AD2E85F37A00839E11 /* blackKingImage.png in Resources */,
-				AA46E0AE2E85F37A00839E11 /* whiteKingImage.png in Resources */,
-				AA46E0AF2E85F37A00839E11 /* blackBishopImage.png in Resources */,
-				AA3B00582E88C1E40069BE8B /* chess.icon in Resources */,
-				AA46E0B02E85F37A00839E11 /* blackRookImage.png in Resources */,
-				AA46E08C2E85F36C00839E11 /* ChessGame.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -950,30 +740,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AAD690332E85D68800CFCFED /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AA46E0882E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */,
-				AAD6907A2E85D76300CFCFED /* ChessPiece.swift in Sources */,
-				AAD6907E2E85D9C300CFCFED /* ChessPieceLayer.m in Sources */,
-				AAD6907F2E85D9C300CFCFED /* SquareLayer.m in Sources */,
-				AAD690752E85D6C700CFCFED /* ChessBoardView.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AAD6903D2E85D68800CFCFED /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AAD690762E85D6C700CFCFED /* ChessBoardView.swift in Sources */,
-				AAD6907B2E85D76300CFCFED /* ChessPiece.swift in Sources */,
-				AAD690802E85D9C300CFCFED /* ChessPieceLayer.m in Sources */,
-				AA46E0892E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */,
-				AAD690812E85D9C300CFCFED /* SquareLayer.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AAEDD0262E17112300A90C54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1004,16 +770,6 @@
 			isa = PBXTargetDependency;
 			target = AAAF98A82E3137770071E5C9 /* ChessEngine */;
 			targetProxy = AAAF98ED2E31421C0071E5C9 /* PBXContainerItemProxy */;
-		};
-		AAD690392E85D68800CFCFED /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AAD6902A2E85D68500CFCFED /* Shambolic */;
-			targetProxy = AAD690382E85D68800CFCFED /* PBXContainerItemProxy */;
-		};
-		AAD690432E85D68800CFCFED /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AAD6902A2E85D68500CFCFED /* Shambolic */;
-			targetProxy = AAD690422E85D68800CFCFED /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1564,196 +1320,6 @@
 			};
 			name = Release;
 		};
-		AAD6904D2E85D68800CFCFED /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.ShambolicTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Shambolic.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Shambolic";
-			};
-			name = Debug;
-		};
-		AAD6904E2E85D68800CFCFED /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.ShambolicTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Shambolic.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Shambolic";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		AAD690502E85D68800CFCFED /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.ShambolicUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Shambolic;
-			};
-			name = Debug;
-		};
-		AAD690512E85D68800CFCFED /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = MSJ6KMGCMB;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mandeluna.ShambolicUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Shambolic;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		AAEDD02F2E17112300A90C54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2013,24 +1579,6 @@
 			buildConfigurations = (
 				AAD6904A2E85D68800CFCFED /* Debug */,
 				AAD6904B2E85D68800CFCFED /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		AAD6904C2E85D68800CFCFED /* Build configuration list for PBXNativeTarget "ShambolicTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AAD6904D2E85D68800CFCFED /* Debug */,
-				AAD6904E2E85D68800CFCFED /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		AAD6904F2E85D68800CFCFED /* Build configuration list for PBXNativeTarget "ShambolicUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AAD690502E85D68800CFCFED /* Debug */,
-				AAD690512E85D68800CFCFED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

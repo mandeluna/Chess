@@ -66,7 +66,17 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 // return an integer encoding enough of a move for printing
 //
 -(int)encodedMove {
-    return destinationSquare + (sourceSquare << 8) + (movingPiece << 16) + (capturedPiece << 24);
+    // Layout (all fields masked to their natural bit width):
+    //   bits  0-5:  destinationSquare (0-63)
+    //   bits  8-13: sourceSquare (0-63)
+    //   bits 16-18: movingPiece (0-6)
+    //   bits 24-26: capturedPiece (0-6)
+    //   bits 27-29: promotion piece (0-6, 0 = no promotion)
+    return (destinationSquare & 63)
+        + ((sourceSquare & 63) << 8)
+        + ((movingPiece & 7) << 16)
+        + ((capturedPiece & 7) << 24)
+        + (([self promotion] & 7) << 27);
 }
 
 #pragma mark Accessing
@@ -176,13 +186,14 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
 }
 
 -(void)moveEncoded:(int)intValue {
-    
-    self.destinationSquare = intValue & 255;        // setter checks for a value between 0 and 63
-    self.sourceSquare = (intValue >> 8) & 255;      // setter checks for a value between 0 and 63
-    movingPiece = (intValue >> 16) & 255;
-    capturedPiece = (intValue >> 24) & 255;
-    type = kMoveNormal;
-    
+
+    self.destinationSquare = intValue & 63;
+    self.sourceSquare = (intValue >> 8) & 63;
+    movingPiece = (intValue >> 16) & 7;
+    capturedPiece = (intValue >> 24) & 7;
+    int promotionPiece = (intValue >> 27) & 7;
+    type = kMoveNormal | (promotionPiece << kPromotionShift);
+
     assert(intValue == [self encodedMove]);
 }
 
@@ -352,12 +363,20 @@ const int kGameEventTypeMask = 0xF0000000;      // upper four bits of most signi
     if ([self isNullMove]) {
         return @"0000";
     }
-    
+
     char c2 = 'a' + (sourceSquare & 7);
     char c3 = '1' + (sourceSquare >> 3);
     char c6 = 'a' + (destinationSquare & 7);
     char c7 = '1' + (destinationSquare >> 3);
-    
+
+    int promo = [self promotion];
+    if (promo > 0) {
+        // kKnight=2 kBishop=3 kRook=4 kQueen=5
+        static const char promoLabels[] = {0, 0, 'n', 'b', 'r', 'q', 0};
+        char p = (promo >= 2 && promo <= 5) ? promoLabels[promo] : '?';
+        return [NSString stringWithFormat:@"%c%c%c%c%c", c2, c3, c6, c7, p];
+    }
+
     return [NSString stringWithFormat:@"%c%c%c%c", c2, c3, c6, c7];
 }
 
