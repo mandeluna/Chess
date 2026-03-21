@@ -451,6 +451,149 @@ final class ChessEngineFrameworkTests: XCTestCase {
     XCTAssertFalse(Move.move(piece: kPawn, from: 8, to: 16).isTerminal)
   }
 
+  // MARK: - MoveGenerator tests
+
+  /// Helper: run the Swift generator against the active player and return the MoveList.
+  ///
+  /// Uses `board.enpassantSquare` (set by both FEN loading and actual double-push moves)
+  /// rather than `opponent.enpassantSquare` (only set by actual double-push moves).
+  private func swiftMoves(quiescence: Bool = false) -> MoveList {
+    let player = board.activePlayer!
+    let opp    = player.opponent!
+    return MoveGenerator.shared.generate(
+      myPieces:        player.pieces(),
+      itsPieces:       opp.pieces(),
+      castlingStatus:  Int(player.castlingStatus),
+      enpassantSquare: Int(board.enpassantSquare),  // -1 or valid square
+      isWhite:         player.isWhitePlayer(),
+      quiescence:      quiescence
+    )
+  }
+
+  /// Cross-validate Swift generator count against ObjC generator count.
+  private func assertMoveCountMatches(fen: String, file: StaticString = #file, line: UInt = #line) {
+    board.initializeFromFEN(fen)
+    let objcList = board.generator.findAllPossibleMoves(for: board.activePlayer)
+    let swiftList = swiftMoves()
+    if objcList == nil {
+      XCTAssertNotNil(swiftList.kingAttack, "ObjC nil (king attack) but Swift has no kingAttack", file: file, line: line)
+    } else {
+      XCTAssertNil(swiftList.kingAttack, "Swift has unexpected kingAttack for FEN: \(fen)", file: file, line: line)
+      XCTAssertEqual(swiftList.moves.count, Int(objcList!.count()),
+                     "Move count mismatch for FEN: \(fen)", file: file, line: line)
+      board.generator.recycleMoveList(objcList)
+    }
+  }
+
+  func testMoveGeneratorStartingPosition() {
+    // White opening: 16 pawn moves + 4 knight moves = 20
+    let list = swiftMoves()
+    XCTAssertNil(list.kingAttack)
+    XCTAssertEqual(list.moves.count, 20)
+    // All should be normal or doublePush kind
+    for m in list.moves {
+      XCTAssertTrue(m.kind == .normal || m.kind == .doublePush)
+    }
+  }
+
+  func testMoveGeneratorMatchesObjCStartingPosition() {
+    assertMoveCountMatches(fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+  }
+
+  func testMoveGeneratorMatchesObjCOpenPosition() {
+    // After 1.e4 e5
+    assertMoveCountMatches(fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
+    // Black to move
+    assertMoveCountMatches(fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1")
+  }
+
+  func testMoveGeneratorEnPassant() {
+    // Make an actual double push so opponent.enpassantSquare is properly set.
+    // (FEN en-passant field only sets board.enpassantSquare, not player.enpassantSquare.)
+    // Position: white pawn e5, black pawn d7; after d7-d5, white can en-passant e5xd6.
+    board.initializeFromFEN("4k3/3p4/8/4P3/8/8/8/4K3 b - - 0 1")
+    let dp = board.move(uci: "d7d5")!
+    board.nextMove(dp)  // board.enpassantSquare = 43 (d6)
+    let list = swiftMoves()
+    let epMoves = list.moves.filter { $0.kind == .enPassant }
+    XCTAssertEqual(epMoves.count, 1, "Should have exactly one en-passant move")
+    XCTAssertEqual(epMoves[0].uciString, "e5d6")
+    // Cross-validate with ObjC generator
+    let objcList = board.generator.findAllPossibleMoves(for: board.activePlayer)!
+    XCTAssertEqual(list.moves.count, Int(objcList.count()), "Move count should match ObjC")
+    board.generator.recycleMoveList(objcList)
+  }
+
+  func testMoveGeneratorCastling() {
+    let fen = "r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R w KQkq - 0 1"
+    board.initializeFromFEN(fen)
+    let list = swiftMoves()
+    let castles = list.moves.filter { $0.isCastle }
+    XCTAssertEqual(castles.count, 2, "Should have both castling moves")
+    XCTAssertTrue(castles.contains { $0.kind == .castleKingside })
+    XCTAssertTrue(castles.contains { $0.kind == .castleQueenside })
+    assertMoveCountMatches(fen: fen)
+  }
+
+  func testMoveGeneratorCastleThroughCheck() {
+    // Bc5 threatens f2 which is on the king's path for white kingside castling
+    let fen = "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/5P1N/PPPP2PP/RNBQK2R w KQkq - 0 1"
+    board.initializeFromFEN(fen)
+    let list = swiftMoves()
+    let castles = list.moves.filter { $0.isCastle }
+    XCTAssertEqual(castles.count, 0, "Should not castle through check")
+    assertMoveCountMatches(fen: fen)
+  }
+
+  func testMoveGeneratorPromotion() {
+    // White pawn on h7 can promote (no captures available).
+    // Black king on f8 (not g8/h8) so the pawn's diagonal capture square is empty.
+    let fen = "5k2/7P/8/8/8/8/8/6K1 w - - 0 1"
+    board.initializeFromFEN(fen)
+    let list = swiftMoves()
+    let promos = list.moves.filter { $0.isPromotion }
+    XCTAssertEqual(promos.count, 4, "Should have 4 promotion moves")
+    XCTAssertTrue(promos.contains { $0.promotion == kQueen })
+    XCTAssertTrue(promos.contains { $0.promotion == kRook })
+    XCTAssertTrue(promos.contains { $0.promotion == kBishop })
+    XCTAssertTrue(promos.contains { $0.promotion == kKnight })
+    assertMoveCountMatches(fen: fen)
+  }
+
+  func testMoveGeneratorKingAttack() {
+    // White queen on g2 can slide to g8 (black king) — white's generator sets kingAttack.
+    // (Black king in check = illegal FEN, but tests the generator's detection logic.)
+    let fen = "6k1/8/8/8/8/8/6Q1/4K3 w - - 0 1"
+    board.initializeFromFEN(fen)
+    // ObjC generator for white should return nil (kingAttack set)
+    let objcList = board.generator.findAllPossibleMoves(for: board.whitePlayer)
+    let swiftList = swiftMoves()
+    XCTAssertNil(objcList, "ObjC should return nil (king attack detected)")
+    XCTAssertNotNil(swiftList.kingAttack, "Swift should set kingAttack")
+    XCTAssertTrue(swiftList.moves.isEmpty, "Moves should be empty when king attack is set")
+  }
+
+  func testMoveGeneratorQuiescence() {
+    // In quiescence mode, only captures are generated
+    let fen = "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
+    board.initializeFromFEN(fen)
+    let full = swiftMoves(quiescence: false)
+    let quiet = swiftMoves(quiescence: true)
+    // Quiescence should have fewer moves (only captures)
+    XCTAssertLessThan(quiet.moves.count, full.moves.count)
+    // All quiescence moves should be captures
+    for m in quiet.moves {
+      XCTAssertTrue(m.isCapture, "Quiescence move \(m) is not a capture")
+    }
+  }
+
+  func testMoveGeneratorComplexPosition() {
+    // Several positions from existing tests
+    assertMoveCountMatches(fen: "2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13")
+    assertMoveCountMatches(fen: "r2qk2r/p6p/1p1p1pp1/2p1p3/8/2PP4/PP1QP2P/R3K2R b KQkq - 0 1")
+    assertMoveCountMatches(fen: "rnb3kr/ppp1b1pp/1n2p3/3pp2P/3P1P2/PPN3P1/2P3BK/1R1Q1R2 w - a1 0 18")
+  }
+
   func testErrorLevels() {
     let logger = Logger.default()!
     logger.level = Verbose

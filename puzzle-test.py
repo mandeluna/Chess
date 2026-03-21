@@ -49,7 +49,12 @@ class UCIEngine:
         )
         self._lock = threading.Lock()
 
+    def is_alive(self):
+        return self.proc.poll() is None
+
     def send(self, command):
+        if not self.is_alive():
+            raise BrokenPipeError("Engine process has exited")
         self.proc.stdin.write(command + "\n")
         self.proc.stdin.flush()
 
@@ -282,8 +287,12 @@ def main():
     errors = 0
 
     for idx, (puzzle_id, fen, moves, themes, rating) in enumerate(puzzles, 1):
-        engine.new_game()
         try:
+            if not engine.is_alive():
+                log(f"  [engine crashed — restarting]")
+                engine = UCIEngine(args.engine)
+                engine.init()
+            engine.new_game()
             ok, engine_moves, expected_moves = run_puzzle(engine, fen, moves, args.movetime)
         except Exception as e:
             result = "ERROR"

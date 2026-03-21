@@ -12,7 +12,13 @@
 
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:Chess.xcodeproj",
+        "identifier" : "AAAF98B22E3137780071E5C9",
+        "name" : "ChessEngineTests"
+      }
+    }
   ],
   "version" : 1
 }

@@ -536,6 +536,8 @@ static PossibleMoveList KnightMoves[64];
 
 -(void)blackPawnPushAt:(int)square {
 
+    if (square < 8) return;     // pawn on rank 1 should never happen; skip to avoid underflow
+
     // try to push this pawn
     int destSquare = square - 8;
     if (myPieces[destSquare])
@@ -628,6 +630,8 @@ static PossibleMoveList KnightMoves[64];
 }
 
 -(void)whitePawnPushAt:(int)square {
+
+    if (square >= 56) return;   // pawn on rank 8 should never happen; skip to avoid overflow
 
     // try to push this pawn
     int destSquare = square + 8;
