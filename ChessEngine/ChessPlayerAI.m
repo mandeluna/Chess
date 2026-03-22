@@ -340,7 +340,7 @@ Logger *logger;
                 a = score;
                 if (a >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move ply:ply];
+                    [historyTable addMove:move ply:depth];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return goodMove;
@@ -445,7 +445,7 @@ Logger *logger;
                 a = score;
                 if (a >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
-                    [historyTable addMove:move ply:ply];
+                    [historyTable addMove:move ply:depth];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return score;
@@ -585,7 +585,7 @@ Logger *logger;
                 alpha = score;
                 if (score >= beta) {
                     [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:0 stamp:stamp];
-                    [historyTable addMove:move ply:ply];
+                    [historyTable addMove:move ply:1];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
                     return bestScore;
