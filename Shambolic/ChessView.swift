@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct ChessView: View {
-    @StateObject private var gameState = ChessGame()
+    @EnvironmentObject var gameState: ChessGame
     @State private var showMenuSheet = false
-    @State private var showingAnalysis = false
-    @State private var showingResignConfirmation = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -27,38 +25,24 @@ struct ChessView: View {
         .overlay {
             if gameState.showColorSelection {
                 ColorSelectionOverlay()
-                    .environmentObject(gameState)
                     .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: gameState.showColorSelection)
         .sheet(isPresented: $showMenuSheet) {
             SideMenu()
-                .environmentObject(gameState)
-        }
-        .alert("Resign?", isPresented: $showingResignConfirmation) {
-            Button("Resign", role: .destructive) { gameState.resetGame() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("End the current game and start a new one.")
         }
     }
 
     private func portraitLayout(geometry: GeometryProxy) -> some View {
         VStack(spacing: 0) {
-            CompactTopMenu(
-                showSidebar: $showMenuSheet,
-                showResign: $showingResignConfirmation
-            )
-            .environmentObject(gameState)
+            CompactTopMenu(showSidebar: $showMenuSheet)
 
             ChessBoardViewWrapper()
-                .environmentObject(gameState)
                 .aspectRatio(1, contentMode: .fit)
                 .frame(maxWidth: geometry.size.width)
 
             CompactBottomPanel()
-                .environmentObject(gameState)
                 .frame(maxHeight: .infinity)
         }
     }
@@ -66,11 +50,7 @@ struct ChessView: View {
     private var landscapeLayout: some View {
         HStack(spacing: 0) {
             SideMenu()
-                .frame(width: 280)
-                .environmentObject(gameState)
-
             ChessBoardViewWrapper()
-                .environmentObject(gameState)
         }
     }
 }
@@ -82,6 +62,9 @@ struct CompactBottomPanel: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            CapturedBar()
+                .environmentObject(gameState)
+
             ScoreBar()
                 .environmentObject(gameState)
 
@@ -96,6 +79,44 @@ struct CompactBottomPanel: View {
             PGNHistoryView()
                 .environmentObject(gameState)
         }
+    }
+}
+
+// MARK: - Captured Pieces Bar
+
+struct CapturedBar: View {
+    @EnvironmentObject var gameState: ChessGame
+
+    var body: some View {
+        let blackCaptures = gameState.capturedPieces.compressPieces(isWhite: true)   // white pieces black took
+        let whiteCaptures = gameState.capturedPieces.compressPieces(isWhite: false)  // black pieces white took
+
+        VStack(spacing: 0) {
+            capturedRow(pieces: blackCaptures, label: "♚")
+            capturedRow(pieces: whiteCaptures, label: "♔")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+        .background(Color(.secondarySystemBackground))
+    }
+
+    @ViewBuilder
+    private func capturedRow(pieces: [(type: PieceType, count: Int)], label: String) -> some View {
+        HStack(spacing: 6) {
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .frame(width: 16)
+            if pieces.isEmpty {
+                Text("—")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+            } else {
+                PieceView(pieces: pieces, isWhite: false)
+            }
+            Spacer()
+        }
+        .frame(height: 20)
     }
 }
 

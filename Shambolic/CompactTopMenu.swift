@@ -10,24 +10,17 @@ import SwiftUI
 struct CompactTopMenu: View {
     @EnvironmentObject var gameState: ChessGame
     @Binding var showSidebar: Bool
-    @Binding var showResign: Bool
     @State private var showSettings = false
     @State private var showPosition = false
 
     var body: some View {
         HStack(spacing: 16) {
-            // Left — sidebar + resign
+            // Left — sidebar
             HStack(spacing: 12) {
                 MenuButton(
                     icon: "line.3.horizontal",
                     action: { showSidebar.toggle() }
                 )
-
-                MenuButton(
-                    icon: "flag",
-                    action: { showResign = true }
-                )
-                .disabled(gameState.moveHistory.isEmpty)
             }
 
             Spacer()
@@ -96,7 +89,7 @@ struct MenuButton: View {
 }
 
 #Preview {
-    CompactTopMenu(showSidebar: .constant(false), showResign: .constant(false))
+    CompactTopMenu(showSidebar: .constant(false))
         .environmentObject(ChessGame())
         .environmentObject(ChessSettings())
 }

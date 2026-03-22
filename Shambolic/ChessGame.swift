@@ -43,6 +43,9 @@ class ChessGame: ObservableObject {
     @Published var statusMessage: String = ""
     @Published var currentPlayer: PieceColor = .white
     @Published var isThinking: Bool = false
+    /// True once checkmate, stalemate, or a draw rule has ended the game.
+    /// Prevents any further board interaction until a new game is started.
+    @Published var isGameOver: Bool = false
     @Published var moveCount: Int = 0
     /// Current search depth reached by the engine (0 when not thinking).
     @Published var thinkingDepth: Int = 0
@@ -150,6 +153,7 @@ class ChessGame: ObservableObject {
         kingAttack = nil
         lastMove = nil
         isThinking = false
+        isGameOver = false
         moveCount = 0
         engineScore = nil
         thinkingDepth = 0
@@ -222,7 +226,7 @@ class ChessGame: ObservableObject {
 
     @MainActor
     func chessboardView(_ chessboardView: ChessBoardView, shouldSelect square: Int, selection: SelectionContext?) -> SelectionContext? {
-        guard board.searchAgent.isReady(), !isThinking else { return nil }
+        guard board.searchAgent.isReady(), !isThinking, !isGameOver else { return nil }
         let candidate = chessboardView.selectionInfo(for: square)
         guard let candidate = candidate else { return nil }
         if selection?.square == candidate.square { return nil }
@@ -234,7 +238,7 @@ class ChessGame: ObservableObject {
     }
 
     func chessboardView(_ chessboardView: ChessBoardView, didMovePieceFrom fromSquare: Int, to toSquare: Int) {
-        guard board.searchAgent.isReady(), !isThinking else { return }
+        guard board.searchAgent.isReady(), !isThinking, !isGameOver else { return }
         applyUserMove(from: fromSquare, to: toSquare)
     }
 
@@ -309,22 +313,28 @@ class ChessGame: ObservableObject {
     private func refreshFromBoard() -> Bool {
         pieces = piecesFromBoard()
         currentPlayer = board.activePlayer == board.whitePlayer ? .white : .black
-        kingAttack = findKingAttack()
 
+        // findValidMoves internally calls the move generator, which sets
+        // generator.kingAttack when the active player's king is under attack.
+        // Reading kingAttack immediately after avoids a second generator pass.
         let validMoves = board.activePlayer.findValidMoves()
+        kingAttack = board.generator.kingAttack
+
         let noMoves = validMoves == nil || validMoves!.isEmpty
 
         if noMoves {
             statusMessage = kingAttack != nil ? "Checkmate" : "Stalemate"
             board.searchAgent.cancelSearch()
+            isGameOver = true
             return true
         }
         if board.halfmoveClock >= 100 {
-            statusMessage = "Draw (50 move rule)"
+            statusMessage = "Draw (50-move rule)"
             board.searchAgent.cancelSearch()
+            isGameOver = true
             return true
         }
-        statusMessage = currentPlayer == .white ? "White's move" : "Black's move"
+        statusMessage = currentPlayer == .white ? "White to move" : "Black to move"
         return false
     }
 
@@ -435,13 +445,6 @@ class ChessGame: ObservableObject {
     }
 
     // MARK: - Helpers
-
-    private func findKingAttack() -> ChessMove? {
-        let _ = board.whitePlayer.findPossibleMoves()
-        if board.generator.kingAttack != nil { return board.generator.kingAttack }
-        let _ = board.blackPlayer.findPossibleMoves()
-        return board.generator.kingAttack
-    }
 
     private func captureSquares() -> [Int] {
         guard let moves = board.activePlayer.findPossibleMoves() as? [ChessMove] else { return [] }

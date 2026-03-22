@@ -1,6 +1,6 @@
 //
 //  SideMenu.swift
-//  Shaman
+//  Shambolic
 //
 //  Created by Steve Wart on 2025-09-24.
 //
@@ -9,309 +9,142 @@ import SwiftUI
 
 struct SideMenu: View {
     @EnvironmentObject var gameState: ChessGame
-    @State private var selectedTab: MenuTab = .game
-    @State private var showAnalysis = false
+    @Environment(\.dismiss) private var dismiss
     @State private var showPosition = false
-    
+    @State private var showResignConfirm = false
+
     var body: some View {
         VStack(spacing: 0) {
-            // Header with compact game info
-            VStack(spacing: 8) {
-                Text("Chess")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                
-                Text(gameState.currentPlayer == .white ? "♔ White" : "♚ Black")
-                    .font(.caption)
-                    .foregroundColor(gameState.currentPlayer == .white ? .primary : .gray)
-            }
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity)
-            .background(Color(.systemBackground).opacity(0.9))
-            
-            // Tab selection
-            HStack(spacing: 0) {
-                ForEach(MenuTab.allCases, id: \.self) { tab in
-                    Button(action: { selectedTab = tab }) {
-                        Image(systemName: tab.iconName)
-                            .font(.system(size: 14, weight: .medium))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .background(selectedTab == tab ? Color.blue.opacity(0.2) : Color.clear)
-                }
-            }
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 0.5)
-            }
-            
-            // Tab content
+            header
+            Divider()
             ScrollView {
-                VStack(spacing: 16) {
-                    switch selectedTab {
-                    case .game:
-                        GameControlsView()
-                    case .analysis:
-                        AnalysisPreviewView()
-                    case .history:
-                        MoveHistoryView()
-                    case .captured:
-                        CapturedPiecesView()
-                    }
+                VStack(spacing: 20) {
+                    analysisSection
+                    actionsSection
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 16)
+                .padding(16)
             }
-            
-            Spacer()
-            
-            // Bottom controls
-            VStack(spacing: 8) {
-                Button(action: gameState.resetGame) {
-                    HStack {
-                        Image(systemName: "arrow.clockwise")
-                        Text("New Game")
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(maxWidth: .infinity, minHeight: 40)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-
-                Button(action: { showPosition = true }) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up")
-                        Text("Position")
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(maxWidth: .infinity, minHeight: 36)
-                    .background(Color(.secondarySystemBackground))
-                    .foregroundColor(.primary)
-                    .cornerRadius(6)
-                }
-
-                if !gameState.moveHistory.isEmpty {
-                    Button(role: .destructive, action: gameState.resetGame) {
-                        HStack {
-                            Image(systemName: "flag")
-                            Text("Resign")
-                        }
-                        .font(.system(size: 14, weight: .medium))
-                        .frame(maxWidth: .infinity, minHeight: 36)
-                        .background(Color.red.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(6)
-                    }
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color(.systemBackground).opacity(0.9))
         }
         .frame(width: 280)
         .background(.regularMaterial)
-        .sheet(isPresented: $showAnalysis) {
-            AnalysisView()
-                .environmentObject(gameState)
-        }
         .sheet(isPresented: $showPosition) {
             PositionSheet()
                 .environmentObject(gameState)
         }
-    }
-}
-
-// MARK: - Supporting Types and Views
-
-enum MenuTab: CaseIterable {
-    case game, analysis, history, captured
-    
-    var iconName: String {
-        switch self {
-        case .game: return "gamecontroller"
-        case .analysis: return "chart.bar"
-        case .history: return "clock"
-        case .captured: return "captions.bubble"
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .game: return "Game"
-        case .analysis: return "Analysis"
-        case .history: return "History"
-        case .captured: return "Captured"
-        }
-    }
-}
-
-// MARK: - Tab Content Views
-
-struct GameControlsView: View {
-    @EnvironmentObject var settings: ChessSettings
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Game Controls")
-                .font(.headline)
-
-            VStack(spacing: 8) {
-                Toggle("Show Legal Moves", isOn: $settings.showLegalMoves)
-                Toggle("Highlight Checks", isOn: $settings.highlightChecks)
+        .alert("Resign?", isPresented: $showResignConfirm) {
+            Button("Resign", role: .destructive) {
+                dismiss()
+                gameState.resetGame()
             }
-            .font(.system(size: 14))
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("End the current game and start a new one.")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
-}
 
-struct AnalysisPreviewView: View {
-    @EnvironmentObject var gameState: ChessGame
+    // MARK: Header
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Position Analysis")
+    private var header: some View {
+        HStack {
+            Text("Chess")
                 .font(.headline)
+            Spacer()
+            Text(gameState.statusMessage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    // MARK: Analysis
+
+    private var analysisSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Analysis", systemImage: "chart.bar")
+                .font(.subheadline.weight(.semibold))
 
             if let cp = gameState.engineScore {
                 let pawns = Double(cp) / 100.0
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("Evaluation:")
-                        Text(pawns >= 0 ? String(format: "+%.2f", pawns) : String(format: "%.2f", pawns))
-                            .foregroundColor(cp > 50 ? .green : cp < -50 ? .red : .primary)
-                            .fontWeight(.medium)
-                            .monospacedDigit()
-                    }
-
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(pawns >= 0 ? String(format: "+%.2f", pawns) : String(format: "%.2f", pawns))
+                        .font(.system(.title3, design: .monospaced).weight(.medium))
+                        .foregroundStyle(cp > 50 ? .green : cp < -50 ? .red : .primary)
+                    Text("cp")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     if gameState.thinkingDepth > 0 {
-                        Text("Depth: \(gameState.thinkingDepth)")
+                        Spacer()
+                        Text("depth \(gameState.thinkingDepth)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-
-                    if !gameState.thinkingLine.isEmpty {
-                        Text(gameState.thinkingLine)
-                            .font(.system(.caption, design: .monospaced))
-                            .lineLimit(2)
+                            .foregroundStyle(.secondary)
                     }
                 }
+
+                if !gameState.thinkingLine.isEmpty {
+                    Text(gameState.thinkingLine)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             } else {
-                Text("No analysis available")
+                Text("No analysis yet")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                     .italic()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct MoveHistoryView: View {
-    @EnvironmentObject var gameState: ChessGame
-
-    private var movePairs: [(Int, String, String?)] {
-        let sans = gameState.moveHistorySAN
-        var pairs: [(Int, String, String?)] = []
-        var i = 0
-        while i < sans.count {
-            pairs.append((i / 2 + 1, sans[i], i + 1 < sans.count ? sans[i + 1] : nil))
-            i += 2
-        }
-        return pairs
+        .padding(12)
+        .background(Color(.tertiarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Move History")
-                .font(.headline)
+    // MARK: Actions
 
-            if gameState.moveHistorySAN.isEmpty {
-                Text("No moves yet")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .italic()
+    private var actionsSection: some View {
+        VStack(spacing: 10) {
+            if gameState.isGameOver || gameState.moveHistory.isEmpty {
+                // No active game — offer to start one
+                Button {
+                    dismiss()
+                    gameState.resetGame()
+                } label: {
+                    Label("New Game", systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
             } else {
-                LazyVStack(alignment: .leading, spacing: 4) {
-                    ForEach(movePairs, id: \.0) { number, white, black in
-                        HStack(spacing: 4) {
-                            Text("\(number).")
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundColor(.secondary)
-                                .frame(width: 24, alignment: .trailing)
-                            Text(white)
-                                .font(.system(.caption, design: .monospaced))
-                                .frame(width: 52, alignment: .leading)
-                            if let black = black {
-                                Text(black)
-                                    .font(.system(.caption, design: .monospaced))
-                                    .frame(width: 52, alignment: .leading)
-                            }
-                        }
-                    }
+                // Game in progress
+                Button {
+                    showResignConfirm = true
+                } label: {
+                    Label("Resign", systemImage: "flag")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.bordered)
+                .tint(.red)
+                .controlSize(.large)
             }
+
+            Button {
+                showPosition = true
+            } label: {
+                Label("Share Position", systemImage: "square.and.arrow.up")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-struct CapturedPiecesView: View {
-    @EnvironmentObject var gameState: ChessGame
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Captured Pieces")
-                .font(.headline)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("White captured:")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                
-                if gameState.capturedPieces.white.isEmpty {
-                    Text("None")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                } else {
-                    CapturedPiecesRow(pieces: gameState.capturedPieces.white)
-                }
-                
-                Text("Black captured:")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                
-                if gameState.capturedPieces.black.isEmpty {
-                    Text("None")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                } else {
-                    CapturedPiecesRow(pieces: gameState.capturedPieces.black)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct CapturedPiecesRow: View {
-    let pieces: [ChessPiece]
-    
-    var body: some View {
-        LazyHGrid(rows: [GridItem(.fixed(16))], spacing: 4) {
-            ForEach(pieces, id: \.piece) { piece in
-                Text(piece.type.symbol)
-                    .font(.system(size: 12))
-            }
-        }
-    }
-}
+// MARK: - Preview
 
 #Preview {
     SideMenu()
         .environmentObject(ChessGame())
+        .environmentObject(ChessSettings())
 }
