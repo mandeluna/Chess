@@ -17,3 +17,9 @@ Chess Data/
 project.xcworkspace/
 xcuserdata/
 
+# Engine build products and test artifacts
+Chamonix/Chamonix/Products/
+analyzed/
+to-be-analyzed/
+puzzle-results-*.log
+

@@ -1,8 +1,0 @@
-2026-03-20 11:41:45.470855 Setting log level to verbose (all 5 messages should appear)
-2026-03-20 11:41:45.471223 Logging a verbose message
-2026-03-20 11:41:45.471326 Logging an info message
-2026-03-20 11:41:45.471419 Logging a debug message
-2026-03-20 11:41:45.471487 Logging a warning message
-2026-03-20 11:41:45.471572 Logging an error message
-2026-03-20 11:41:45.471667 Setting log level to info (only the info message should appear)
-2026-03-20 11:41:45.471752 Logging an info message
