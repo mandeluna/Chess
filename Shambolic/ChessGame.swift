@@ -41,7 +41,6 @@ class ChessGame: ObservableObject {
     @Published var capturedPieces = CapturedPieces()
     @Published var kingAttack: ChessMove? = nil
     @Published var statusMessage: String = ""
-    @Published var analysis: LichessAnalysis? = nil
     @Published var currentPlayer: PieceColor = .white
     @Published var showLegalMoves: Bool = true
     @Published var highlightChecks: Bool = true

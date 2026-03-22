@@ -1,0 +1,59 @@
+=== Puzzle Test 2026-03-21_172508 ===
+Engine:   /Users/swart/Chess/Chamonix/Products/usr/local/bin/Chamonix
+Database: /Users/swart/chess/Chess Data/lichess
+Themes:   mate
+Count:    40
+Movetime: 1000 ms
+
+Fetching puzzles from database…
+Selected 40 puzzles.
+
+Starting engine…
+Engine ready.
+
+   #  PuzzleId  Rating  Result         Engine               Expected        Themes
+----------------------------------------------------------------------------------------------------
+   1  QqJba        418  PASS    c6g2                  c6g2                  kingsideAttack mate mateIn1 middlegame o
+   2  W5KBq       1029  PASS    g4g5 f7h7             g4g5 f7h7             deflection endgame mate mateIn2 short
+   3  JZbwi       1457  FAIL    c2b3                  d5e7                  anastasiaMate attraction kingsideAttack 
+   4  jWsxN        514  PASS    d8d1 d1e1             d8d1 d1e1             backRankMate endgame mate mateIn2 short
+   5  biDNa        697  PASS    c6e8                  c6e8                  hangingPiece kingsideAttack mate mateIn1
+   6  eBOoa       1555  FAIL    g2f2 e2e4 f2f5        g2f2 e2e4 h7h6        deflection endgame long mate mateIn3 roo
+   7  PZxxj       1143  PASS    f2d4                  f2d4                  mate mateIn1 middlegame oneMove
+   8  yvZYU       1187  PASS    c3d3                  c3d3                  mate mateIn1 middlegame oneMove
+   9  jtO43       1038  PASS    g4h6 f4f7             g4h6 f4f7             kingsideAttack mate mateIn2 opening shor
+  10  0Vuyt       1320  PASS    d1g1 e5e1             d1g1 e5e1             attraction endgame master mate mateIn2 s
+  11  PB5mB       1496  PASS    e4g2                  e4g2                  endgame master mate mateIn1 oneMove
+  12  IQ3HM       1799  FAIL    c8b8                  b2c1                  backRankMate long mate mateIn3 middlegam
+  13  rqeNv       1787  PASS    g2g4 d4f3             g2g4 d4f3             endgame mate mateIn2 short
+  14  15jKy        605  PASS    e5e1 e8e1             e5e1 e8e1             backRankMate endgame mate mateIn2 rookEn
+  15  UJEWe        905  PASS    d7d1 d1e1             d7d1 d1e1             backRankMate endgame mate mateIn2 queenR
+  16  uhLS0        930  PASS    g5h6                  g5h6                  mate mateIn1 middlegame oneMove
+  17  h0tGi       1662  PASS    d7g4 g4g2             d7g4 g4g2             kingsideAttack mate mateIn2 opening shor
+  18  7CIqG        528  PASS    b4b1 b1d1             b4b1 b1d1             backRankMate endgame mate mateIn2 rookEn
+  19  9PZBa       1149  PASS    g5g3 g3g2             g5g3 g3g2             kingsideAttack mate mateIn2 middlegame s
+  20  Nzrxr       2071  FAIL    e7d7                  f6f2                  attraction endgame long mate mateIn3 sac
+  21  ordEL       1705  PASS    d5e7 e7g6             d5e7 e7g6             doubleCheck kingsideAttack mate mateIn2 
+  22  vvqN1        521  PASS    f8f1                  f8f1                  kingsideAttack mate mateIn1 middlegame o
+  23  Tff18        772  PASS    f3a8 a8e8             f3a8 a8e8             endgame mate mateIn2 short
+  24  D76Vx       1111  PASS    e2g2                  e2g2                  mate mateIn1 middlegame oneMove
+  25  Zo5Ew       1570  PASS    g8g2                  g8g2                  mate mateIn1 middlegame oneMove
+  26  B5IFG        882  PASS    g5f7 d6d8 d8f8        g5f7 d6d8 d8f8        kingsideAttack long mate mateIn3 middleg
+  27  UY9hU        716  PASS    d1d8 a4e8             d1d8 a4e8             mate mateIn2 middlegame short
+  28  CAWcl        912  PASS    d1d8 b3g8             d1d8 b3g8             mate mateIn2 middlegame short
+  29  PXrIj       1129  PASS    h4h7 h7h8             h4h7 h7h8             fork mate mateIn2 middlegame short
+  30  6YbzM        427  PASS    e2f1                  e2f1                  mate mateIn1 middlegame oneMove
+  31  Wt4eW       2065  PASS    h1h6 b2c1             h1h6 b2c1             mate mateIn2 middlegame short
+  32  qG7QW        585  PASS    d8d1                  d8d1                  endgame mate mateIn1 oneMove
+  33  VbkDM       1630  PASS    h3c8 c1a3 a3c5        h3c8 c1a3 a3c5        long mate mateIn3 middlegame
+  34  Bfqoe       1677  PASS    e6a2 b4c2 g4a4 a4a1   e6a2 b4c2 g4a4 a4a1   deflection mate mateIn4 middlegame queen
+  35  fCxJd       1013  PASS    h6h8                  h6h8                  mate mateIn1 middlegame oneMove
+  36  ryhQK       1798  PASS    a7g7 h1h5             a7g7 h1h5             endgame mate mateIn2 rookEndgame short
+  37  hAWwZ        963  PASS    e1e8                  e1e8                  backRankMate endgame mate mateIn1 oneMov
+  38  Ma3l9       1427  PASS    h6g6 g3g6 g6g7 g7e7   h6g6 g3g6 g6g7 g7e7   mate mateIn4 middlegame veryLong
+  39  5t9eI       1638  PASS    e7e1 g7d4 e1f1        e7e1 g7d4 e1f1        deflection hangingPiece kingsideAttack l
+  40  h0KLr       1059  PASS    e4f6                  e4f6                  mate mateIn1 middlegame oneMove
+
+============================================================
+Results: 36/40 passed (90.0%)
+Log:     puzzle-results-2026-03-21_172508.log

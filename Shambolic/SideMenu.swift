@@ -115,7 +115,8 @@ struct SideMenu: View {
         .frame(width: 280)
         .background(.regularMaterial)
         .sheet(isPresented: $showAnalysis) {
-            AnalysisView(analysis: gameState.analysis)
+            AnalysisView()
+                .environmentObject(gameState)
         }
         .sheet(isPresented: $showPosition) {
             PositionSheet()
@@ -182,27 +183,34 @@ struct GameControlsView: View {
 
 struct AnalysisPreviewView: View {
     @EnvironmentObject var gameState: ChessGame
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Position Analysis")
                 .font(.headline)
-            
-            if let analysis = gameState.analysis {
+
+            if let cp = gameState.engineScore {
+                let pawns = Double(cp) / 100.0
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("Evaluation:")
-                        Text(analysis.evaluation > 0 ? "+\(String(format: "%.1f", analysis.evaluation))" : "\(String(format: "%.1f", analysis.evaluation))")
-                            .foregroundColor(analysis.evaluation > 0 ? .green : .red)
+                        Text(pawns >= 0 ? String(format: "+%.2f", pawns) : String(format: "%.2f", pawns))
+                            .foregroundColor(cp > 50 ? .green : cp < -50 ? .red : .primary)
                             .fontWeight(.medium)
+                            .monospacedDigit()
                     }
-                    
-                    Text("Best: \(analysis.bestMove)")
-                        .font(.system(.caption, design: .monospaced))
-                    
-                    Text("Depth: \(analysis.depth)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+
+                    if gameState.thinkingDepth > 0 {
+                        Text("Depth: \(gameState.thinkingDepth)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    if !gameState.thinkingLine.isEmpty {
+                        Text(gameState.thinkingLine)
+                            .font(.system(.caption, design: .monospaced))
+                            .lineLimit(2)
+                    }
                 }
             } else {
                 Text("No analysis available")

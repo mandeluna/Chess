@@ -1,0 +1,33 @@
+=== Puzzle Test 2026-03-21_150049 ===
+Engine:   /Users/swart/Chess/Chamonix/Products/usr/local/bin/Chamonix
+Database: /Users/swart/chess/Chess Data/lichess
+Themes:   all
+Count:    100
+Movetime: 1000 ms
+
+Fetching puzzles from database…
+Selected 100 puzzles.
+
+Starting engine…
+Engine ready.
+
+   #  PuzzleId  Rating  Result         Engine               Expected        Themes
+----------------------------------------------------------------------------------------------------
+   1  pMXD4       1067  PASS    c4a6                  c4a6                  mate mateIn1 middlegame oneMove
+   2  8gO8w       2128  FAIL    h5f3 f3e4             h5f3 a8a6             advantage middlegame pin veryLong
+   3  FkKS3       1124  PASS    b7b8 b8e8             b7b8 b8e8             endgame master mate mateIn2 short
+   4  Tw0QK       1551  FAIL    c7f4                  c7h2                  crushing defensiveMove endgame long quee
+   5  Z7iL3       1615  PASS    d1d4 e2d4             d1d4 e2d4             advantage opening short
+   6  XEl45        991  PASS    b7f7                  b7f7                  attackingF2F7 mate mateIn1 oneMove openi
+   7  5Glc0       1208  PASS    f6f2                  f6f2                  attackingF2F7 mate mateIn1 middlegame on
+   8  3n36a       1470  PASS    f8e8 e8e5 e5e1 a8d8   f8e8 e8e5 e5e1 a8d8   advantage middlegame veryLong
+   9  ZTW3f        933  PASS    e5h2                  e5h2                  kingsideAttack mate mateIn1 oneMove open
+  10  hTU8W        983  PASS    g5f6 h6g7             g5f6 h6g7             kingsideAttack mate mateIn2 middlegame s
+  11  21c5l        906  PASS    g4g7                  g4g7                  mate mateIn1 middlegame oneMove
+  12  rDaIG       2350  FAIL    a6b6                  f3e5                  advantage exposedKing fork middlegame sa
+  13  f0DoC       1293  PASS    g2d5 d2h2             g2d5 d2h2             advantage discoveredAttack endgame short
+  14  WLurY       1180  PASS    d5e3 e3d1             d5e3 e3d1             crushing fork middlegame short
+  15  aRo8O       1643  PASS    e4e1 f6e4             e4e1 f6e4             doubleCheck mate mateIn2 middlegame shor
+  16  lCggp       1742  PASS    g8g6 g6e6 b8c7        g8g6 g6e6 b8c7        crushing long middlegame
+  17  wvpuu       2071  PASS    d1d8 f3e1             d1d8 f3e1             crushing middlegame short
+  18  bSujs       1240  FAIL    h4h5 h5h6 (none)      h4h5 h5h6 h6h7        advancedPawn crushing endgame pawnEndgam
