@@ -142,7 +142,7 @@ Logger *logger;
 // TODO: depth 10 seems unattainable without intelligently sorting the move list
 //
 -(void)initializeTranspositionTable {
-    [self setHashSizeMB:32];  // default: bits=18, ~256k entries
+    [self setHashSizeMB:128];  // default: bits=20, ~1M entries
 }
 
 -(void)setHashSizeMB:(int)mb {

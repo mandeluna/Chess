@@ -19,6 +19,7 @@ xcuserdata/
 
 # Engine build products and test artifacts
 Chamonix/Chamonix/Products/
+Chamonix/Products/
 analyzed/
 to-be-analyzed/
 puzzle-results-*.log
