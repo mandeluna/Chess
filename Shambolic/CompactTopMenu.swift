@@ -20,17 +20,23 @@ struct CompactTopMenu: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            // Left — new game / resign
-            MenuButton(
-                icon: gameActive ? "flag" : "arrow.clockwise",
-                action: {
-                    if gameActive {
-                        showResignConfirm = true
-                    } else {
-                        gameState.resetGame()
+            // Left — settings + new game / resign
+            HStack(spacing: 12) {
+                MenuButton(
+                    icon: "gearshape",
+                    action: { showSettings = true }
+                )
+                MenuButton(
+                    icon: gameActive ? "flag" : "arrow.clockwise",
+                    action: {
+                        if gameActive {
+                            showResignConfirm = true
+                        } else {
+                            gameState.resetGame()
+                        }
                     }
-                }
-            )
+                )
+            }
 
             Spacer()
 
@@ -42,15 +48,11 @@ struct CompactTopMenu: View {
 
             Spacer()
 
-            // Right — share + settings + analysis
+            // Right — share + analysis
             HStack(spacing: 12) {
                 MenuButton(
                     icon: "square.and.arrow.up",
                     action: { showPosition = true }
-                )
-                MenuButton(
-                    icon: "gearshape",
-                    action: { showSettings = true }
                 )
                 MenuButton(
                     icon: "chart.bar",
