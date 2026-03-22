@@ -12,27 +12,37 @@ struct CompactTopMenu: View {
     @Binding var showSidebar: Bool
     @State private var showSettings = false
     @State private var showPosition = false
+    @State private var showResignConfirm = false
+
+    private var gameActive: Bool {
+        !gameState.moveHistory.isEmpty && !gameState.isGameOver
+    }
 
     var body: some View {
         HStack(spacing: 16) {
-            // Left — sidebar
-            HStack(spacing: 12) {
-                MenuButton(
-                    icon: "line.3.horizontal",
-                    action: { showSidebar.toggle() }
-                )
-            }
+            // Left — new game / resign
+            MenuButton(
+                icon: gameActive ? "flag" : "arrow.clockwise",
+                action: {
+                    if gameActive {
+                        showResignConfirm = true
+                    } else {
+                        gameState.resetGame()
+                    }
+                }
+            )
 
             Spacer()
 
-            // Center — current player indicator
-            Text(gameState.currentPlayer == .white ? "♔ White" : "♚ Black")
+            // Center — status
+            Text(gameState.statusMessage)
                 .font(.caption)
                 .fontWeight(.medium)
+                .lineLimit(1)
 
             Spacer()
 
-            // Right — position/share + settings
+            // Right — share + settings + analysis
             HStack(spacing: 12) {
                 MenuButton(
                     icon: "square.and.arrow.up",
@@ -41,6 +51,10 @@ struct CompactTopMenu: View {
                 MenuButton(
                     icon: "gearshape",
                     action: { showSettings = true }
+                )
+                MenuButton(
+                    icon: "chart.bar",
+                    action: { showSidebar.toggle() }
                 )
             }
         }
@@ -58,6 +72,12 @@ struct CompactTopMenu: View {
         .sheet(isPresented: $showPosition) {
             PositionSheet()
                 .environmentObject(gameState)
+        }
+        .alert("Resign?", isPresented: $showResignConfirm) {
+            Button("Resign", role: .destructive) { gameState.resetGame() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("End the current game and start a new one.")
         }
     }
 }

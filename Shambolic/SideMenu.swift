@@ -10,8 +10,6 @@ import SwiftUI
 struct SideMenu: View {
     @EnvironmentObject var gameState: ChessGame
     @Environment(\.dismiss) private var dismiss
-    @State private var showPosition = false
-    @State private var showResignConfirm = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -20,26 +18,13 @@ struct SideMenu: View {
             ScrollView {
                 VStack(spacing: 20) {
                     analysisSection
-                    actionsSection
+                    newGameSection
                 }
                 .padding(16)
             }
         }
         .frame(width: 280)
         .background(.regularMaterial)
-        .sheet(isPresented: $showPosition) {
-            PositionSheet()
-                .environmentObject(gameState)
-        }
-        .alert("Resign?", isPresented: $showResignConfirm) {
-            Button("Resign", role: .destructive) {
-                dismiss()
-                gameState.resetGame()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("End the current game and start a new one.")
-        }
     }
 
     // MARK: Header
@@ -101,43 +86,18 @@ struct SideMenu: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: Actions
+    // MARK: New Game
 
-    private var actionsSection: some View {
-        VStack(spacing: 10) {
-            if gameState.isGameOver || gameState.moveHistory.isEmpty {
-                // No active game — offer to start one
-                Button {
-                    dismiss()
-                    gameState.resetGame()
-                } label: {
-                    Label("New Game", systemImage: "arrow.clockwise")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-            } else {
-                // Game in progress
-                Button {
-                    showResignConfirm = true
-                } label: {
-                    Label("Resign", systemImage: "flag")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .tint(.red)
-                .controlSize(.large)
-            }
-
-            Button {
-                showPosition = true
-            } label: {
-                Label("Share Position", systemImage: "square.and.arrow.up")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.regular)
+    private var newGameSection: some View {
+        Button {
+            dismiss()
+            gameState.resetGame()
+        } label: {
+            Label("New Game", systemImage: "arrow.clockwise")
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
     }
 }
 
