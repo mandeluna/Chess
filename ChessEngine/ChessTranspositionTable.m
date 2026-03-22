@@ -64,7 +64,7 @@
     return self;
 }
 
--(void)storeBoard:(ChessBoard *)aBoard value:(int)value type:(int)valueType depth:(int)depth stamp:(int)timeStamp {
+-(void)storeBoard:(ChessBoard *)aBoard value:(int)value type:(int)valueType depth:(int)depth stamp:(int)timeStamp bestMove:(int)bestMoveIndex {
     int key = [aBoard hashKey] & ([array count] - 1);
     ChessTTEntry *entry = [array objectAtIndex:key];
 
@@ -91,6 +91,7 @@
     entry.valueType = valueType;
     entry.depth = depth;
     entry.timeStamp = timeStamp;
+    entry.bestMoveIndex = bestMoveIndex;
 }
 
 #if !__has_feature(objc_arc)

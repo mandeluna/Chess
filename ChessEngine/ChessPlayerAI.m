@@ -286,8 +286,12 @@ Logger *logger;
         return nil;
     }
 
-    // sort move list according to history heuristics
+    // sort move list; promote TT best move to front if available
     [moveList sortUsing:historyTable];
+    ChessTTEntry *rootEntry = [transTable lookupBoard:theBoard];
+    if (rootEntry && rootEntry.bestMoveIndex) {
+        [moveList promoteMoveIndex:rootEntry.bestMoveIndex];
+    }
 
     // and search
     int a = alpha;
@@ -339,7 +343,7 @@ Logger *logger;
             if (score > a) {
                 a = score;
                 if (a >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp bestMove:([move sourceSquare] << 6) | [move destinationSquare]];
                     [historyTable addMove:move ply:depth];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -351,7 +355,8 @@ Logger *logger;
         move = [moveList next];
         [self checkForCancellation];
     }
-    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    int bestMoveIdx = goodMove ? (([goodMove sourceSquare] << 6) | [goodMove destinationSquare]) : 0;
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp bestMove:bestMoveIdx];
     [generator recycleMoveList:moveList];
 
     return goodMove;
@@ -407,7 +412,14 @@ Logger *logger;
         return bestScore;
     }
 
+    // sort move list; promote TT best move to front if available
+    [moveList sortUsing:historyTable];
+    if (entry && entry.bestMoveIndex) {
+        [moveList promoteMoveIndex:entry.bestMoveIndex];
+    }
+
     // and search
+    int bestMoveIdx = 0;
     int a = alpha;
     int b = beta;
     BOOL notFirst = NO;
@@ -440,11 +452,12 @@ Logger *logger;
                     [self copyVariation:move];
                 }
                 bestScore = score;
+                bestMoveIdx = ([move sourceSquare] << 6) | [move destinationSquare];
             }
             if (score > a) {
                 a = score;
                 if (a >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:depth stamp:stamp bestMove:bestMoveIdx];
                     [historyTable addMove:move ply:depth];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -457,7 +470,7 @@ Logger *logger;
         move = [moveList next];
     }
 
-    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:depth stamp:stamp bestMove:bestMoveIdx];
     [generator recycleMoveList:moveList];
 
     return bestScore;
@@ -584,7 +597,8 @@ Logger *logger;
             if (score > alpha) {
                 alpha = score;
                 if (score >= beta) {
-                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:0 stamp:stamp];
+                    int mi = ([move sourceSquare] << 6) | [move destinationSquare];
+                    [transTable storeBoard:theBoard value:score type:(kValueBoundary | (ply & 1)) depth:0 stamp:stamp bestMove:mi];
                     [historyTable addMove:move ply:1];
                     alphaBetaCuts++;
                     [generator recycleMoveList:moveList];
@@ -596,7 +610,7 @@ Logger *logger;
         [self checkForCancellation];
     }
 
-    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:0 stamp:stamp];
+    [transTable storeBoard:theBoard value:bestScore type:(kValueAccurate | (ply & 1)) depth:0 stamp:stamp bestMove:0];
     [generator recycleMoveList:moveList];
 
     return bestScore;

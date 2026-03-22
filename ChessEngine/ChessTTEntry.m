@@ -11,7 +11,7 @@
 
 @implementation ChessTTEntry
 
-@synthesize value, valueType, depth, hashLock, timeStamp;
+@synthesize value, valueType, depth, hashLock, timeStamp, bestMoveIndex;
 
 -(ChessTTEntry *)initializeWithEntry:(ChessTTEntry *)entry {
   ChessTTEntry *newEntry = [self init];
@@ -21,6 +21,7 @@
   newEntry.depth = entry.depth;
   newEntry.hashLock = entry.hashLock;
   newEntry.timeStamp = entry.timeStamp;
+  newEntry.bestMoveIndex = entry.bestMoveIndex;
 
   return newEntry;
 }
@@ -34,6 +35,7 @@
 
 -(void)clear {
   value = valueType = timeStamp = depth = -1;
+  bestMoveIndex = 0;
 }
 
 @end

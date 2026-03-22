@@ -22,7 +22,7 @@
 
 -(void)clear;
 -(id)initWithBits:(int)nBits;
--(void)storeBoard:(ChessBoard *)aBoard value:(int)value type:(int)valueType depth:(int)depth stamp:(int)timeStamp;
+-(void)storeBoard:(ChessBoard *)aBoard value:(int)value type:(int)valueType depth:(int)depth stamp:(int)timeStamp bestMove:(int)bestMoveIndex;
 
 // lookup
 

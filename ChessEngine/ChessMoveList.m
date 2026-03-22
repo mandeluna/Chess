@@ -78,10 +78,21 @@
 #pragma mark sorting
 
 -(void)sortUsing:(ChessHistoryTable *)sorter {
+    [collection sortSubArrayFrom:startIndex to:readLimit using:^NSComparisonResult(ChessMove *a, ChessMove *b) {
+        return [sorter sorts:a before:b];
+    }];
+}
 
-  [collection sortSubArrayFrom:startIndex to:readLimit using:^NSComparisonResult(ChessMove *a, ChessMove *b) {
-    return [sorter sorts:a before:b];
-  }];
+-(void)promoteMoveIndex:(int)hashIndex {
+    for (int i = startIndex; i <= readLimit; i++) {
+        ChessMove *m = [collection objectAtIndex:i];
+        if ((([m sourceSquare] << 6) | [m destinationSquare]) == hashIndex) {
+            if (i != startIndex) {
+                [collection exchangeObjectAtIndex:i withObjectAtIndex:startIndex];
+            }
+            return;
+        }
+    }
 }
 
 #pragma mark printing

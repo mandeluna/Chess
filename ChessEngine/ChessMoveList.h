@@ -37,5 +37,6 @@
 // sorting
 
 -(void)sortUsing:(ChessHistoryTable *)sorter;
+-(void)promoteMoveIndex:(int)hashIndex;
 
 @end
