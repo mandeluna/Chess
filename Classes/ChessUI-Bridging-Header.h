@@ -20,4 +20,3 @@
 // UI classes
 #import "SquareLayer.h"
 #import "ChessPieceLayer.h"
-#import "GlyphView.h"
