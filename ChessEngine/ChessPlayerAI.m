@@ -418,6 +418,26 @@ Logger *logger;
         [moveList promoteMoveIndex:entry.bestMoveIndex];
     }
 
+    // Null-move pruning: pass the turn to the opponent at reduced depth.
+    // Skip when: depth is too shallow (≤2), we're in an endgame without non-pawn
+    // material (zugzwang risk), or we're already failing low (alpha at floor).
+    if (depth >= 3 && initialAlpha > kAlphaBetaMinVal) {
+        int nonPawnMaterial = theBoard.activePlayer.materialValue - theBoard.activePlayer.numPawns * 100;
+        if (nonPawnMaterial > 0) {
+            ChessBoard *nullBoard = [boardList objectAtIndex:ply];
+            [nullBoard copyBoard:theBoard];
+            [nullBoard nullMove];
+            ply++;
+            int R = depth > 6 ? 3 : 2;
+            int nullScore = -[self ngSearch:nullBoard depth:depth-1-R alpha:-initialBeta beta:-(initialBeta-1)];
+            ply--;
+            if (nullScore >= initialBeta) {
+                [generator recycleMoveList:moveList];
+                return nullScore;
+            }
+        }
+    }
+
     // and search
     int bestMoveIdx = 0;
     int a = alpha;
