@@ -142,12 +142,21 @@ Logger *logger;
 // TODO: depth 10 seems unattainable without intelligently sorting the move list
 //
 -(void)initializeTranspositionTable {
+    [self setHashSizeMB:32];  // default: bits=18, ~256k entries
+}
 
-//    transTable = [[ChessTranspositionTable alloc] initWithBits:16]; // 64k entries (maxes out at depth 7)
-    transTable = [[ChessTranspositionTable alloc] initWithBits:18]; // 256k entries (~34Mb, max depth 8)
-//    transTable = [[ChessTranspositionTable alloc] initWithBits:20]; // 1024k entries (~86Mb, max depth 9)
-    // [256k entries improve utilization on ipad] but startup on iPhone 3G is painfully slow
-    // timing on MacBook Air M1 (2021 model)
+-(void)setHashSizeMB:(int)mb {
+    // Each ObjC TT entry costs ~128 bytes; bits = floor(log2(mb) + 13) maps:
+    //   1 MB → bits 13 (~8k entries)
+    //   4 MB → bits 15 (~32k entries)
+    //  32 MB → bits 18 (~256k entries)  ← previous default
+    // 128 MB → bits 20 (~1M entries)
+    // 512 MB → bits 22 (~4M entries)
+    int bits = 0;
+    int val = MAX(1, mb);
+    while (val > 1) { bits++; val >>= 1; }
+    bits = MIN(MAX(bits + 13, 10), 24);
+    transTable = [[ChessTranspositionTable alloc] initWithBits:bits];
 }
 
 -(void)initializeBestVariation {

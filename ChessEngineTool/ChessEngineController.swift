@@ -165,7 +165,7 @@ class ChessEngineController {
     }
     
     private func reportOptions() {
-        respond("option name Hash type spin default 1 min 1 max 128")
+        respond("option name Hash type spin default 32 min 1 max 512")
     }
     
     private func sendOk() {
@@ -255,7 +255,20 @@ class ChessEngineController {
     }
     
     private func handleSetOption(_ args: [String]) {
-        // Handle engine configuration
-        respond("info string Option set: \(args.joined(separator: " "))")
+        // Expected format: name <Name> value <Value>
+        guard let nameIdx = args.firstIndex(of: "name"),
+              let valueIdx = args.firstIndex(of: "value"),
+              valueIdx > nameIdx else { return }
+        let name = args[(nameIdx + 1) ..< valueIdx].joined(separator: " ")
+        let value = args[(valueIdx + 1)...].joined(separator: " ")
+        switch name.lowercased() {
+        case "hash":
+            if let mb = Int32(value) {
+                engine.setHashSizeMB(mb)
+                respond("info string Hash set to \(mb) MB")
+            }
+        default:
+            respond("info string Unknown option: \(name)")
+        }
     }
 }

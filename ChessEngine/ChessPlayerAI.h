@@ -111,6 +111,7 @@ typedef void (^CompletionCallback)(NSDictionary* finalInfo, ChessSearchStatus st
 -(void)printUCIInfo:(NSDictionary *)info;
 -(void)printCompletionInfo:(NSDictionary *)info;
 -(void)initializeTranspositionTable;
+-(void)setHashSizeMB:(int)mb;
 -(void)initializeBestVariation;
 -(void)initializeActiveVariation;
 -(void)assignBestVariation;
