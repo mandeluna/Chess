@@ -9,18 +9,14 @@ import SwiftUI
 
 struct SideMenu: View {
     @EnvironmentObject var gameState: ChessGame
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
             header
             Divider()
             ScrollView {
-                VStack(spacing: 20) {
-                    analysisSection
-                    newGameSection
-                }
-                .padding(16)
+                analysisSection
+                    .padding(16)
             }
         }
         .frame(width: 280)
@@ -86,19 +82,6 @@ struct SideMenu: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: New Game
-
-    private var newGameSection: some View {
-        Button {
-            dismiss()
-            gameState.resetGame()
-        } label: {
-            Label("New Game", systemImage: "arrow.clockwise")
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-    }
 }
 
 // MARK: - Preview
