@@ -724,6 +724,11 @@ Logger *logger;
             if (depth_limit > 0 && depth > depth_limit) {
                 self.status = ChessSearchStatusStopped;
             }
+            // Stop iterative deepening once a forced mate/loss is confirmed —
+            // deeper iterations can only replay the same trivial TT path.
+            if (score >= kAlphaBetaMaxVal || score <= kAlphaBetaMinVal) {
+                self.status = ChessSearchStatusStopped;
+            }
         }
     }
 

@@ -165,7 +165,7 @@ class ChessEngineController {
     }
     
     private func reportOptions() {
-        respond("option name Hash type spin default 32 min 1 max 512")
+        respond("option name Hash type spin default 128 min 1 max 512")
     }
     
     private func sendOk() {
