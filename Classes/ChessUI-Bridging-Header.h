@@ -17,6 +17,3 @@
 #import "ChessTranspositionTable.h"
 #import "ChessHistoryTable.h"
 
-// UI classes
-#import "SquareLayer.h"
-#import "ChessPieceLayer.h"
