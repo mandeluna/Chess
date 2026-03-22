@@ -20,6 +20,7 @@ Options:
     --log FILE          Write results to this file in addition to stdout
                         (default: puzzle-results-<timestamp>.log)
     --seed N            Random seed for reproducible puzzle selection
+    --hash MB           Hash table size in MB (default: engine default, currently 32)
 """
 
 import argparse
@@ -76,9 +77,11 @@ class UCIEngine:
                 return lines
         return lines  # timed out
 
-    def init(self):
+    def init(self, hash_mb=None):
         self.send("uci")
         self.read_until("uciok", timeout=5.0)
+        if hash_mb is not None:
+            self.send(f"setoption name Hash value {hash_mb}")
         self.send("isready")
         self.read_until("readyok", timeout=10.0)
 
@@ -236,6 +239,8 @@ def main():
     parser.add_argument("--max-rating", type=int, default=None)
     parser.add_argument("--log", default=None, help="Log file path (default: auto-named)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
+    parser.add_argument("--hash", type=int, default=None, metavar="MB",
+                        help="Hash table size in MB (default: engine default)")
     args = parser.parse_args()
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -254,6 +259,8 @@ def main():
     log(f"Themes:   {theme_label}")
     log(f"Count:    {args.count}")
     log(f"Movetime: {args.movetime} ms")
+    if args.hash is not None:
+        log(f"Hash:     {args.hash} MB")
     if args.min_rating or args.max_rating:
         log(f"Rating:   {args.min_rating or '*'} – {args.max_rating or '*'}")
     log()
@@ -276,7 +283,7 @@ def main():
     # Start engine
     log("Starting engine…")
     engine = UCIEngine(args.engine)
-    engine.init()
+    engine.init(hash_mb=args.hash)
     log("Engine ready.\n")
 
     log(f"{'#':>4}  {'PuzzleId':<8}  {'Rating':>6}  {'Result':<6}  {'Engine':^20}  {'Expected':^20}  Themes")
@@ -291,7 +298,7 @@ def main():
             if not engine.is_alive():
                 log(f"  [engine crashed — restarting]")
                 engine = UCIEngine(args.engine)
-                engine.init()
+                engine.init(hash_mb=args.hash)
             engine.new_game()
             ok, engine_moves, expected_moves = run_puzzle(engine, fen, moves, args.movetime)
         except Exception as e:
