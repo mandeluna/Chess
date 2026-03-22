@@ -42,9 +42,6 @@ class ChessGame: ObservableObject {
     @Published var kingAttack: ChessMove? = nil
     @Published var statusMessage: String = ""
     @Published var currentPlayer: PieceColor = .white
-    @Published var showLegalMoves: Bool = true
-    @Published var highlightChecks: Bool = true
-    @Published var moveTime: Double = 0.0
     @Published var isThinking: Bool = false
     @Published var moveCount: Int = 0
     /// Current search depth reached by the engine (0 when not thinking).
@@ -91,6 +88,11 @@ class ChessGame: ObservableObject {
     private static let savedMovesKey = "savedMoves"
     private static let humanColorKey = "humanColor"
 
+    // Injected after init via attach(settings:)
+    private weak var settings: ChessSettings?
+    // Tracks the last hash size applied to the engine to avoid redundant reallocations.
+    private var appliedHashSizeMB: Int = 0
+
     init() {
         board = ChessBoard()
         board.initializeSearch()
@@ -101,6 +103,15 @@ class ChessGame: ObservableObject {
             humanColor = .black
         }
         restoreGame()
+    }
+
+    /// Called by ShambolicApp once both state objects exist. Sets the settings reference
+    /// and applies the initial hash size to the engine.
+    func attach(settings: ChessSettings) {
+        self.settings = settings
+        let mb = settings.hashSizeMB
+        board.searchAgent.setHashSizeMB(Int32(mb))
+        appliedHashSizeMB = mb
     }
 
     func resetGame() {
@@ -168,16 +179,43 @@ class ChessGame: ObservableObject {
     /// Trigger the engine to search if it is the engine's turn and no search is running.
     private func triggerEngineIfNeeded() {
         guard isEngineTurn, !isThinking else { return }
+        startEngineSearch()
+    }
+
+    /// Start an engine search using the current settings. Runs the search on a background
+    /// queue and calls applyEngineMove on the main queue when complete.
+    private func startEngineSearch() {
+        guard board.searchAgent.isReady() else { return }
         isThinking = true
         thinkingDepth = 0
         thinkingLine = ""
         board.searchAgent.setActivePlayer(board.activePlayer)
-        board.searchAgent.findMove({ [weak self] uciMove in
-            DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
-        }, update: { [weak self] info in
-            guard let info else { return }
-            self?.handleEngineUpdate(info as NSDictionary)
-        })
+
+        // Apply hash size if it has changed since last search.
+        let hashMB = settings?.hashSizeMB ?? 128
+        if hashMB != appliedHashSizeMB {
+            board.searchAgent.setHashSizeMB(Int32(hashMB))
+            appliedHashSizeMB = hashMB
+        }
+
+        let params = settings?.uciSearchParams ?? ["movetime": 5000]
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            autoreleasepool {
+                guard let self else { return }
+                self.board.searchAgent.performSearch(
+                    withUCIParams: params,
+                    updateCallback: { [weak self] info in
+                        guard let info else { return }
+                        self?.handleEngineUpdate(info as NSDictionary)
+                    },
+                    completionCallback: { [weak self] info, _ in
+                        let move = info?["bestmove"] as? String
+                        DispatchQueue.main.async { self?.applyEngineMove(move) }
+                    }
+                )
+            }
+        }
     }
 
     // MARK: - Board view delegate interface
@@ -212,16 +250,7 @@ class ChessGame: ObservableObject {
         let gameOver = apply(move: move)
         guard !gameOver else { return }
 
-        isThinking = true
-        thinkingDepth = 0
-        thinkingLine = ""
-        board.searchAgent.setActivePlayer(board.activePlayer)
-        board.searchAgent.findMove({ [weak self] uciMove in
-            DispatchQueue.main.async { self?.applyEngineMove(uciMove) }
-        }, update: { [weak self] info in
-            guard let info else { return }
-            self?.handleEngineUpdate(info as NSDictionary)
-        })
+        startEngineSearch()
     }
 
     private func applyEngineMove(_ uciMove: String?) {

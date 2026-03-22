@@ -98,4 +98,5 @@ struct MenuButton: View {
 #Preview {
     CompactTopMenu(showSidebar: .constant(false), showResign: .constant(false))
         .environmentObject(ChessGame())
+        .environmentObject(ChessSettings())
 }

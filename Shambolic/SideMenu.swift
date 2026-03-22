@@ -152,28 +152,16 @@ enum MenuTab: CaseIterable {
 // MARK: - Tab Content Views
 
 struct GameControlsView: View {
-    @EnvironmentObject var gameState: ChessGame
-    
+    @EnvironmentObject var settings: ChessSettings
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Game Controls")
                 .font(.headline)
-            
+
             VStack(spacing: 8) {
-                Toggle("Show Legal Moves", isOn: Binding(
-                    get: { gameState.showLegalMoves },
-                    set: { gameState.showLegalMoves = $0 }
-                ))
-                
-                Toggle("Highlight Checks", isOn: Binding(
-                    get: { gameState.highlightChecks },
-                    set: { gameState.highlightChecks = $0 }
-                ))
-                
-                Stepper("Move Time: \(gameState.moveTime)s", value: Binding(
-                    get: { Int(gameState.moveTime) },
-                    set: { gameState.moveTime = Double($0) }
-                ), in: 1...60)
+                Toggle("Show Legal Moves", isOn: $settings.showLegalMoves)
+                Toggle("Highlight Checks", isOn: $settings.highlightChecks)
             }
             .font(.system(size: 14))
         }
