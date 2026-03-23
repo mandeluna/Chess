@@ -306,6 +306,14 @@ Logger *logger;
             [generator recycleMoveList:moveList];
             [logger raiseExceptionName:@"invalid index into boardList" reason:reason];
         }
+
+        // If already cancelled before searching this move, don't corrupt goodMove
+        // with the kAlphaBetaMinVal that a cancelled ngSearch would return.
+        if (self.shouldCancelSearch) {
+            [generator recycleMoveList:moveList];
+            return goodMove;
+        }
+
         ChessBoard *newBoard = [boardList objectAtIndex:ply];
         [newBoard copyBoard:theBoard];
         [newBoard nextMove:move];
@@ -320,11 +328,6 @@ Logger *logger;
 
         notFirst = YES;
         ply--;
-
-        if (self.shouldCancelSearch) {
-            [generator recycleMoveList:moveList];
-            return nil;
-        }
 
         if (score != kAlphaBetaIllegal) {
             if (score > bestScore) {
@@ -351,6 +354,14 @@ Logger *logger;
                 }
             }
             b = a + 1;
+        }
+        // Check cancellation AFTER committing this move's score.  The score
+        // returned by a cancelled ngSearch (kAlphaBetaMinVal → negated to
+        // kAlphaBetaMaxVal) is unreliable; stop before it can overwrite
+        // goodMove on a subsequent loop iteration.
+        if (self.shouldCancelSearch) {
+            [generator recycleMoveList:moveList];
+            return goodMove;
         }
         move = [moveList next];
         [self checkForCancellation];
@@ -407,7 +418,15 @@ Logger *logger;
     if (nil == moveList)
         return -kAlphaBetaIllegal;
 
-    if ([moveList isEmpty] || self.shouldCancelSearch) {
+    if ([moveList isEmpty]) {
+        // No legal moves for the active player = stalemate. Return 0 (draw),
+        // not kAlphaBetaMinVal — the parent negates the return value, so a
+        // wrong -30000 here would appear as +30000 (near-checkmate win) to
+        // the calling node, causing the engine to seek out stalemates.
+        [generator recycleMoveList:moveList];
+        return 0;
+    }
+    if (self.shouldCancelSearch) {
         [generator recycleMoveList:moveList];
         return bestScore;
     }
@@ -718,12 +737,16 @@ Logger *logger;
         updateInfo[@"depth"] = @(depth);
 
         // Check cancellation BEFORE checking theMove == nil: a cancelled search
-        // may return nil from negaScout even though the position has legal moves.
+        // may return a partial result from negaScout.
         if (self.shouldCancelSearch) {
             self.status = ChessSearchStatusStopped;
             updateInfo[@"stop_reason"] = @"search cancelled";
-            // myMove may still be nil if cancelled before depth 1 completes;
-            // the completion handler will treat a nil/null move gracefully.
+            // If depth 1 was cancelled before completing, myMove is still the initial
+            // null move.  Use the partial result from the cancelled iteration so that
+            // we always have at least one legal move to report.
+            if (theMove != nil && (myMove == nil || [myMove isNullMove])) {
+                self.myMove = theMove;
+            }
         }
         else if (theMove == nil) {
             // No legal moves (checkmate / stalemate).
@@ -757,17 +780,29 @@ Logger *logger;
     NSMutableDictionary *completionInfo = [[self reportInfo:board] mutableCopy];
     completionInfo[@"depth"] = @(depth);
 
-    if (myMove != nil) {
+    if (myMove != nil && ![myMove isNullMove]) {
         bestMove = [myMove copy];
 #if !__has_feature(objc_arc)
     [bestMove autorelease];
 #endif
     }
     else {
-        // TODO: what is the point of nullMove -- do we even use this for anything?
-        bestMove = [ChessMove nullMove];
+        // Search cancelled before depth 1 completed (or no legal moves).
+        // Try to pick any legal move so we don't send bestmove 0000 in a live position.
+        ChessMoveList *fallbackList = [generator findPossibleMovesFor:board.activePlayer];
+        ChessMove *firstMove = [fallbackList next];
+        bestMove = firstMove ? [firstMove copy] : nil;
+#if !__has_feature(objc_arc)
+        [bestMove autorelease];
+#endif
+        [generator recycleMoveList:fallbackList];
+        if (bestMove) {
+            [logger logMessage:@"WARNING: search produced no best move; using fallback first legal move"];
+        } else {
+            [logger logMessage:@"WARNING: no legal moves in position — sending bestmove 0000"];
+        }
     }
-    completionInfo[@"bestmove"] = [bestMove uciString];
+    completionInfo[@"bestmove"] = bestMove ? [bestMove uciString] : @"0000";
 
     if (completionCallback) {
         dispatch_async(dispatch_queue, ^{
@@ -911,11 +946,11 @@ Logger *logger;
 }
 
 - (void)printCompletionInfo:(NSDictionary *)info {
-    NSString *info_string = [NSString stringWithFormat: @"info string %@", info[@"stop_reason"]];
-    printf("%s\n", [info_string UTF8String]);
+    if (info[@"stop_reason"]) {
+        printf("info string %s\n", [info[@"stop_reason"] UTF8String]);
+    }
     printf("bestmove %s\n", [info[@"bestmove"] UTF8String]);
     fflush(stdout);
-    [logger logDebug: @"> %@", info_string];
     [logger logDebug: @"> bestmove %@", info[@"bestmove"]];
 
     if ([board hasUserAgent]) {

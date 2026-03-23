@@ -27,6 +27,8 @@
 
 static int HashKeys[12][64];
 static int HashLocks[12][64];
+static int NullMoveHashKey;
+static int NullMoveHashLock;
 
 +(void)initializeHashKeys {
 
@@ -37,6 +39,8 @@ static int HashLocks[12][64];
       HashLocks[i][j] = rand();
     }
   }
+  NullMoveHashKey  = rand();
+  NullMoveHashLock = rand();
 
 }
 
@@ -272,6 +276,9 @@ int halfmoveClock;
 -(void)nullMove {
     _activePlayer = (_whitePlayer == _activePlayer) ? _blackPlayer : _whitePlayer;
     [_activePlayer prepareNextMove];
+    // Differentiate null-move positions from the original position in the TT.
+    _hashKey  ^= NullMoveHashKey;
+    _hashLock ^= NullMoveHashLock;
 }
 
 -(void)undoMove:(ChessMove *)move {
@@ -318,8 +325,7 @@ NSArray *blackEmoji = @[@"♟", @"♞", @"♝", @"♜", @"♛", @"♚"];
 -(NSString *)printPieces {
   NSMutableString *result = [NSMutableString string];
 
-//  [result appendString: [NSString stringWithFormat: @"\nkey: %d, lock: %d", _hashKey, _hashLock]];
-  NSString *nextString = (_activePlayer == _whitePlayer) ? @"White to Move" : @"Black to Move";
+  NSString *nextString = (_activePlayer == _whitePlayer) ? @"White to Play" : @"Black to Play";
   [result appendString: nextString];
 
   [result appendString: @"\n╔═╤═╤═╤═╤═╤═╤═╤═╗╮"];

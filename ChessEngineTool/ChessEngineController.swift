@@ -153,12 +153,13 @@ class ChessEngineController {
         if let userInfo = Bundle.main.infoDictionary {
             guard
                 let displayName = userInfo["CFBundleDisplayName"] as? String,
-                let version = userInfo["CFBundleShortVersionString"] as? String,
+                let major = userInfo["CFBundleShortVersionString"] as? String,
+                let minor = userInfo["CFBundleVersion"] as? String,
                 let author = userInfo["NSHumanReadableCopyright"] as? String
             else {
                 return
             }
-            respond("id name \(displayName) \(version)")
+            respond("id name \(displayName) \(major).\(minor)")
             respond("id author \(author)")
             respond("info string session id \(logger.sessionId!)")
         }

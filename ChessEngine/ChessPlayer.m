@@ -25,9 +25,17 @@ static int PieceCenterScores[7][64] = {
 
     { 0 },
 
-    // PieceCenterScores[kPawn]
-
-    { 0 },
+    // PieceCenterScores[kPawn] -- white's perspective, rank 1 = index 0..7
+    {
+         0,  0,  0,  0,  0,  0,  0,  0,
+         0,  0,  0, -5, -5,  0,  0,  0,
+         5,  5,  5,  5,  5,  5,  5,  5,
+         5,  5, 10, 15, 15, 10,  5,  5,
+         8,  8, 12, 18, 18, 12,  8,  8,
+        12, 12, 15, 18, 18, 15, 12, 12,
+        18, 20, 20, 22, 22, 20, 20, 18,
+         0,  0,  0,  0,  0,  0,  0,  0
+    },
 
     // PieceCenterScores[kKnight]
     {
@@ -53,9 +61,17 @@ static int PieceCenterScores[7][64] = {
         -2,	-2,	-2,	-2,	-2,	-2,	-2,	-2
     },
 
-    // PieceCenterScores[kRook]
-
-    { 0 },
+    // PieceCenterScores[kRook] -- white's perspective; 7th rank bonus
+    {
+         0,  0,  2,  4,  4,  2,  0,  0,
+        -2, -2,  0,  2,  2,  0, -2, -2,
+        -2, -2,  0,  2,  2,  0, -2, -2,
+        -2, -2,  0,  2,  2,  0, -2, -2,
+        -2, -2,  0,  2,  2,  0, -2, -2,
+        -2, -2,  0,  2,  2,  0, -2, -2,
+        10, 10, 10, 10, 10, 10, 10, 10,
+         0,  0,  2,  4,  4,  2,  0,  0
+    },
 
     // PieceCenterScores[kQueen]
     {
@@ -69,9 +85,29 @@ static int PieceCenterScores[7][64] = {
         -3,	0,	0,	0,	0,	0,	0,	-3
     },
 
-    // PieceCenterScores[kKing]
+    // PieceCenterScores[kKing] -- white's middlegame perspective; prefer castled back rank
+    {
+        15, 20, 10,  0,  0, 10, 20, 15,
+         5,  5,  0, -5, -5,  0,  5,  5,
+        -5,-10,-10,-15,-15,-10,-10, -5,
+       -10,-15,-20,-25,-25,-20,-15,-10,
+       -15,-20,-25,-30,-30,-25,-20,-15,
+       -20,-25,-30,-35,-35,-30,-25,-20,
+       -25,-30,-35,-40,-40,-35,-30,-25,
+       -30,-35,-40,-45,-45,-40,-35,-30
+    }
+};
 
-    { 0 }
+// King endgame centralization table (symmetric — same for both colours)
+static int KingEndgameScores[64] = {
+    -20,-10,-10,-10,-10,-10,-10,-20,
+    -10,  0,  5,  5,  5,  5,  0,-10,
+    -10,  5, 10, 15, 15, 10,  5,-10,
+    -10,  5, 15, 20, 20, 15,  5,-10,
+    -10,  5, 15, 20, 20, 15,  5,-10,
+    -10,  5, 10, 15, 15, 10,  5,-10,
+    -10,  0,  5,  5,  5,  5,  0,-10,
+    -20,-10,-10,-10,-10,-10,-10,-20,
 };
 
 @implementation ChessPlayer
@@ -152,7 +188,8 @@ static int PieceCenterScores[7][64] = {
 
   pieces[square] = piece;
   materialValue += PieceValues[piece];
-  positionalValue += PieceCenterScores[piece][square];
+  int pstSquare = [self isWhitePlayer] ? square : (square ^ 56);
+  positionalValue += PieceCenterScores[piece][pstSquare];
 
   if (kPawn == piece) {
       numPawns++;
@@ -189,8 +226,9 @@ static int PieceCenterScores[7][64] = {
 -(void)movePiece:(int)piece from:(int)sourceSquare to:(int)destSquare {
 
   int *score = PieceCenterScores[piece];
-  positionalValue -= score[sourceSquare];
-  positionalValue += score[destSquare];
+  BOOL isWhite = [self isWhitePlayer];
+  positionalValue -= score[isWhite ? sourceSquare : (sourceSquare ^ 56)];
+  positionalValue += score[isWhite ? destSquare   : (destSquare   ^ 56)];
   pieces[sourceSquare] = 0;
   pieces[destSquare] = piece;
 
@@ -202,7 +240,8 @@ static int PieceCenterScores[7][64] = {
 
     pieces[square] = 0;
     materialValue -= PieceValues[piece];
-    positionalValue -= PieceCenterScores[piece][square];
+    int pstSquare = [self isWhitePlayer] ? square : (square ^ 56);
+    positionalValue -= PieceCenterScores[piece][pstSquare];
 
     [board updateHash:piece at:square from:self];
 
@@ -228,8 +267,9 @@ static int PieceCenterScores[7][64] = {
 
     pieces[square] = newPiece;
     materialValue = materialValue - PieceValues[oldPiece] + PieceValues[newPiece];
-    positionalValue -= PieceCenterScores[oldPiece][square];
-    positionalValue += PieceCenterScores[newPiece][square];
+    int pstSquare = [self isWhitePlayer] ? square : (square ^ 56);
+    positionalValue -= PieceCenterScores[oldPiece][pstSquare];
+    positionalValue += PieceCenterScores[newPiece][pstSquare];
 
     if (kPawn == oldPiece) {
         numPawns--;
@@ -388,24 +428,46 @@ static int PieceCenterScores[7][64] = {
     }
 
     // see if a rook has moved
-    if (kRook != [move movingPiece]) {
-        return;
+    if (kRook == [move movingPiece]) {
+        if ([self isWhitePlayer]) {
+            if (0 == [move sourceSquare]) {
+                castlingStatus |= kCastlingDisableQueenSide;
+            }
+            else if (7 == [move sourceSquare]) {
+                castlingStatus |= kCastlingDisableKingSide;
+            }
+        }
+        else {
+            if (56 == [move sourceSquare]) {
+                castlingStatus |= kCastlingDisableQueenSide;
+            }
+            else if (63 == [move sourceSquare]) {
+                castlingStatus |= kCastlingDisableKingSide;
+            }
+        }
     }
 
-    if ([self isWhitePlayer]) {
-        if (0 == [move sourceSquare]) {
-            castlingStatus |= kCastlingDisableQueenSide;
+    // If a rook was captured on its starting square, disable that side's
+    // castling for the opponent (whose rook was just taken).
+    if (kRook == [move capturedPiece]) {
+        int dest = [move destinationSquare];
+        if ([self isWhitePlayer]) {
+            // White captured Black's rook
+            if (dest == 56) {
+                [opponent setCastlingFlags:kCastlingDisableQueenSide];
+            }
+            else if (dest == 63) {
+                [opponent setCastlingFlags:kCastlingDisableKingSide];
+            }
         }
-        else if (7 == [move sourceSquare]) {
-            castlingStatus |= kCastlingDisableKingSide;
-        }
-    }
-    else {
-        if (56 == [move sourceSquare]) {
-            castlingStatus |= kCastlingDisableQueenSide;
-        }
-        else if (63 == [move sourceSquare]) {
-            castlingStatus |= kCastlingDisableKingSide;
+        else {
+            // Black captured White's rook
+            if (dest == 0) {
+                [opponent setCastlingFlags:kCastlingDisableQueenSide];
+            }
+            else if (dest == 7) {
+                [opponent setCastlingFlags:kCastlingDisableKingSide];
+            }
         }
     }
 }
@@ -580,7 +642,48 @@ static int PieceCenterScores[7][64] = {
 
 -(int)evaluate {
 
-    return [self evaluateMaterial] + [self evaluatePosition];
+    return [self evaluateMaterial] + [self evaluatePosition] + [self evaluateKingActivity];
+}
+
+//
+// King endgame centralization bonus. Scales from 0 (full material) to full
+// weight (king vs king). Uses a fresh scan rather than the incremental PST so
+// we can switch tables based on the current phase without architectural changes.
+//
+-(int)evaluateKingActivity {
+
+    int myNPM       = materialValue  - numPawns * 100;
+    int oppNPM      = [opponent materialValue] - [opponent numPawns] * 100;
+    int totalNPM    = myNPM + oppNPM;
+
+    // In the middlegame the king PST is already captured in positionalValue.
+    // Only add an endgame bonus when material is significantly reduced.
+    if (totalNPM > 2600) return 0;
+
+    // Find king squares (scan is cheap — only called at leaf nodes).
+    int myKingSquare  = -1;
+    int oppKingSquare = -1;
+    unsigned char *myPieces  = [self pieces];
+    unsigned char *oppPieces = [opponent pieces];
+
+    for (int sq = 0; sq < 64; sq++) {
+        if (myPieces[sq]  == kKing) myKingSquare  = sq;
+        if (oppPieces[sq] == kKing) oppKingSquare = sq;
+        if (myKingSquare >= 0 && oppKingSquare >= 0) break;
+    }
+
+    if (myKingSquare < 0 || oppKingSquare < 0) return 0;
+
+    // Mirror for Black so the table is always read from White's perspective.
+    int myPSTSquare  = [self isWhitePlayer] ? myKingSquare  : (myKingSquare  ^ 56);
+    int oppPSTSquare = [self isWhitePlayer] ? (oppKingSquare ^ 56) : oppKingSquare;
+
+    int myScore  = KingEndgameScores[myPSTSquare];
+    int oppScore = KingEndgameScores[oppPSTSquare];
+
+    // Scale: 0 at totalNPM >= 2600, full weight at totalNPM == 0.
+    int endgameScore = (myScore - oppScore) * (2600 - totalNPM) / 2600;
+    return endgameScore;
 }
 
 //
