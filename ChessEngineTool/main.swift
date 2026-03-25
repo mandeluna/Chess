@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ChessEngine
 
 UserDefaults.standard.register(defaults: [
     debug_level_key: debug_level_verbose

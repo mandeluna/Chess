@@ -82,7 +82,7 @@ extension ChessBoard {
      * 6. Fullmove number: The number of the full moves. It starts at 1 and is incremented after Black's move.
      */
     @objc
-    func initializeFromFEN(_ fen: String) {
+    public func initializeFromFEN(_ fen: String) {
         let components = fen.split(separator: " ")
         let len = components.count
         if len == 0 {

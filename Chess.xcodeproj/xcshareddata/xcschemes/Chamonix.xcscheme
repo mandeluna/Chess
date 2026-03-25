@@ -53,8 +53,8 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/steve/Development/Chess/uci_moves.txt"
-            isEnabled = "NO">
+            argument = "/Users/swart/Chess/illegal_moves.uci"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

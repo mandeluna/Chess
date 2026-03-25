@@ -6,6 +6,7 @@
 //
 
 import Combine
+import ChessEngine
 import SwiftUI
 
 // MARK: - Settings Model
@@ -197,7 +198,8 @@ struct SettingsView: View {
     private var aboutSection: some View {
         Section {
             LabeledContent("Engine") {
-                Text("Built-in").foregroundStyle(.secondary)
+                Text("\(ChessEngineInfo.displayName) \(ChessEngineInfo.version) build \(ChessEngineInfo.buildNumber) (built-in)")
+                    .foregroundStyle(.secondary)
             }
         } header: {
             Text("About")

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ChessEngine
 
 func respond(_ message: String) {
     // Always include newline and flush
@@ -33,11 +34,10 @@ class ChessEngineController {
         
         switch parts[0].lowercased() {
         case "uci":
-            DispatchQueue.main.async {
-                self.identifyEngine()
-                self.reportOptions()
-                self.sendOk()
-            }
+            // Respond immediately — uciok must arrive before any other output.
+            identifyEngine()
+            reportOptions()
+            sendOk()
         case "ucinewgame":
             // Run on searchQueue so it is serialized with position/go and cannot
             // race with board.move(uci:) calls that touch the generator.
@@ -53,7 +53,6 @@ class ChessEngineController {
                 respond("readyok")
             }
         case "go":
-            // run go command asynchronously on the same queue that synchronous commands use
             let args = Array(parts.dropFirst())
             searchQueue.async {
                 if self.engine.status == .inProgress {
@@ -71,28 +70,27 @@ class ChessEngineController {
         case "debug":
             handleDebugCommand(Array(parts.dropFirst()))
         case "stop":
-            DispatchQueue.main.async {
-                self.handleStopCommand()
-            }
+            // Set the cancel flag synchronously so the search sees it immediately,
+            // regardless of which thread or queue this command arrives on.
+            handleStopCommand()
+        case "setoption":
+            handleSetOption(Array(parts.dropFirst()))
         case "ponder":
-            DispatchQueue.main.async {
+            // Pondering runs a blocking search — must be on searchQueue, not main.
+            searchQueue.async {
                 self.logger.log("queued ponder", level: Info)
                 self.waitForReady()
                 self.startPondering()
             }
-        case "setoption":
-            DispatchQueue.main.async {
-                self.handleSetOption(Array(parts.dropFirst()))
-            }
-        
+
         // non-standard commands
         case "show":
-            DispatchQueue.main.async {
+            searchQueue.async {
                 self.waitForReady()
                 self.handleShowCommand(Array(parts.dropFirst()))
             }
         case "move":
-            DispatchQueue.main.async {
+            searchQueue.async {
                 self.waitForReady()
                 if (parts.count > 1) {
                     self.handleMoveCommand(parts[1])
@@ -150,19 +148,12 @@ class ChessEngineController {
     }
 
     private func identifyEngine() {
-        if let userInfo = Bundle.main.infoDictionary {
-            guard
-                let displayName = userInfo["CFBundleDisplayName"] as? String,
-                let major = userInfo["CFBundleShortVersionString"] as? String,
-                let minor = userInfo["CFBundleVersion"] as? String,
-                let author = userInfo["NSHumanReadableCopyright"] as? String
-            else {
-                return
-            }
-            respond("id name \(displayName) \(major).\(minor)")
-            respond("id author \(author)")
-            respond("info string session id \(logger.sessionId!)")
-        }
+        let name = "\(ChessEngineInfo.displayName) \(ChessEngineInfo.version) build \(ChessEngineInfo.buildNumber)"
+        respond("id name \(name)")
+        respond("id author \(ChessEngineInfo.author)")
+        respond("info string session id \(logger.sessionId!)")
+
+        logger.logMessage("name \(name)")
     }
     
     private func reportOptions() {

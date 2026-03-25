@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import ChessEngine
 
 struct CapturedPieces {
     var white: [ChessPiece] = []
@@ -132,7 +133,7 @@ class ChessGame: ObservableObject {
         board.searchAgent.cancelSearch()
         board.initializeSearch()
         board.hasUserAgent = false
-        board.initialize(fromFEN: fen)
+        board.initializeFromFEN(fen)
         clearGameState()
         refreshFromBoard()
         triggerEngineIfNeeded()

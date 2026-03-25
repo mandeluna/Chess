@@ -1,8 +1,0 @@
-Crashed Chamonix when promoting black pawn from g6
-
-"8/7p/5p2/1K6/1P6/P1P2k2/6p1/8 b - - 0 40"
-
-Chamonix is not disambiguating the rook move e3e6 (says Re6 instead of Rhe6).
-There is another rook on e1 so the rank must be specified
-2q4r/r1p2kb1/1p2p3/p2p1pB1/7p/2P1R3/PP1Q1PPP/4R1K1 w - - 4 27
-
