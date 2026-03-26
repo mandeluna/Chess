@@ -96,7 +96,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var settings: ChessSettings
 
-    private let hashOptions = [32, 64, 128, 256]
+    private let hashOptions = [32, 64, 128, 256, 512]
     private let timeOptions: [(label: String, secs: Double)] = [
         ("1s", 1), ("3s", 3), ("5s", 5), ("10s", 10), ("30s", 30)
     ]

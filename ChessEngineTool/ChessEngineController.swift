@@ -197,6 +197,11 @@ class ChessEngineController {
                     uciParams[args[i]] = time
                     i += 1
                 }
+            case "movestogo":
+                if i+1 < args.count, let n = Int(args[i+1]) {
+                    uciParams["movestogo"] = n
+                    i += 1
+                }
             case "ponder":
                 uciParams["ponder"] = true
             default:
@@ -207,21 +212,37 @@ class ChessEngineController {
         }
         // Convert wtime/btime/winc/binc to a movetime if not already specified.
         // The engine plays whichever color is active on the board.
-        if uciParams["movetime"] == nil && uciParams["infinite"] == nil {
+        if uciParams["movetime"] == nil && uciParams["depth"] == nil && uciParams["infinite"] == nil {
             let isWhite = board.activePlayer == board.whitePlayer
             let remaining = (uciParams[isWhite ? "wtime" : "btime"] as? Int) ?? 0
             let increment = (uciParams[isWhite ? "winc" : "binc"] as? Int) ?? 0
             if remaining > 0 {
-                // Simple time allocation: use 1/30 of remaining time plus the increment,
-                // with a floor of 100ms so we always make at least a minimal search.
-                let movetime = max(100, remaining / 30 + increment)
+                let movetime = allocateTime(remaining: remaining, increment: increment,
+                                            movestogo: uciParams["movestogo"] as? Int)
                 uciParams["movetime"] = movetime
-                logger.log("time management: \(isWhite ? "white" : "black") remaining=\(remaining)ms inc=\(increment)ms → movetime=\(movetime)ms", level: Info)
+                let movestogoStr = (uciParams["movestogo"] as? Int).map { "/\($0)" } ?? ""
+                logger.log("time management: \(isWhite ? "white" : "black") remaining=\(remaining)ms inc=\(increment)ms movestogo\(movestogoStr) → movetime=\(movetime)ms", level: Info)
             }
         }
         self.engine.performSearch(withUCIParams: uciParams)
     }
     
+    /// Calculate how many milliseconds to allocate for the current move.
+    ///
+    /// When `movestogo` is provided (e.g. CCRL 40/15), we divide the remaining
+    /// time evenly across those moves plus a one-move buffer, then add the
+    /// increment.  When it is absent (sudden-death or Fischer clock) we estimate
+    /// ~30 moves remain.  A 50 ms overhead reserve prevents flagging on lag.
+    private func allocateTime(remaining: Int, increment: Int, movestogo: Int?) -> Int {
+        let overhead = 50
+        let safeRemaining = max(0, remaining - overhead)
+        let divisor = (movestogo ?? 0) > 0 ? movestogo! + 1 : 30
+        let allocated = safeRemaining / divisor + increment
+        // Never spend more than half the remaining time on a single move (safety cap).
+        let capped = min(allocated, safeRemaining / 2)
+        return max(100, capped)
+    }
+
     private func stopSearch() {
         engine.cancelSearch()
         isPondering = false
