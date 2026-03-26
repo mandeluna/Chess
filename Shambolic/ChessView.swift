@@ -198,6 +198,7 @@ struct ScoreBar: View {
 
 struct PGNHistoryView: View {
     @EnvironmentObject var gameState: ChessGame
+    @State private var showCopied = false
 
     /// Pair up SAN moves: [(moveNumber, white, black?)]
     private var movePairs: [(Int, String, String?)] {
@@ -211,6 +212,16 @@ struct PGNHistoryView: View {
             i += 2
         }
         return pairs
+    }
+
+    private func copyPGN() {
+        UIPasteboard.general.string = gameState.pgn
+        showCopied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.easeOut(duration: 0.25)) {
+                showCopied = false
+            }
+        }
     }
 
     var body: some View {
@@ -256,6 +267,18 @@ struct PGNHistoryView: View {
             }
         }
         .background(Color(.systemBackground))
+        .onLongPressGesture(perform: copyPGN)
+        .overlay(alignment: .center) {
+            if showCopied {
+                Text("Copied!")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    .transition(.opacity)
+            }
+        }
     }
 }
 

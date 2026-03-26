@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		69A00A9A2F7447AE00C5EE3F /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		69A00A9B2F759DB200C5EE3F /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA46E0872E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
 		AA46E08A2E85F36C00839E11 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
@@ -83,6 +84,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				69A00A9B2F759DB200C5EE3F /* ChessEngine.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;

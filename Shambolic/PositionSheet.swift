@@ -22,15 +22,12 @@ struct PositionSheet: View {
         return "\(gameState.pgn)\n\nFEN: \(fenText)"
     }
 
-    // Lichess analysis URL: piece placement uses / as rank separator (URL path segments),
-    // remaining FEN fields are joined with _ instead of spaces.
     private var lichessURL: URL? {
-        let fen = fenText.trimmingCharacters(in: .whitespaces)
-        let parts = fen.components(separatedBy: " ")
-        guard let placement = parts.first, !placement.isEmpty else { return nil }
-        let rest = parts.dropFirst().joined(separator: "_")
-        let path = rest.isEmpty ? placement : "\(placement)_\(rest)"
-        return URL(string: "https://lichess.org/analysis/\(path)")
+        let pgn = gameState.pgn
+        guard !pgn.isEmpty,
+              let encoded = pgn.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        else { return nil }
+        return URL(string: "https://lichess.org/paste?pgn=\(encoded)")
     }
 
     private var canLoad: Bool {
