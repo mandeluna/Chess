@@ -340,11 +340,22 @@ class ChessGame: ObservableObject {
     }
 
     private func piecesFromBoard() -> [ChessPiece?] {
-        (0..<64).map { square in
-            let wp = board.whitePlayer.piece(at: Int32(square))
-            if wp > 0 { return ChessPiece(piece: wp, square: square, isWhite: true) }
-            let bp = board.blackPlayer.piece(at: Int32(square))
-            if bp > 0 { return ChessPiece(piece: bp, square: square, isWhite: false) }
+        // After castling, applyCastle*SideMove stamps the rook's destination square with
+        // kKing as a sentinel (restored to kRook by prepareNextMove on the next turn).
+        // Read those squares here so we can correct the sentinel before building pieces.
+        let whiteCastleRookSq = Int(board.whitePlayer.castlingRookSquare)
+        let blackCastleRookSq = Int(board.blackPlayer.castlingRookSquare)
+        return (0..<64).map { square in
+            var wp = board.whitePlayer.piece(at: Int32(square))
+            if wp > 0 {
+                if square == whiteCastleRookSq { wp = Int32(kRook) }
+                return ChessPiece(piece: wp, square: square, isWhite: true)
+            }
+            var bp = board.blackPlayer.piece(at: Int32(square))
+            if bp > 0 {
+                if square == blackCastleRookSq { bp = Int32(kRook) }
+                return ChessPiece(piece: bp, square: square, isWhite: false)
+            }
             return nil
         }
     }
