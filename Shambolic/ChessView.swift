@@ -284,4 +284,6 @@ struct PGNHistoryView: View {
 
 #Preview {
     ChessView()
+        .environmentObject(ChessGame())
+        .environmentObject(ChessSettings())
 }

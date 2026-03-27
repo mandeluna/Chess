@@ -4,11 +4,13 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - History Tab
 
 struct GameHistoryView: View {
     @EnvironmentObject var gameState: ChessGame
+    @Environment(\.dismiss) private var dismiss
     @State private var pendingLoad: GameRecord?
 
     var body: some View {
@@ -24,9 +26,11 @@ struct GameHistoryView: View {
                     GameHistoryRow(record: record)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            guard !record.isCurrent else { return }
-                            if gameState.isGameOver || gameState.moveHistory.isEmpty {
+                            if record.isCurrent {
+                                dismiss()
+                            } else if gameState.isGameOver || gameState.moveHistory.isEmpty {
                                 gameState.loadGame(record)
+                                dismiss()
                             } else {
                                 pendingLoad = record
                             }
@@ -45,6 +49,7 @@ struct GameHistoryView: View {
             Button("Load", role: .destructive) {
                 if let r = pendingLoad { gameState.loadGame(r) }
                 pendingLoad = nil
+                dismiss()
             }
             Button("Cancel", role: .cancel) { pendingLoad = nil }
         } message: {
@@ -85,11 +90,6 @@ private struct GameHistoryRow: View {
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
-                Text(displayPGN.isEmpty ? "No moves" : displayPGN)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
                 if let cp = displayCP {
                     let pawns = Double(cp) / 100.0
                     Text(pawns >= 0 ? String(format: "+%.2f", pawns) : String(format: "%.2f", pawns))
@@ -143,22 +143,21 @@ struct BoardThumbnailView: View {
                     context.fill(Path(rect), with: .color((rank + file) % 2 == 0 ? dark : light))
                 }
             }
-            for (square, symbol) in parsedPieces {
+            for (square, imageName) in parsedPieces {
                 let file = square % 8
                 let displayRank = 7 - (square / 8)
                 let rect = CGRect(x: CGFloat(file) * sq,
                                   y: CGFloat(displayRank) * sq,
                                   width: sq, height: sq)
-                context.draw(
-                    Text(symbol).font(.system(size: sq * 0.72)),
-                    in: rect
-                )
+                if let uiImage = UIImage(named: imageName) {
+                    context.draw(Image(uiImage: uiImage), in: rect)
+                }
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 3))
     }
 
-    private var parsedPieces: [(square: Int, symbol: String)] {
+    private var parsedPieces: [(square: Int, imageName: String)] {
         let placement = fen.components(separatedBy: " ").first ?? ""
         var result: [(Int, String)] = []
         var rank = 7
@@ -168,8 +167,8 @@ struct BoardThumbnailView: View {
             case "/": rank -= 1; file = 0
             case "1"..."8": file += ch.wholeNumberValue ?? 1
             default:
-                if let sym = pieceSymbol(ch) {
-                    result.append((rank * 8 + file, sym))
+                if let name = pieceImageName(ch) {
+                    result.append((rank * 8 + file, name))
                 }
                 file += 1
             }
@@ -177,12 +176,14 @@ struct BoardThumbnailView: View {
         return result
     }
 
-    private func pieceSymbol(_ ch: Character) -> String? {
+    private func pieceImageName(_ ch: Character) -> String? {
         switch ch {
-        case "K": return "♔"; case "Q": return "♕"; case "R": return "♖"
-        case "B": return "♗"; case "N": return "♘"; case "P": return "♙"
-        case "k": return "♚"; case "q": return "♛"; case "r": return "♜"
-        case "b": return "♝"; case "n": return "♞"; case "p": return "♟"
+        case "K": return "whiteKingImage";   case "Q": return "whiteQueenImage"
+        case "R": return "whiteRookImage";   case "B": return "whiteBishopImage"
+        case "N": return "whiteKnightImage"; case "P": return "whitePawnImage"
+        case "k": return "blackKingImage";   case "q": return "blackQueenImage"
+        case "r": return "blackRookImage";   case "b": return "blackBishopImage"
+        case "n": return "blackKnightImage"; case "p": return "blackPawnImage"
         default: return nil
         }
     }

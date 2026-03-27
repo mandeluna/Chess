@@ -14,17 +14,19 @@ ENGINES_DIR="$(pwd)/test-engines"
 mkdir -p "$ENGINES_DIR"
 
 # ── Pulse (Java, ~1500–1700 ELO) ─────────────────────────────────────────────
-if [ ! -f "$ENGINES_DIR/pulse.jar" ]; then
+if [ ! -f "$ENGINES_DIR/pulse" ]; then
     TMP=$(mktemp -d)
     echo "==> Building Pulse in ${TMP}..."
     git clone --depth 1 https://github.com/fluxroot/pulse "$TMP/pulse"
-    # Use the repo's own wrapper (downloads the correct Gradle version) and build
-    # only the Java subproject — the Kotlin multiplatform subproject is incompatible
-    # with newer system Gradle versions.
-    (cd "$TMP/pulse" && ./gradlew -q :pulse-java:jar)
-    cp "$TMP/pulse"/pulse-java/build/libs/pulse-*.jar "$ENGINES_DIR/pulse.jar"
+    # Use the repo's own wrapper (downloads the correct Gradle version) and
+    # installDist for the Java subproject — the plain jar task produces a
+    # library JAR with no Main-Class manifest, so java -jar fails.
+    # installDist generates a launcher script with the classpath wired up.
+    (cd "$TMP/pulse" && ./gradlew -q :pulse-java:installDist)
+    cp -r "$TMP/pulse/pulse-java/build/install/pulse-java" "$ENGINES_DIR/pulse-dist"
+    ln -sf "$ENGINES_DIR/pulse-dist/bin/pulse-java" "$ENGINES_DIR/pulse"
     rm -rf "$TMP"
-    echo "    Pulse → $ENGINES_DIR/pulse.jar"
+    echo "    Pulse → $ENGINES_DIR/pulse (launcher script)"
 else
     echo "==> Pulse already built, skipping."
 fi

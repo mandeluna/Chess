@@ -35,7 +35,7 @@ struct ColorSelectionOverlay: View {
                         bordered: true,
                         action: { gameState.setHumanColor(.white) }
                     ) {
-                        PieceImage(named: "whiteKingImage.png")
+                        PieceImage(named: "whiteKingImage")
                     }
 
                     SideChoiceButton(
@@ -55,7 +55,7 @@ struct ColorSelectionOverlay: View {
                         bordered: true,
                         action: { gameState.setHumanColor(.black) }
                     ) {
-                        PieceImage(named: "blackKingImage.png")
+                        PieceImage(named: "blackKingImage")
                             .shadow(color: .white.opacity(0.55), radius: 3, x: 0, y: 0)
                     }
                 }

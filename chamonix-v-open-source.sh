@@ -24,7 +24,7 @@ case "$MODE" in
 esac
 
 # Sanity checks
-for f in "$CHAMONIX" "$ENGINE_DIR/pulse.jar" "$ENGINE_DIR/sunfish/sunfish_nnue.py" \
+for f in "$CHAMONIX" "$ENGINE_DIR/pulse" "$ENGINE_DIR/sunfish/sunfish.py" \
           "$ENGINE_DIR/vice" "$ENGINE_DIR/rustic"; do
     if [ ! -f "$f" ]; then
         echo "Missing: $f"
@@ -44,9 +44,7 @@ cutechess-cli \
             proto=uci \
             option.Hash=256 \
     -engine name=Pulse \
-            cmd=java \
-            arg=-jar \
-            arg="$ENGINE_DIR/pulse.jar" \
+            cmd="$ENGINE_DIR/pulse" \
             proto=uci \
     -engine name=Sunfish \
             cmd=python3 \

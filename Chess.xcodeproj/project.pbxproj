@@ -11,19 +11,6 @@
 		69A00A9B2F759DB200C5EE3F /* ChessEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AAAF98A92E3137770071E5C9 /* ChessEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */ = {isa = PBXBuildFile; fileRef = AA3B00572E88C1E40069BE8B /* chess.icon */; };
 		AA46E0872E85F2A600839E11 /* NSNotificationCenter+MainThread.m in Sources */ = {isa = PBXBuildFile; fileRef = AA887B8D2E1B12DF002AA7A4 /* NSNotificationCenter+MainThread.m */; };
-		AA46E08A2E85F36C00839E11 /* ChessGame.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAD847E72E739124007AC1E2 /* ChessGame.xcassets */; };
-		AA46E08D2E85F37A00839E11 /* blackKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FE12341DB500DC1CED /* blackKnightImage.png */; };
-		AA46E08E2E85F37A00839E11 /* whiteKnightImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F812341DB500DC1CED /* whiteKnightImage.png */; };
-		AA46E08F2E85F37A00839E11 /* whiteBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FA12341DB500DC1CED /* whiteBishopImage.png */; };
-		AA46E0902E85F37A00839E11 /* blackQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FC12341DB500DC1CED /* blackQueenImage.png */; };
-		AA46E0912E85F37A00839E11 /* blackPawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FD12341DB500DC1CED /* blackPawnImage.png */; };
-		AA46E0922E85F37A00839E11 /* whiteQueenImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F612341DB500DC1CED /* whiteQueenImage.png */; };
-		AA46E0932E85F37A00839E11 /* whitePawnImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F712341DB500DC1CED /* whitePawnImage.png */; };
-		AA46E0942E85F37A00839E11 /* whiteRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F512341DB500DC1CED /* whiteRookImage.png */; };
-		AA46E0952E85F37A00839E11 /* blackKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FF12341DB500DC1CED /* blackKingImage.png */; };
-		AA46E0962E85F37A00839E11 /* whiteKingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50F912341DB500DC1CED /* whiteKingImage.png */; };
-		AA46E0972E85F37A00839E11 /* blackBishopImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E510012341DB500DC1CED /* blackBishopImage.png */; };
-		AA46E0982E85F37A00839E11 /* blackRookImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 690E50FB12341DB500DC1CED /* blackRookImage.png */; };
 		AA58A9252E67778E0005DE9C /* ChessConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = AA58A9242E67778E0005DE9C /* ChessConstants.h */; };
 		AA58A9272E6777AA0005DE9C /* ChessConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = AA58A9262E6777A20005DE9C /* ChessConstants.m */; };
 		AA6C79722E5E380800263171 /* todo.md in Resources */ = {isa = PBXBuildFile; fileRef = AA6C796F2E5E380800263171 /* todo.md */; };
@@ -109,18 +96,6 @@
 		690A3D911262466B00E1173B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		690A3D971262467500E1173B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		690A3D9F1262468E00E1173B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		690E50F512341DB500DC1CED /* whiteRookImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteRookImage.png; sourceTree = "<group>"; };
-		690E50F612341DB500DC1CED /* whiteQueenImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteQueenImage.png; sourceTree = "<group>"; };
-		690E50F712341DB500DC1CED /* whitePawnImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whitePawnImage.png; sourceTree = "<group>"; };
-		690E50F812341DB500DC1CED /* whiteKnightImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteKnightImage.png; sourceTree = "<group>"; };
-		690E50F912341DB500DC1CED /* whiteKingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteKingImage.png; sourceTree = "<group>"; };
-		690E50FA12341DB500DC1CED /* whiteBishopImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteBishopImage.png; sourceTree = "<group>"; };
-		690E50FB12341DB500DC1CED /* blackRookImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackRookImage.png; sourceTree = "<group>"; };
-		690E50FC12341DB500DC1CED /* blackQueenImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackQueenImage.png; sourceTree = "<group>"; };
-		690E50FD12341DB500DC1CED /* blackPawnImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackPawnImage.png; sourceTree = "<group>"; };
-		690E50FE12341DB500DC1CED /* blackKnightImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKnightImage.png; sourceTree = "<group>"; };
-		690E50FF12341DB500DC1CED /* blackKingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackKingImage.png; sourceTree = "<group>"; };
-		690E510012341DB500DC1CED /* blackBishopImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackBishopImage.png; sourceTree = "<group>"; };
 		69357758164715F600BEE7BC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		69C483AE1218A87E00089898 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		69D353831257C6FF002E2FB9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -144,7 +119,6 @@
 		AAD6907F2E85D9C300CFCFED /* SquareLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareLayer.swift; sourceTree = "<group>"; };
 		AAD847E42E73612D007AC1E2 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
 		AAD847E62E736790007AC1E2 /* ChessUI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ChessUI-Bridging-Header.h"; sourceTree = "<group>"; };
-		AAD847E72E739124007AC1E2 /* ChessGame.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ChessGame.xcassets; sourceTree = "<group>"; };
 		AAEDD02A2E17112300A90C54 /* Chamonix */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chamonix; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -271,9 +245,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				692653C21220563000D527C5 /* Chess */,
 				8D1107310486CEB800E47090 /* Chess-Info.plist */,
-				AAD847E72E739124007AC1E2 /* ChessGame.xcassets */,
 				AA3B00572E88C1E40069BE8B /* chess.icon */,
 			);
 			name = Resources;
@@ -306,25 +278,6 @@
 				AAD690772E85D76300CFCFED /* ChessPiece.swift */,
 			);
 			name = "User Agent";
-			sourceTree = "<group>";
-		};
-		692653C21220563000D527C5 /* Chess */ = {
-			isa = PBXGroup;
-			children = (
-				690E50F512341DB500DC1CED /* whiteRookImage.png */,
-				690E50F612341DB500DC1CED /* whiteQueenImage.png */,
-				690E50F712341DB500DC1CED /* whitePawnImage.png */,
-				690E50F812341DB500DC1CED /* whiteKnightImage.png */,
-				690E50F912341DB500DC1CED /* whiteKingImage.png */,
-				690E50FA12341DB500DC1CED /* whiteBishopImage.png */,
-				690E50FB12341DB500DC1CED /* blackRookImage.png */,
-				690E50FC12341DB500DC1CED /* blackQueenImage.png */,
-				690E50FD12341DB500DC1CED /* blackPawnImage.png */,
-				690E50FE12341DB500DC1CED /* blackKnightImage.png */,
-				690E50FF12341DB500DC1CED /* blackKingImage.png */,
-				690E510012341DB500DC1CED /* blackBishopImage.png */,
-			);
-			name = Chess;
 			sourceTree = "<group>";
 		};
 		AA887B8B2E1B12A2002AA7A4 /* Extensions */ = {
@@ -513,20 +466,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA46E08D2E85F37A00839E11 /* blackKnightImage.png in Resources */,
-				AA46E08E2E85F37A00839E11 /* whiteKnightImage.png in Resources */,
-				AA46E08F2E85F37A00839E11 /* whiteBishopImage.png in Resources */,
-				AA46E0902E85F37A00839E11 /* blackQueenImage.png in Resources */,
 				AA3B005B2E88C1E40069BE8B /* chess.icon in Resources */,
-				AA46E0912E85F37A00839E11 /* blackPawnImage.png in Resources */,
-				AA46E0922E85F37A00839E11 /* whiteQueenImage.png in Resources */,
-				AA46E0932E85F37A00839E11 /* whitePawnImage.png in Resources */,
-				AA46E0942E85F37A00839E11 /* whiteRookImage.png in Resources */,
-				AA46E0952E85F37A00839E11 /* blackKingImage.png in Resources */,
-				AA46E0962E85F37A00839E11 /* whiteKingImage.png in Resources */,
-				AA46E0972E85F37A00839E11 /* blackBishopImage.png in Resources */,
-				AA46E0982E85F37A00839E11 /* blackRookImage.png in Resources */,
-				AA46E08A2E85F36C00839E11 /* ChessGame.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -289,19 +289,19 @@ class ChessBoardView: UIView {
 
     private func newPiece(_ piece: Int, white isWhite: Bool) -> ChessPieceLayer {
         let imageNames : [String] = [
-            "whitePawnImage.png",
-            "whiteKnightImage.png",
-            "whiteBishopImage.png",
-            "whiteRookImage.png",
-            "whiteQueenImage.png",
-            "whiteKingImage.png",
-            
-            "blackPawnImage.png",
-            "blackKnightImage.png",
-            "blackBishopImage.png",
-            "blackRookImage.png",
-            "blackQueenImage.png",
-            "blackKingImage.png"
+            "whitePawnImage",
+            "whiteKnightImage",
+            "whiteBishopImage",
+            "whiteRookImage",
+            "whiteQueenImage",
+            "whiteKingImage",
+
+            "blackPawnImage",
+            "blackKnightImage",
+            "blackBishopImage",
+            "blackRookImage",
+            "blackQueenImage",
+            "blackKingImage"
         ]
 
         let pieceLayer = ChessPieceLayer()
