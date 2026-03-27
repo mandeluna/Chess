@@ -10,13 +10,22 @@ import SwiftUI
 struct SideMenu: View {
     @EnvironmentObject var gameState: ChessGame
 
+    @State private var selectedTab = 0
+
     var body: some View {
         VStack(spacing: 0) {
             header
             Divider()
-            ScrollView {
-                analysisSection
-                    .padding(16)
+            TabView(selection: $selectedTab) {
+                ScrollView {
+                    analysisSection.padding(16)
+                }
+                .tabItem { Label("Analysis", systemImage: "chart.bar") }
+                .tag(0)
+
+                GameHistoryView()
+                    .tabItem { Label("History", systemImage: "clock") }
+                    .tag(1)
             }
         }
         .frame(width: 280)

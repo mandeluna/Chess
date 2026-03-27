@@ -88,9 +88,15 @@ class ChessGame: ObservableObject {
         }
     }
 
+    /// All stored games, current game first. Refreshed when a game is created, completed, or loaded.
+    @Published var allGames: [GameRecord] = []
+
     private var board: ChessBoard
     private static let savedMovesKey = "savedMoves"
     private static let humanColorKey = "humanColor"
+
+    private let store = GameStore()
+    private(set) var currentGameId: Int64?
 
     // Injected after init via attach(settings:)
     private weak var settings: ChessSettings?
@@ -107,6 +113,7 @@ class ChessGame: ObservableObject {
             humanColor = .black
         }
         restoreGame()
+        allGames = store.fetchAll()
     }
 
     /// Called by ShambolicApp once both state objects exist. Sets the settings reference
@@ -124,6 +131,7 @@ class ChessGame: ObservableObject {
         board.hasUserAgent = false
         board.initializeNewBoard()
         clearGameState()
+        currentGameId = nil
         refreshFromBoard()
         showColorSelection = true
     }
@@ -135,6 +143,11 @@ class ChessGame: ObservableObject {
         board.hasUserAgent = false
         board.initializeFromFEN(fen)
         clearGameState()
+        currentGameId = store.createGame(
+            humanColor: humanColor == .black ? "black" : "white",
+            startFEN: fen
+        )
+        allGames = store.fetchAll()
         refreshFromBoard()
         triggerEngineIfNeeded()
     }
@@ -144,6 +157,14 @@ class ChessGame: ObservableObject {
         humanColor = color
         UserDefaults.standard.set(color == .black ? "black" : "white", forKey: Self.humanColorKey)
         showColorSelection = false
+        // Create the game record now that we know the human's color.
+        if currentGameId == nil {
+            currentGameId = store.createGame(
+                humanColor: color == .black ? "black" : "white",
+                startFEN: nil
+            )
+            allGames = store.fetchAll()
+        }
         triggerEngineIfNeeded()
     }
 
@@ -304,7 +325,26 @@ class ChessGame: ObservableObject {
         moveCount += 1
         saveGame()
 
-        return refreshFromBoard()
+        let gameOver = refreshFromBoard()
+
+        if let id = currentGameId {
+            let uciString = moveHistory.map { $0.uciString() }.joined(separator: " ")
+            store.updateCurrent(id: id, pgn: pgn, uciMoves: uciString,
+                                finalFEN: currentFEN, cp: engineScore)
+            if gameOver {
+                store.completeGame(id: id, outcome: gameOutcome, finalCP: engineScore)
+                allGames = store.fetchAll()
+            }
+        }
+
+        return gameOver
+    }
+
+    /// Outcome string for the completed game. Must be called after refreshFromBoard()
+    /// has set isGameOver, currentPlayer, and kingAttack.
+    private var gameOutcome: String {
+        guard kingAttack != nil else { return "draw" }
+        return currentPlayer == .white ? "black" : "white"
     }
 
     // MARK: - State refresh
@@ -367,9 +407,22 @@ class ChessGame: ObservableObject {
         UserDefaults.standard.set(uciMoves, forKey: Self.savedMovesKey)
     }
 
-    /// Replay saved UCI moves at startup. Rebuilds all state without triggering
-    /// per-move UI refreshes. Falls back to a fresh board if any move is invalid.
+    /// Try to restore from the DB first; fall back to UserDefaults for first-launch migration.
     private func restoreGame() {
+        if let record = store.fetchCurrent() {
+            currentGameId = record.id
+            humanColor = record.humanColor
+            UserDefaults.standard.set(
+                record.humanColor == .black ? "black" : "white",
+                forKey: Self.humanColorKey
+            )
+            if let fen = record.startFEN { board.initializeFromFEN(fen) }
+            let uciMoves = record.uciMoves.split(separator: " ").map(String.init).filter { !$0.isEmpty }
+            replayMoves(uciMoves)
+            return
+        }
+
+        // Migration path: UserDefaults state from before the DB was introduced.
         guard let uciMoves = UserDefaults.standard.stringArray(forKey: Self.savedMovesKey),
               !uciMoves.isEmpty else {
             refreshFromBoard()
@@ -377,11 +430,32 @@ class ChessGame: ObservableObject {
             return
         }
 
-        var restored = true
+        replayMoves(uciMoves)
+
+        // Persist the migrated game so subsequent launches use the DB.
+        currentGameId = store.createGame(
+            humanColor: humanColor == .black ? "black" : "white",
+            startFEN: nil
+        )
+        if let id = currentGameId {
+            store.updateCurrent(id: id, pgn: pgn,
+                                uciMoves: uciMoves.joined(separator: " "),
+                                finalFEN: currentFEN, cp: engineScore)
+        }
+    }
+
+    /// Replay a sequence of UCI moves, rebuilding move history and SAN without per-move
+    /// UI refreshes. Resets to a clean board if any move is invalid.
+    private func replayMoves(_ uciMoves: [String]) {
+        guard !uciMoves.isEmpty else {
+            refreshFromBoard()
+            showColorSelection = !isEngineTurn
+            return
+        }
+
         for uci in uciMoves {
             guard let (from, to, promo) = parseUCI(uci),
                   let move = findMove(from: from, to: to, promotionPiece: promo) else {
-                // Saved state is corrupt — start fresh rather than leaving a half-replayed position.
                 board.initializeNewBoard()
                 moveHistory = []
                 moveHistorySAN = []
@@ -389,8 +463,9 @@ class ChessGame: ObservableObject {
                 lastMove = nil
                 moveCount = 0
                 UserDefaults.standard.removeObject(forKey: Self.savedMovesKey)
-                restored = false
-                break
+                refreshFromBoard()
+                showColorSelection = true
+                return
             }
 
             let san = move.sanString(for: board)
@@ -412,13 +487,30 @@ class ChessGame: ObservableObject {
         }
 
         refreshFromBoard()
+        triggerEngineIfNeeded()
+    }
 
-        if restored {
-            // If the engine is next to move (e.g. app killed mid-turn), resume the search.
-            triggerEngineIfNeeded()
+    /// Load a historical game record as the current game.
+    func loadGame(_ record: GameRecord) {
+        board.searchAgent.cancelSearch()
+        board.initializeSearch()
+        board.hasUserAgent = false
+        if let fen = record.startFEN {
+            board.initializeFromFEN(fen)
         } else {
-            showColorSelection = true
+            board.initializeNewBoard()
         }
+        clearGameState()
+        humanColor = record.humanColor
+        UserDefaults.standard.set(
+            record.humanColor == .black ? "black" : "white",
+            forKey: Self.humanColorKey
+        )
+        let uciMoves = record.uciMoves.split(separator: " ").map(String.init).filter { !$0.isEmpty }
+        replayMoves(uciMoves)
+        currentGameId = record.id
+        store.setCurrentGame(id: record.id)
+        allGames = store.fetchAll()
     }
 
     // MARK: - Move lookup (ObjC API, no ChessEngine Swift extensions needed)
